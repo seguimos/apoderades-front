@@ -1,6 +1,6 @@
 <template lang="pug">
 .root
-	| Hola mundo!
+	p Hola mundo!
 </template>
 
 <script>
