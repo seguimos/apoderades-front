@@ -1,5 +1,7 @@
 <template lang="pug">
 .main
+	.header
+		Navbar
 	Nuxt
 </template>
 
