@@ -8,10 +8,12 @@
 			cuenta
 	.conectado(v-else)
 		.menuLateral
+			b Menu lateral?
 			n-link.link(to='/cuenta') Tu cuenta
 			n-link.link(to='/cuenta/datos') Tu información
 			n-link.link(to='/cuenta/seguridad') Seguridad
 			n-link.link(to='/cuenta/privacidad' disabled) Privacidad
+			.link(@click="$cuenta.salir") Salir
 		.contenido
 			n-child
 
