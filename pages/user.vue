@@ -1,73 +1,87 @@
 <template lang="pug">
 .rootParticipa
-	.titulo Verificación de datos
-	.texto Revisa que tus datos hayan sido registrados correctamente, y corrigelos en caso de ser necesario.
+	.contenido
+		.titulo Verificación de datos
+		.texto Revisa que tus datos hayan sido registrados correctamente, y corrigelos en caso de ser necesario.
+		.formulario
+			a-form-model.suscribirse(
+				ref="formulario",
+				:model="formulario",
+				:rules="rules"
+			)
+				a-form-model-item(has-feedback, label="Nombre", prop="nombre")
+					a-input.input(
+						v-model="formulario.nombre",
+						type="nombre",
+						placeholder="Gabriel"
+					)
+				a-form-model-item(has-feedback, label="Apellido", prop="apellido")
+					a-input.input(
+						v-model="formulario.apellido",
+						type="apellido",
+						placeholder="Boric"
+					)
+				a-form-model-item(has-feedback, label="Rut", prop="rut")
+					a-input.input(v-model="formulario.rut", type="rut", placeholder="Rut")
+				a-form-model-item(has-feedback, label="Correo", prop="email")
+					a-input.input(
+						v-model="formulario.email",
+						type="email",
+						placeholder="Email"
+					)
 
-	a-form-model.suscribirse(
-		ref="formulario",
-		:model="formulario",
-		:rules="rules",
-	)
-		a-form-model-item(has-feedback, label="Nombre", prop="nombre")
-			a-input.input(
-				v-model="formulario.nombre",
-				type="nombre",
-				placeholder="Gabriel"
-			)
-		a-form-model-item(has-feedback, label="Apellido", prop="apellido")
-			a-input.input(
-				v-model="formulario.apellido",
-				type="apellido",
-				placeholder="Boric"
-			)
-		a-form-model-item(has-feedback, label="Rut", prop="rut")
-			a-input.input(v-model="formulario.rut", type="rut", placeholder="Rut")
-		a-form-model-item(has-feedback, label="Correo", prop="email")
-			a-input.input(
-				v-model="formulario.email",
-				type="email",
-				placeholder="Email"
-			)
+				a-form-model-item(has-feedback, label="Teléfono", prop="telefono")
+					a-input.input(
+						v-model="formulario.telefono",
+						type="tel",
+						placeholder="+56 x xxxx xxxx"
+					)
 
-		a-form-model-item(has-feedback, label="Teléfono", prop="telefono")
-			a-input.input(
-				v-model="formulario.telefono",
-				type="tel",
-				placeholder="+56 x xxxx xxxx"
-			)
+				.texto Dónde deseas participar como apoderado de mesa?
+				a-form-model-item(has-feedback, label="Región", prop="region")
+					a-select.input(
+						v-model="formulario.region",
+						@change="handleChange",
+						placeholder="Región"
+					)
+						a-select-option(
+							v-for="region in regiones",
+							:key="region.numero",
+							:value="region.nombre"
+						) {{ region.nombre }}
 
-		.texto Dónde deseas participar como apoderado de mesa?
-		a-form-model-item(has-feedback, label="Región", prop="region")
-			a-select.input(
-				v-model="formulario.region",
-				@change="handleChange",
-				placeholder="Región"
-			)
-				a-select-option(
-					v-for="region in regiones",
-					:key="region.numero",
-					:value="region.nombre"
-				) {{ region.nombre }}
+				a-form-model-item(
+					v-if="regionseleccionada",
+					has-feedback="",
+					label="Comuna",
+					prop="comuna"
+				)
+					a-select.input(
+						v-model="formulario.comuna",
+						placeholder="Comuna",
+						@change="handleComuna"
+					)
+						a-select-option(
+							v-for="comuna in comunas",
+							:key="comuna.codigo",
+							:value="comuna.nombre"
+						) {{ comuna.nombre }}
 
-		a-form-model-item(v-if="regionseleccionada", has-feedback="", label="Comuna", prop="comuna")
-			a-select.input(
-				v-model="formulario.comuna",
-				placeholder="Comuna",
-				@change="handleComuna"
-			)
-				a-select-option(
-					v-for="comuna in comunas",
-					:key="comuna.codigo",
-					:value="comuna.nombre"
-				) {{ comuna.nombre }}
+				a-form-model-item(
+					v-if="comunaSeleccionada",
+					has-feedback,
+					label="Local de Votación de Preferencia",
+					prop="local"
+				)
+					a-input.input(
+						v-model="formulario.local",
+						type="local",
+						placeholder="Local de votación"
+					)
 
-		a-form-model-item(v-if="comunaSeleccionada", has-feedback, label="Local de Votación de Preferencia", prop="local")
-			a-input.input(
-				v-model="formulario.local",
-				type="local",
-				placeholder="Local de votación"
-			)
-
+				.contenedorBoton
+					a-button(type="primary", @click="submitForm('formulario')")
+						| VALIDAR DATOS
 </template>
 
 <script>
@@ -175,12 +189,17 @@ export default {
 		}
 	},
 	computed: {
-		regiones () { return regionesComunas.regionesComunas },
+		regiones () {
+			return regionesComunas.regionesComunas
+		},
 		comunas () {
-			return this.regiones.find(element => element.nombre === this.regionseleccionada).comunas
+			return this.regiones.find(
+				element => element.nombre === this.regionseleccionada
+			).comunas
 		}
 	},
 	methods: {
+		// este metodo debe enviar lainformacion personal a criptocuentas y el resto del formulario al back
 		submitForm (formName) {
 			// console.log(this.formulario)
 			this.$refs[formName].validate(valid => {
@@ -241,3 +260,21 @@ export default {
 	}
 }
 </script>
+<style lang="sass" scoped>
+@import '~/estilos/utils'
+@import '~/estilos/paleta'
+
+.contenido
+	display: flex
+	flex-flow: column nowrap
+	padding: 1em
+	.titulo
+		font-size: 1.5rem
+		color: $azul1
+
+	.formulario
+		.contenedorBoton
+			display: flex
+			width: 100%
+			justify-content: center
+</style>
