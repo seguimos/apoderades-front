@@ -13,7 +13,7 @@ export default {
 	},
 	env: {
 		dev,
-		apiOrigin: dev ? 'https://capi.local.dev' : 'https://capi.lesapoderades.cl'
+		apiOrigin: process.env.LOCAL ? 'https://capi.local.dev' : 'https://capi.lesapoderades.cl'
 	},
 	// Global page headers: https://go.nuxtjs.dev/config-head
 	head: {
