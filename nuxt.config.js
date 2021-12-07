@@ -43,7 +43,17 @@ export default {
 	modules: [
 	],
 
+	googleFonts: {
+		donwload: true,
+		families: {
+			'Roboto+Slab': {
+				wght: [300, 400, 700, 900],
+				ital: [300, 400, 700, 900]
+			}
+		}
+	},
+
 	// Build Configuration: https://go.nuxtjs.dev/config-build
 	build: {
 	}
-};
+}
