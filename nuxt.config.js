@@ -1,12 +1,25 @@
+import path from 'path'
+import webpack from 'webpack'
+
+const dev = process.env.MODO === 'dev'
+
 export default {
 	// Target: https://go.nuxtjs.dev/config-target
 	target: 'static',
-
+	server: {
+		port: process.env.PORT || 3000,
+		host: '0.0.0.0', // default: localhost,
+		timing: false
+	},
+	env: {
+		dev,
+		apiOrigin: dev ? 'https://capi.local.dev' : 'https://capi.lesapoderades.cl'
+	},
 	// Global page headers: https://go.nuxtjs.dev/config-head
 	head: {
-		title: 'apoderades-front',
+		title: 'Apoderadas y Apoderados x Boric',
 		htmlAttrs: {
-			lang: 'en'
+			lang: 'es'
 		},
 		meta: [
 			{ charset: 'utf-8' },
@@ -28,6 +41,8 @@ export default {
 	plugins: [
 		'@/plugins/antd-ui',
 		'@/plugins/lodash',
+		'@/plugins/i18n',
+		'@/plugins/microCuentas',
 		{ src: '@/plugins/leaflet', mode: 'client' },
 		'plugins/localforage.js'
 	],
@@ -57,5 +72,15 @@ export default {
 
 	// Build Configuration: https://go.nuxtjs.dev/config-build
 	build: {
+		extend (config, ctx) {
+			config.resolve.alias['@style'] = path.join(__dirname, 'style')
+			config.resolve.alias['@mainlib'] = path.join(__dirname, 'lib')
+		},
+		plugins: [
+			new webpack.IgnorePlugin({
+				resourceRegExp: /^\.\/locale$/,
+				contextRegExp: /moment$/
+			})
+		]
 	}
 }

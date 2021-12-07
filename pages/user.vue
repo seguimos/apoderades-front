@@ -261,8 +261,8 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
-@import '~/estilos/utils'
-@import '~/estilos/paleta'
+@import '@style/utils'
+@import '@style/paleta'
 
 .contenido
 	display: flex

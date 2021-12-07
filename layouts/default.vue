@@ -28,8 +28,8 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~/estilos/colores'
-@import '~/estilos/paleta'
+@import '@style/colores'
+@import '@style/paleta'
 
 .main
 	min-height: 100vh

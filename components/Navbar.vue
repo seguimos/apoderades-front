@@ -15,7 +15,7 @@
 
 		mixin links
 			.links.contenedor-links.link-interno
-				nuxt-link.link.bold.destacado(to="/apoderades") Apoderados
+				nuxt-link.link.bold.destacado(to="/app") Apoderados
 
 		.menuCompu
 			+links
@@ -54,8 +54,8 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
-@import '~/estilos/utils'
-@import '~/estilos/paleta'
+@import '@style/utils'
+@import '@style/paleta'
 
 .listaSpotify
 	position: fixed

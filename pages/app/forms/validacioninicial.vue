@@ -370,8 +370,8 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import '~/estilos/paleta'
-@import '~/estilos/utils'
+@import '@style/paleta'
+@import '@style/utils'
 .imgFooter
 	img
 		width: 100%
