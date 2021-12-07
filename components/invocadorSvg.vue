@@ -12,7 +12,7 @@ export default {
 	},
 	computed: {
 		src () {
-			const src = require(`static/svg/${this.name}.svg?raw`)
+			const src = require(`static/logos/${this.name}.svg?raw`)
 			return src
 		}
 	}

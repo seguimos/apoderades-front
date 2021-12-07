@@ -27,7 +27,6 @@
 				type="email",
 				placeholder="Email"
 			)
-
 		a-form-model-item(has-feedback, prop="telefono")
 			a-input.input(
 				v-model="formulario.telefono",
@@ -35,10 +34,12 @@
 				placeholder="+56 x xxxx xxxx"
 			)
 
+		.texto ¿Dónde quieres ser apoderado?
+
 		a-form-model-item(has-feedback, prop="region")
 			a-select.input(
 				v-model="formulario.region",
-				@change="handleChange",
+				@change="handleRegion",
 				placeholder="Región"
 			)
 				a-select-option(
@@ -59,17 +60,30 @@
 					:value="comuna.label"
 				) {{ comuna.label }}
 
-		a-form-model-item(has-feedback, prop="local")
+		a-form-model-item(v-if="comunaSeleccionada && !otroLocalVisible", has-feedback, prop="local")
+			a-select.input(
+		show-search=""
+				v-model="formulario.local",
+				type="local",
+				placeholder="Local de Votación",
+				@change="handleLocal"
+		)
+				div(slot="dropdownRender" slot-scope="menu")
+					v-nodes(:vnodes="menu")
+					a-divider(style="margin: 4px 0;")
+					div(
+							style="padding: 4px 8px; cursor:pointer"
+							@mousedown="e=>e.preventDefault"
+							@click="otroLocal"
+					)
+						b Mi local no aparece
+				a-select-option(v-for="local in locales", :key="local", :value="local") {{ local }}
+
+		a-form-model-item(v-if="otroLocalVisible", has-feedback, prop="local")
 			a-input.input(
 				v-model="formulario.local",
 				type="local",
-				placeholder="Local de preferencia"
-			)
-		a-form-model-item(has-feedback, prop="Mesa")
-			a-input.input(
-				v-model="formulario.mesa",
-				type="mesa",
-				placeholder="Mesa de votacion"
+				placeholder="Local de Votación"
 			)
 
 		a-form-model-item.pre ¿Estás disponible para otros locales cercanos? #[span]
@@ -131,6 +145,12 @@ import { validate, format, clean } from 'rut.js'
 import regionesComunas from '../../../regiones/regioneschile'
 
 export default {
+	components: {
+		VNodes: {
+			functional: true,
+			render: (h, ctx) => ctx.props.vnodes
+		}
+	},
 	data () {
 		// let checkPending
 		const validaTelefono = (rule, value, callback) => {
@@ -223,6 +243,7 @@ export default {
 				labelCol: { span: 4 },
 				wrapperCol: { span: 14 }
 			},
+			otroLocalVisible: false,
 			visible: false,
 			tyc: false,
 			regionseleccionada: null,
@@ -248,6 +269,9 @@ export default {
 			}
 			return comunas
 		},
+		locales () {
+			return ['TODO', 'TODO2', 'TODO3']
+		},
 		distrito () {
 			const comunaSeleccionada = this.comunaSeleccionada
 			if (this.comunaSeleccionada) {
@@ -262,6 +286,10 @@ export default {
 		}
 	},
 	methods: {
+		otroLocal () {
+			this.otroLocalVisible = true
+			console.log('otro!')
+		},
 		submitForm (formName) {
 			// console.log(this.formulario)
 			this.$refs[formName].validate(valid => {
@@ -277,15 +305,24 @@ export default {
 		defineDistrito (d) {
 			this.formulario.distrito = d
 		},
-		handleChange (value) {
+		handleRegion (value) {
 			console.log(`Selectedd: ${value}`)
+			this.comunaSeleccionada = null
+			this.local = null
+			this.otroLocalVisible = false
 			this.regionseleccionada = value
 			console.log('seleccion', this.regionseleccionada)
 		},
 		handleComuna (value) {
 			console.log(`Selected: ${value}`)
+			this.local = null
+			this.otroLocalVisible = false
 			this.comunaSeleccionada = value
 			console.log('distri', this.distrito)
+		},
+		handleLocal (value) {
+			console.log(`Selected: ${value}`)
+			this.local = value
 		},
 		async suscribirse () {
 			// const { nombre, email, telefono, comuna } = this
