@@ -313,7 +313,7 @@ export default {
 @import '~/estilos/utils'
 .imgFooter
 	img
-		width: 100vw
+		width: 100%
 .titulo
 	padding: 1em .5em .5em .5em
 	text-align: center
