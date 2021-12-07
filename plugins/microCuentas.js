@@ -241,9 +241,20 @@ const cuenta = {
 		const fx = 'microCuentas>crearCuenta'
 		try {
 			consolo.log(fx, { nombre, apellido, email, pass })
+
+
+			if (!miLlavero) throw 'Falta miLlavero'
+			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
+
+			const llaves = await miLlavero.exportarLlavesPublicas()
+			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass }))
+			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
+				console.error('Encriptado vacío', encriptado)
+				return
+			}
 			const r = await solicitar.call(this, {
 				url: `${cuenta.apiURL}/crear`,
-				data: { nombre, apellido, email, pass },
+				data: { encriptado, llaves },
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)
