@@ -28,7 +28,8 @@ export default {
 	plugins: [
 		'@/plugins/antd-ui',
 		'@/plugins/lodash',
-		{ src: '@/plugins/leaflet', mode: 'client' }
+		{ src: '@/plugins/leaflet', mode: 'client' },
+		'plugins/localforage.js'
 	],
 
 	// Auto import components: https://go.nuxtjs.dev/config-components
