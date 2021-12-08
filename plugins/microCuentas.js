@@ -19,6 +19,28 @@ const minutosDeConfianza = process.env.dev ? (7 * 24 * 60) : 5
 let miLlavero
 let llaveroMicroCuentas
 
+async function procesarInfoUsuario (r) {
+	// consolo.log(`${fx} r`, r)
+	try {
+		if (!r || !r.ok) throw r
+		const decodificado = tokenDecoder(r.token)
+		// Decriptar datos personales
+		const desencriptado = await miLlavero.desencriptar(r.datosPrivados)
+		const datosPrivados = JSON.parse(desencriptado)
+		cuenta.usuario = {
+			id: decodificado.sub,
+			nombre: decodificado.nombre,
+			...datosPrivados
+		}
+		cuenta.datosPrivados = r.datosPrivados
+		cuenta.token = r.token
+		return r
+	} catch (e) {
+		console.error('procesarInfoUsuario', e)
+		throw 'No se pudo procesarInfoUsuario'
+	}
+}
+
 const cuenta = {
 	vm: undefined,
 	_token: undefined,
@@ -104,7 +126,6 @@ const cuenta = {
 			llaveroMicroCuentas = llavero
 			if (usarStores) cuentaStore.setItem('llaveroMicrocuentas', llavero)
 			return llaveroMicroCuentas
-			// console.log(fx, 'r', r)
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -126,22 +147,7 @@ const cuenta = {
 				method: 'get',
 				headers: { Authorization: `Bearer ${token}` }
 			})
-			consolo.log(`${fx} r`, r)
-			if (!r || !r.ok) throw r
-			const decodificado = tokenDecoder(r.token)
-			// Decriptar datos personales
-			console.log('decodificado', decodificado)
-			console.log('r.datosPrivados', r.datosPrivados)
-			const datosPrivados = await miLlavero.desencriptar(r.datosPrivados)
-			console.log('datosPrivados', datosPrivados)
-			cuenta.usuario = {
-				id: decodificado.id,
-				nombre: decodificado.nombre,
-				...datosPrivados
-			}
-			cuenta.datosPrivados = r.datosPrivados
-			cuenta.token = r.token
-			return r
+			return await procesarInfoUsuario(r)
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -169,16 +175,7 @@ const cuenta = {
 				},
 				method: 'post'
 			})
-			consolo.log(`${fx} r`, r)
-			if (!r || !r.ok) throw r
-			const decodificado = tokenDecoder(r.token)
-			cuenta.usuario = {
-				id: decodificado.id,
-				nombre: decodificado.nombre
-			}
-			cuenta.datosPrivados = r.datosPrivados
-			cuenta.token = r.token
-			return r
+			return await procesarInfoUsuario(r)
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -199,13 +196,7 @@ const cuenta = {
 				data: { pass },
 				method: 'post'
 			})
-			consolo.log(`${fx} r`, r)
-			if (r.ok) {
-				cuenta.usuario = r.usuario
-				cuenta.datosPrivados = r.datosPrivados
-				cuenta.token = r.token
-			}
-			return r
+			return await procesarInfoUsuario(r)
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -228,10 +219,7 @@ const cuenta = {
 				data: { token },
 				method: 'post'
 			})
-			consolo.log(`${fx} r`, r)
-			this.usuario = r.usuario
-			if (r.token) this.token = r.token
-			return r
+			return await procesarInfoUsuario(r)
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -241,9 +229,20 @@ const cuenta = {
 		const fx = 'microCuentas>crearCuenta'
 		try {
 			consolo.log(fx, { nombre, apellido, email, pass })
+
+
+			if (!miLlavero) throw 'Falta miLlavero'
+			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
+
+			const llaves = await miLlavero.exportarLlavesPublicas()
+			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass }))
+			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
+				console.error('Encriptado vacío', encriptado)
+				return
+			}
 			const r = await solicitar.call(this, {
 				url: `${cuenta.apiURL}/crear`,
-				data: { nombre, apellido, email, pass },
+				data: { encriptado, llaves },
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)
@@ -381,10 +380,10 @@ const cuenta = {
 
 
 async function solicitar (request, errorHandler) {
-	const fx = 'solicitar'
+	// const fx = 'solicitar'
 	const _ = cuenta.vm._
 
-	console.log(fx, request)
+	// console.log(fx, request)
 	// console.log('Preparacion de headers para firma', firma)
 	// console.log('Preparacion de headers para encriptacion', encriptacion)
 
@@ -398,10 +397,10 @@ async function solicitar (request, errorHandler) {
 	// 	ops.headers.encriptacion = encriptacion.publica
 	// }
 
-	console.log(fx, 'ops', ops)
+	// console.log(fx, 'ops', ops)
 
 	const data = await axios(ops).then(r => {
-		console.log('r', r)
+		// console.log('r', r)
 		if (this.sinConexion === undefined || this.sinConexion) this.sinConexion = false
 		return r.data
 	}).catch(errorHandler || capturadorErrorSolicitud)

@@ -13,7 +13,7 @@ export default {
 	},
 	env: {
 		dev,
-		apiOrigin: dev ? 'https://capi.local.dev' : 'https://capi.lesapoderades.cl'
+		apiOrigin: process.env.LOCAL ? 'https://capi.local.dev' : 'https://capi.lesapoderades.cl'
 	},
 	// Global page headers: https://go.nuxtjs.dev/config-head
 	head: {
@@ -40,6 +40,7 @@ export default {
 	// Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
 	plugins: [
 		'@/plugins/antd-ui',
+		'@/plugins/consolo',
 		'@/plugins/lodash',
 		'@/plugins/i18n',
 		'@/plugins/microCuentas',

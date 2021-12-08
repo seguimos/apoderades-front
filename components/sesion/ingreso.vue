@@ -122,7 +122,8 @@ export default {
 		let modoActivo = 'ingreso'
 		if (this.modo && 'ingreso registro'.split(' ').includes(this.modo)) modoActivo = this.modo
 
-		const cuenta = process.env.dev ? { nombre: 'Timothée', apellido: 'Chalamet', email: 'tcha@obiqu.com', password: 'sererere', confirmacion: 'sererere' } : { nombre: '', apellido: '', email: '', password: '', confirmacion: '' }
+		const cuenta = process.env.dev ? { nombre: 'Charlie', apellido: 'Patata', email: 'charli@lesapoderades.cl', password: 'asereje!deje!dejedetudejerebeseiunoubaMahaviandebugiandebuididipi', confirmacion: 'asereje!deje!dejedetudejerebeseiunoubaMahaviandebugiandebuididipi' } : { nombre: '', apellido: '', email: '', password: '', confirmacion: '' }
+
 		return {
 			modoActivo,
 			// modoActivo: 'recuperarPass',
