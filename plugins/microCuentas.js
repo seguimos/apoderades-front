@@ -380,7 +380,7 @@ const cuenta = {
 
 
 async function solicitar (request, errorHandler) {
-	const fx = 'solicitar'
+	// const fx = 'solicitar'
 	const _ = cuenta.vm._
 
 	// console.log(fx, request)
