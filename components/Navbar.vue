@@ -1,91 +1,75 @@
 <template lang="pug">
-.root
-	//- .listaSpotify
-	//- 	spotify
-	.navbar
-		nuxt-link.alHome.zonaLogo(
+a-layout.root
+	a-layout-header.navbar
+		nuxt-link.logo-container(
 			to="/",
 			alt="Inicio",
 			title="Inicio",
 			@click.native="tag('nav home')"
 		)
 			.logo
-				.trasLogo
+				.logo-after
 					.iconoAprueboDignidad
+		a-menu(mode='horizontal')
+			a-menu-item(key='perfil')
+				a-icon(type='user')
+				| Mi Perfil
+			a-menu-item(key='apoderades')
+				a-icon(type='team')
+				| Apoderades
+			a-menu-item(key='locales')
+				a-icon(type='compass')
+				| Locales
+			a-sub-menu
+				span.submenu-title-wrapper(slot='title')
+					a-icon(type='link')
+					| Enlaces útiles
+				a-menu-item-group(title='Servel')
+					a-menu-item(key='link:1')
+						| Datos Votación
+					a-menu-item(key='link:2')
+						| Resultados
+					a-menu-item(key='link:2')
+						| Reglamento
+				a-menu-item-group(title='Comando')
+					a-menu-item(key='setting:3')
+						| Link 1
+					a-menu-item(key='setting:4')
+						| Link 2
 
-		mixin links
-			.links.contenedor-links.link-interno
-				nuxt-link.link.bold.destacado(to="/app") Apoderados
 
-		.menuCompu
-			+links
 
-		transition(:duration="300")
-			.menuMovil(v-if="activa")
-				+links
-
-		//- RedesSocialesnav
-
-		.triggerMenu(@click="activa = !activa")
-			.oicono(:class="activa ? 'cruz' : 'menu-relleno'")
 </template>
 
 <script>
 export default {
 	data () {
 		return {
-			activa: null,
-			buscar: null
 		}
 	},
-	watch: {
-		$route () {
-			this.activa = false
-		}
-	},
-	methods: {
-		unete () {
-			this.$router.replace('/#uneteALaCampaña')
-		},
-		tag (valor) {
-			this.$gtm.push({ event: 'nav-link', hacia: valor })
-		}
-	}
+	methods: {}
 }
 </script>
 <style lang="sass" scoped>
 @import '@style/utils'
 @import '@style/paleta'
 
-.listaSpotify
-	position: fixed
-	z-index: 100
-	top: 7em
-	width: 100px
+
 $alturaMenu: 5em
-.relleno
-	width: 100vw
-	height: 5em
 .navbar
 	position: sticky
 	top: 0
 	width: 100%
 	z-index: 1000
-	display: flex
 	align-items: center
-	justify-content: space-between
 	color: $colorHeader
 	background-color: $fondoHeader
-	height: $alturaMenu
 	box-shadow: 0 -3em 0 $fondoHeader
-	padding: 0 2em
-	+movil
-		padding: 0 1em
+	padding: 0.5em 1.5em
 
-	.zonaLogo
-		position: relative
-		flex: auto 0 0
+	.logo-container
 		.logo
+			color: #ffffff
 			background-color: currentColor
 			mask-image: url('/logos/logo.svg')
 			mask-size: contain
@@ -94,10 +78,9 @@ $alturaMenu: 5em
 			height: 0.3965em
 			width: 1em
 			font-size: 8em
-			+movil
-				font-size: 6em
+			float: left
 
-			.trasLogo
+			.logo-after
 				height: 100%
 				opacity: 0
 				transition: opacity .5s ease
@@ -121,101 +104,16 @@ $alturaMenu: 5em
 						100%
 							transform: translate(-50%, -50%) rotateZ(360deg)
 			&:hover
-				.trasLogo
+				.logo-after
 					opacity: 1
 
-	.redesSociales
-		display: flex
-		.redSocial
-			color: inherit
-			margin: 0.5em
-			.oicono
-				font-size: 1.4em
+.ant-menu
+	background: none
+	color: #ffffff
+	border: none
 
-	.links
-		// font-family: "Roboto Slab"
 
-		.link
-			text-transform: uppercase
-			margin: 0 .3em
-			padding: 0 .7em
-			&.nuxt-link-active
-				color: $colorPrincipalC3
-		.destacado
-			margin-right: 1em
-			background-color: $verde3
-			display: flex
-			align-items: center
-			justify-content: center
-			+fwbb
-			text-decoration: none
-			line-height: 1
-			color: $azul1
-			padding: 0.4em
-			// margin-top: -.3em
-			// padding-top: .2em
-			border-radius: 2px
+	.ant-menu-item-disabled, .ant-menu-submenu-disabled
+		color: #dddddd
 
-	.menuCompu
-		flex: auto 1 1
-		position: relative
-		z-index: 0
-		+movil
-			display: none
-		.links
-			display: flex
-			flex-flow: row-reverse
-			align-items: center
-			z-index: inherit
-			width: 100%
-			.link
-				display: block
-				flex: auto 0 1
-				text-align: center
-
-	.menuMovil
-		position: fixed
-		z-index: 10
-		top: $alturaMenu
-		left: 0
-		right: 0
-		bottom: 0
-		padding: 2em
-		background-color: white
-		display: flex
-		flex-flow: column nowrap
-		justify-content: center
-
-		color: $verde3
-		background-color: transparentize($azul1, .3)
-		backdrop-filter: blur(.5em)
-
-		@media screen and (min-width: 760px)
-			display: none
-
-			transition: all 0.1s ease
-		+salir
-			opacity: 0
-			max-height: 0
-		+saliendo
-			max-height: 100vh
-			overflow: hidden
-
-		.barra
-			display: flex
-			justify-content: flex-end
-		.links
-			display: flex
-			flex-flow: column nowrap
-			justify-content: center
-			align-items: center
-			.link
-				display: block
-				text-align: center
-				font-size: 1.4em
-				margin: 1.2em 0
-
-	.triggerMenu
-		@media screen and (min-width: 760px)
-			display: none
 </style>

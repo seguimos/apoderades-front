@@ -399,7 +399,6 @@ export default {
 	flex-flow: column
 	justify-content: center
 	align-items: center
-	background-color: #19CBB5
 
 .suscribirse::v-deep
 

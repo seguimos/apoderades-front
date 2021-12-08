@@ -1,7 +1,7 @@
-import path from 'path'
-import webpack from 'webpack'
+import path from 'path';
+import webpack from 'webpack';
 
-const dev = process.env.MODO === 'dev'
+const dev = process.env.MODO === 'dev';
 
 export default {
 	// Target: https://go.nuxtjs.dev/config-target
@@ -54,7 +54,8 @@ export default {
 	// Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
 	buildModules: [
 		// https://go.nuxtjs.dev/eslint
-		'@nuxtjs/eslint-module'
+		'@nuxtjs/eslint-module',
+		'@nuxtjs/google-fonts'
 	],
 
 	// Modules: https://go.nuxtjs.dev/config-modules
@@ -73,9 +74,9 @@ export default {
 
 	// Build Configuration: https://go.nuxtjs.dev/config-build
 	build: {
-		extend (config, ctx) {
-			config.resolve.alias['@style'] = path.join(__dirname, 'style')
-			config.resolve.alias['@mainlib'] = path.join(__dirname, 'lib')
+		extend(config, ctx) {
+			config.resolve.alias['@style'] = path.join(__dirname, 'style');
+			config.resolve.alias['@mainlib'] = path.join(__dirname, 'lib');
 		},
 		plugins: [
 			new webpack.IgnorePlugin({
@@ -84,4 +85,4 @@ export default {
 			})
 		]
 	}
-}
+};

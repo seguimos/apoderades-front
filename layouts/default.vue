@@ -2,7 +2,10 @@
 .main
 	.header
 		Navbar
-	Nuxt
+	div
+		a-row
+			a-col( :xs="{ span: 23, offset: 1}", :md="{span: 8, offset: 8}")
+				Nuxt
 </template>
 
 <script>
@@ -45,4 +48,7 @@ export default {
 		overflow-x: hidden
 	.footer
 		flex: auto 0 0
+
+a-col
+	margin: 20px
 </style>
