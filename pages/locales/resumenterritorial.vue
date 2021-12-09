@@ -16,8 +16,8 @@
 
 </template>
 <script>
-import mapa from '../../../components/mapa.vue'
-import locales from '../../../data/localesxcomunaexample.js'
+import mapa from '../../components/mapa.vue'
+import locales from '../../data/localesxcomunaexample.js'
 
 export default {
 	components: {

@@ -14,7 +14,7 @@
 				v-model="formulario.rut",
 				type="rut",
 				placeholder="10.000.000-0",
-				disabled="true"
+				:disabled="true"
 			)
 
 		a-form-model-item(has-feedback, prop="nombre", label="Nombres")

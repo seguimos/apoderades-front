@@ -11,30 +11,50 @@ a-layout.root
 				.logo-after
 					.iconoAprueboDignidad
 		a-menu(mode='horizontal')
-			a-menu-item(key='perfil')
-				a-icon(type='user')
-				| Mi Perfil
-			a-menu-item(key='apoderades')
-				a-icon(type='team')
-				| Apoderades
-			a-menu-item(key='locales')
-				a-icon(type='compass')
-				| Locales
+			a-sub-menu
+				span.submenu-title-wrapper(slot='title')
+					a-icon(type='user')
+					| Cuentas
+				a-menu-item(key='mi-cuenta')
+					n-link.link(to='/cuenta') Mi cuenta
+				a-menu-item(key='mis-datos')
+					n-link.link(to='/cuenta/datos') Mis datos
+				a-menu-item(key='seguridad')
+					n-link.link(to='/cuenta/seguridad') Seguridad
+				a-menu-item(key='privacidad')
+					n-link.link(to='/cuenta/privacidad') Privacidad
+
+			a-sub-menu
+				span.submenu-title-wrapper(slot='title')
+					a-icon(type='team')
+					| Apoderades
+				a-menu-item(key='buscar')
+					n-link.link(to='/apoderades/buscar') Buscar
+				a-menu-item(key='crear')
+					n-link.link(to='/apoderades/buscar') Crear
+			a-sub-menu
+				span.submenu-title-wrapper(slot='title')
+					a-icon(type='compass')
+					| Locales
+				a-menu-item(key='resumen-territorial')
+					n-link.link(to='/locales/resumenterritorial') Resumen Territorial
+				a-menu-item(key='asignar-apoderades')
+					n-link.link(to='/locales/resumenterritorial') Asignar Apoderades
 			a-sub-menu
 				span.submenu-title-wrapper(slot='title')
 					a-icon(type='link')
 					| Enlaces útiles
 				a-menu-item-group(title='Servel')
-					a-menu-item(key='link:1')
+					a-menu-item(key='datos-votacion')
 						| Datos Votación
-					a-menu-item(key='link:2')
+					a-menu-item(key='resultados')
 						| Resultados
-					a-menu-item(key='link:2')
+					a-menu-item(key='reglamento')
 						| Reglamento
 				a-menu-item-group(title='Comando')
-					a-menu-item(key='setting:3')
+					a-menu-item(key='link-1')
 						| Link 1
-					a-menu-item(key='setting:4')
+					a-menu-item(key='link-2')
 						| Link 2
 
 
@@ -66,6 +86,7 @@ $alturaMenu: 5em
 	background-color: $fondoHeader
 	box-shadow: 0 -3em 0 $fondoHeader
 	padding: 0.5em 1.5em
+	height: 100px
 
 	.logo-container
 		.logo
@@ -76,9 +97,7 @@ $alturaMenu: 5em
 			mask-repeat: no-repeat
 			mask-position: center
 			height: 0.3965em
-			width: 1em
 			font-size: 8em
-			float: left
 
 			.logo-after
 				height: 100%
