@@ -4,7 +4,7 @@
 		Navbar
 	div
 		a-row
-			a-col( :xs="{ span: 23, offset: 1}", :md="{span: 8, offset: 8}")
+			a-col( :xs="{ span: 24, offset: 0}", :sm="{span: 18, offset: 3}", :md="{span: 16, offset: 4}", :lg="{span: 10, offset: 7}")
 				Nuxt
 </template>
 

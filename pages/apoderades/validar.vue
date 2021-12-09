@@ -1,42 +1,57 @@
 <template lang="pug">
-.rootParticipa
-	.titulo Valida tus datos de inscripcion
+.root
+	h1 Valida tus datos de inscripcion
 
-	a-form-model.suscribirse(
+	a-form-model.enviarFormulario(
 		ref="formulario",
 		:model="formulario",
 		:rules="rules"
+		:label-col="{ span: 4 }"
+		:wrapper-col="{ span: 16 }"
 	)
-		a-form-model-item(has-feedback, prop="nombre")
+		a-form-model-item(has-feedback, prop="rut", label="RUT")
+			a-input.input(
+				v-model="formulario.rut",
+				type="rut",
+				placeholder="10.000.000-0",
+				disabled="true"
+			)
+
+		a-form-model-item(has-feedback, prop="nombre", label="Nombres")
 			a-input.input(
 				v-model="formulario.nombre",
 				type="nombre",
-				placeholder="Nombre"
+				placeholder="Gabriel"
 			)
-		a-form-model-item(has-feedback, prop="apellido")
+		a-form-model-item(has-feedback, prop="apellido", label="Apellidos")
 			a-input.input(
 				v-model="formulario.apellido",
 				type="apellido",
-				placeholder="Apellido"
+				placeholder="Boric Font"
 			)
-		a-form-model-item(has-feedback, prop="rut")
-			a-input.input(v-model="formulario.rut", type="rut", placeholder="Rut")
-		a-form-model-item(has-feedback, prop="email")
+
+		a-form-model-item(has-feedback, prop="email", label="Correo")
 			a-input.input(
 				v-model="formulario.email",
 				type="email",
-				placeholder="Email"
+				placeholder="gabriel@lesapoderades.cl"
 			)
-		a-form-model-item(has-feedback, prop="telefono")
+
+		a-form-model-item(has-feedback, prop="telefono", label="Teléfono")
 			a-input.input(
 				v-model="formulario.telefono",
 				type="tel",
 				placeholder="+56 x xxxx xxxx"
 			)
 
-		.texto ¿Dónde quieres ser apoderado?
+		a-form-model-item(has-feedback, label="Rol")
+			a-select.input(v-model="formulario.rol", placeholder="Elige un Rol...")
+				a-select-option(:value="1") Comando
+				a-select-option(:value="2") Coordinador
+				a-select-option(:value="3") Apoderado General
+				a-select-option(:value="4") Apoderado de mesa
 
-		a-form-model-item(has-feedback, prop="region")
+		a-form-model-item(has-feedback, prop="region", label="Región")
 			a-select.input(
 				v-model="formulario.region",
 				@change="handleRegion",
@@ -48,7 +63,7 @@
 					:value="region.label"
 				) {{ region.label }}
 
-		a-form-model-item(v-if="regionseleccionada", has-feedback="", prop="comuna")
+		a-form-model-item(v-if="regionseleccionada", has-feedback, prop="comuna", label="Comuna")
 			a-select.input(
 				v-model="formulario.comuna",
 				placeholder="Comuna",
@@ -60,55 +75,21 @@
 					:value="comuna.label"
 				) {{ comuna.label }}
 
-		a-form-model-item(v-if="comunaSeleccionada && !otroLocalVisible", has-feedback, prop="local")
+		a-form-model-item(v-if="comunaSeleccionada", has-feedback, prop="local", label="Local")
 			a-select.input(
-		show-search=""
+				show-search=""
 				v-model="formulario.local",
 				type="local",
 				placeholder="Local de Votación",
 				@change="handleLocal"
-		)
-				div(slot="dropdownRender" slot-scope="menu")
-					v-nodes(:vnodes="menu")
-					a-divider(style="margin: 4px 0;")
-					div(
-							style="padding: 4px 8px; cursor:pointer"
-							@mousedown="e=>e.preventDefault"
-							@click="otroLocal"
-					)
-						b Mi local no aparece
+			)
 				a-select-option(v-for="local in locales", :key="local", :value="local") {{ local }}
 
-		a-form-model-item(v-if="otroLocalVisible", has-feedback, prop="local")
-			a-input.input(
-				v-model="formulario.local",
-				type="local",
-				placeholder="Local de Votación"
-			)
-
-		a-form-model-item.pre ¿Estás disponible para otros locales cercanos? #[span]
+		a-form-model-item(label="¿Estás disponible para otros locales cercanos?",:label-col="{span:18}", :wrapper-col="{ span: 2}")
 			a-switch(v-model="formulario.disponibleParaOtrosLocales")
-		//- a-form-model-item(has-feedback prop='militancia')
-		//- 	a-input(v-model='formulario.milita' type='checkbox').input
-		//- 	div eres militante?
-		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 14, offset: 4 }")
+		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 14, offset: 5 }")
 			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
 				| VALIDAR DATOS
-		//- .contenedorBoton
-			a.boton.votoExtranjero(
-				type="primary",
-				target="_blank",
-				href="https://docs.google.com/forms/d/e/1FAIpQLSe3bTgWo9CWLZGSQcYMSW625ssbK6TmL0WcuO49cx48rqY24Q/viewform"
-			)
-				| Voto en el extranjero
-
-		p.terminosycondiciones(@click="showModal") #[span.primero Acepto] &nbspTérminos y Condiciones
-
-	.imgFooter
-		img(
-			src="https://s3.amazonaws.com/cdn.boricpresidente.cl/web/apoderadosFooter.webp",
-			alt="grupo"
-		)
 
 	a-modal.modal(
 		v-model="visible",
@@ -122,27 +103,13 @@
 		.procusandoCompleto(v-if="procesado")
 			p Pronto recibiras noticias
 
-	a-modal.modal(
-		:visible="tyc",
-		title="Terminos y Condiciones",
-		@ok="handleOk",
-		@cancel="tyc = false",
-		:footer="null"
-	)
-		p El/la usuaria/o declara aceptar el uso de los datos solicitados para la campaña presidencial de Gabriel Boric en el marco de la Ley N° 19.628. Sólo podrán ser usados estos datos para los fines específicos que el usuario autorice, esto es, para la entrega de información de la campaña presidencial respectiva y de la difusión de sus actividades propias. Para estos efectos el usuario autoriza a que lo contacten a través de medios digitales tales como email, Facebook, mensajes de texto (SMS), WhatsApp u otras plataformas similares con las finalidades señaladas, a la casilla de correo electrónico y número de teléfono que haya indicado.
-
-		p La permanencia en estas bases de datos tendrá siempre la posibilidad de que la/el usuaria/o pueda darse de baja o solicitar dejar de estar registrado en las mismas, pudiendo al efecto revocar su autorización, y disponiendo, en todo caso, de los derechos que confiere la Ley N° 19.628.
-
-		p La campaña presidencial de Gabriel Boric no podrá, bajo ningún concepto, ceder o transferir dichas bases de datos a terceros sin contar con el consentimiento expreso del usuario titular de los datos privados.
-
-	.relleno
 </template>
 
 <script>
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../../regiones/regioneschile'
+import regionesComunas from '../../regiones/regioneschile'
 
 export default {
 	components: {
@@ -294,7 +261,7 @@ export default {
 			// console.log(this.formulario)
 			this.$refs[formName].validate(valid => {
 				if (valid) {
-					this.suscribirse()
+					this.enviarFormulario()
 					// this.$gtm.push({ event: 'Registro_mailing', nombre: 'Registro en Mailchimp', estado: 'completo' })
 				} else {
 					console.log('error submit!!')
@@ -324,10 +291,7 @@ export default {
 			console.log(`Selected: ${value}`)
 			this.local = value
 		},
-		async suscribirse () {
-			// const { nombre, email, telefono, comuna } = this
-			// const data = { nombre, email, telefono, comuna }
-
+		async enviarFormulario () {
 			this.visible = true
 			const config = {}
 			const respuesta = await this.$axios
@@ -337,7 +301,7 @@ export default {
 					config
 				)
 				.then(r => r.data)
-				.catch(e => console.error('fallo suscribirse', e))
+				.catch(e => console.error('fallo enviarFormulario', e))
 			console.log('Respuesta', respuesta)
 			if (!respuesta) {
 				this.visible = false
@@ -370,56 +334,16 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+
 @import '@style/paleta'
 @import '@style/utils'
-.imgFooter
-	img
-		width: 100%
-.titulo
-	padding: 1em .5em .5em .5em
-	text-align: center
-	font-size: 3rem
-	color: $verde3
-	font-style: italic
-	line-height: 1.1
-	max-width: 450px
-.texto
-	padding: 0 1em 1em 1em
-	max-width: 730px
-	text-align: center
-	font-size: 1.3rem
-.suscribirse
-	display: flex
-	flex-wrap: wrap
-	justify-content: center
-	max-width: 400px
-	.pre
-		color: #fff
-		font-size: 1rem
-	.texto
-		align-items: center
-		font-size: 1rem
-		color: #fff
-	.contenedorbtn
-		color: #fff
-	.input
-		width: 250px
-		border-radius: 2px
-		margin-bottom: .1em
-		&::placeholder
-			font-size: 1em
-	::v-deep
-		.ant-form
-			padding-bottom: 2em
-		.ant-form-item
-			.ant-form-item-label
-				color: $verde3
+
+.root
+	margin: 10px 20px
+
 
 .suscribirme
-	// position: stycky
 	width: 250px
-	padding: .2em 0 0 0
-	right: 42px
 	color: $petroleo1
 	background-color: $verde3
 	border-radius: 3px
@@ -428,71 +352,11 @@ export default {
 .contenedorBoton
 	text-align: center
 	.votoExtranjero
-		width: 250px
+		margin: 0 auto
 		font-weight: 900
 		font-size: 1.4em
 		color: $petroleo1
-		padding: 0
 		padding-top: .25em
 		background-color: $verde3
 
-.terminosycondiciones
-	color: $verde3
-	display: inline
-	font-size: .9rem
-	width: 400
-	max-width: 100%
-	font-weight: 900
-	cursor: pointer
-	.primero
-		font-weight: 400
-
-.modal
-	// height: 200px
-
-.relleno
-	width: 90vw
-	height: 5em
-
-.rootParticipa
-	text-align: left
-	display: flex
-	flex-flow: column
-	justify-content: center
-	align-items: center
-
-.suscribirse::v-deep
-
-	.ant-row
-		margin-bottom: .6em
-	.ant-form-explain
-		margin-top: .25rem
-		font-size: .8em
-	.has-error .ant-form-explain,
-	.has-error .ant-form-split
-		color: #fff
-.modal::v-deep
-	.ant-modal-header
-		text-align: center
-		padding: 3em
-		background-color: $verde1
-	.ant-modal-title
-		color: $verde3
-		font-size: 2.5rem
-		font-weight: 700
-		line-height: 1.5em
-		+movil
-			font-size: 1.5rem
-	.ant-modal-body
-		text-align: center
-		padding: 2em 1em .5em 1em
-		background-color: #fff
-		color: $azul2
-		font-size: 1.5rem
-		max-height: 60vh
-		overflow: auto
-		p
-			font-size: 1.2em
-	.ant-modal-mask
-		backdrop-filter: blur(4px)
 </style>
