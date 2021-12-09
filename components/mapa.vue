@@ -1,17 +1,17 @@
 <template lang="pug">
-div.mapa
+div.wrapper-mapa
 	.encima
-		//- a-button(@click="reset") reset
+		//- //- a-button(@click="reset") reset
 		a-button(v-if="centrarEnMiBoton" @click="centrarEnMi" icon=" oicono mi-ubicacion")
-		//a-button(v-if="centrarEnMiBoton" @click="centrarEnMi")
-			.oicono.mi-ubicacion
-	.zonaMapa
+		//- //a-button(v-if="centrarEnMiBoton" @click="centrarEnMi")
+		//- 	.oicono.mi-ubicacion
+	.mapa
 		VMap(v-if='montado && centroActivo' :zoom='zoom' :center='centroActivo' ref='mapa' @ready='mapReady')
 			VTilelayer(:url='tileConfig.url' :tileSize="tileConfig.tileSize" :options="tileConfig.options")
 
 			VMarker(v-for="marcador in marcadores" :key="`marcador-${marcador.id}`"
 				:latLng='marcador.latlon'
-				:icon='crearPointerMarcador(marcador.imagen)'
+				:icon='crearPointerMarcador(false)'
 				@click="marcadorClickado(marcador)"
 
 				:draggable='marcadorMovible'
@@ -31,7 +31,7 @@ export default {
 
 		centro: { type: Array, required: false, default () { return [-33.4253156, -70.6332509] } },
 		// marcadores: { type: Array, required: false, default () { return [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }] } }
-		marcadores: { type: Array, required: true }
+		marcadores: { type: Array, default () { return [] } }
 	},
 	data () {
 		return {
@@ -147,25 +147,21 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.mapa
-	min-height: 200px
-	height: 100%
-	//border: 1px solid cyan
-	display: flex
-	flex-flow: column nowrap
-	position: relative
+.wrapper-mapa
+	height: 70vh
+	width: 100%
 	.encima
 		position: absolute
 		z-index: 200
 		// border: 1px solid red
 		margin: 1em
-	.zonaMapa
+	.mapa
+		width: 100%
 		height: 100%
 .vue2leaflet-map
 	z-index: 0
 	width: 100%
 	flex: auto 1 0
-	min-height: 100px
 	//::v-deep .leaflet-control-attribution
 		display: none
 	::v-deep .leaflet-bar a
