@@ -231,7 +231,7 @@ const cuenta = {
 		}
 	},
 
-	async crearCuenta (autorizaciónBack, { nombre, apellido, email, pass, telefono }) {
+	async crearCuenta (autorizacionBack, { nombre, apellido, email, pass, telefono }) {
 		const fx = 'microCuentas>crearCuenta'
 		try {
 			consolo.log(fx, { nombre, apellido, email, pass, telefono })
@@ -248,7 +248,7 @@ const cuenta = {
 			}
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/crear`,
-				data: { encriptado, llaves },
+				data: { encriptado, llaves, autorizacionBack },
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)
