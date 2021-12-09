@@ -3,12 +3,21 @@
 	h1 Buscar apoderado
 
 	.buscarapoderado
-		a-form-model-item(has-feedback, prop="rut", label="Ingresa RUT del apoderado")
-			a-input.input(v-model="formulario.rut", type="rut")
+		a-form-model.suscribirse(
+			ref="formulario",
+			:model="formulario",
+			:rules="rules"
+		)
+			a-form-model-item(
+				has-feedback,
+				prop="rut",
+				label="Ingresa RUT del apoderado"
+			)
+				a-input.input(v-model="formulario.rut", type="rut")
 
-		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 16, offset: 4 }")
-			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
-				| BUSCAR
+			a-form-model-item.contenedorbtn(:wrapper-col="{ span: 16, offset: 4 }")
+				a-button.suscribirme(type="primary", @click="submitForm('formulario')")
+					| BUSCAR
 </template>
 
 <script>
@@ -28,7 +37,6 @@ export default {
 				const limpio = clean(value)
 				const rutformateado = format(limpio)
 				const validado = validate(rutformateado)
-				console.log(validado)
 				if (validado) {
 					callback()
 				}
@@ -73,11 +81,7 @@ export default {
 			this.visible = true
 			const config = {}
 			const respuesta = await this.$axios
-				.post(
-					`${process.env.apiURL}/buscarapoderado`,
-					this.formulario,
-					config
-				)
+				.post(`${process.env.apiURL}/buscarapoderado`, this.formulario, config)
 				.then(r => r.data)
 				.catch(e => console.error('fallo suscribirse', e))
 			console.log('Respuesta', respuesta)
@@ -134,6 +138,4 @@ export default {
 		color: $petroleo1
 		padding-top: .25em
 		background-color: $verde3
-
-
 </style>
