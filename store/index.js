@@ -2,17 +2,15 @@
 
 export const state = () => {
 	return {
-
-		token: null,
-		usuario: null,
-		id: null
+		apoderade: null
 	}
 }
 
 export const mutations = {
 	usuarioLogeado (state, value) {
-		state.token = value.token
-		state.usuario = value.usuario
-		state.id = value.id
+		state.apoderade = value.apoderade
+	},
+	usuarioNoValidado (state, value) {
+		state.apoderade = value.apoderade
 	}
 }
