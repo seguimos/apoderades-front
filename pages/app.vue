@@ -19,7 +19,13 @@ export default {
 	data () {
 		return {}
 	},
+	watch: {
+		$usuario (actual) {
+			if (actual) this.buscarMisDatos()
+		}
+	},
 	mounted () {
+		if (!this.$usuario) return
 		this.buscarMisDatos()
 		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
 	},

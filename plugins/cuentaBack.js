@@ -5,7 +5,7 @@ import localforage from 'localforage'
 import consolo from '@lib/consolo'
 import emisorEventos from '@lib/emisorEventos'
 
-const apiURL = process.env.apiOrigin
+const backURL = process.env.backURL
 
 const cuentaBackStore = localforage.createInstance({ name: 'cuentaBackBackStore' })
 const usarStores = true
@@ -18,7 +18,7 @@ const cuentaBack = {
 	_datosApoderade: undefined,
 
 	sinConexion: undefined,
-	apiURL,
+	backURL,
 
 	async init (vm) {
 		const fx = 'cuentaBack>init'
@@ -37,8 +37,8 @@ const cuentaBack = {
 		this.leer()
 	},
 
-	get host () {
-		return new URL(cuentaBack.apiURL).host
+	get token () {
+		return this.vm.$cuenta.token
 	},
 
 	// async ping () {
@@ -46,7 +46,7 @@ const cuentaBack = {
 	// 	try {
 	// 		consolo.log(fx)
 	// 		const r = await solicitar.call(this, {
-	// 			url: `${cuentaBack.apiURL}/llavero`,
+	// 			url: `${cuentaBack.backURL}/llavero`,
 	// 			method: 'get'
 	// 		}, e => { this.sinConexion = true })
 	// 		consolo.log(fx, 'r', r)
@@ -68,14 +68,13 @@ const cuentaBack = {
 
 	async leerMisDatos () {
 		const fx = 'cuentaBack>leerMisDatos'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
 			const r = await axios({
 				method: 'get',
-				url: 'http://localhost:3001/apoderade',
+				url: `${backURL}/apoderade`,
 				headers: {
-					authorization: `Bearer ${cuenta.token}`
+					authorization: `Bearer ${cuentaBack.token}`
 				}
 			}).then(r => r.data)
 
@@ -113,7 +112,7 @@ const cuentaBack = {
 			// 	}
 			// 	console.log(fx)
 			// 	const r = await solicitar.call(this, {
-			// 		url: `${cuentaBack.apiURL}/leer`,
+			// 		url: `${cuentaBack.backURL}/leer`,
 			// 		method: 'get',
 			// 		headers: { Authorization: `Bearer ${token}` }
 			// 	})
@@ -130,6 +129,49 @@ const cuentaBack = {
 		await cuentaBackStore.clear()
 		// cuentaBack.ping()
 		return true
+	},
+
+	async crearApoderade ({ nombre, apellido, email, pass, telefono }) {
+		const fx = 'cuentaBack>crearApoderade'
+		// Primero obtener autorización del back
+		const r = await axios({
+			method: 'get',
+			url: `${backURL}/autorizarCreacion`,
+			headers: {
+				authorization: `Bearer ${cuentaBack.token}`
+			}
+		}).then(r => r.data)
+		console.log(fx, 'back/autorizarCreacion', r)
+
+		if (!r || !r.ok) {
+			console.error(fx, 'fail autorizando creación de usuario (back)', r)
+			return
+		}
+		const autorizacionDelBack = r.autorizacion
+
+		// Crear usuario en microservicio de cuentas
+		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, { nombre, apellido, email, pass, telefono })
+		if (!c || !c.ok) {
+			console.error(fx, 'fail creando usuario en microcuentas', c)
+			return
+		}
+		const usuarioID = c.usuarioID
+		const urlValidacionEmail = c.urlValidacionEmail
+		console.log(fx, 'microcuentas/crearCuenta', c)
+
+		// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
+		const b = await axios({
+			method: 'post',
+			url: `${backURL}/nuevo-usuario`,
+			headers: {
+				authorization: `Bearer ${cuentaBack.token}`
+			},
+			data: {
+				usuarioID,
+				urlValidacionEmail
+			}
+		}).then(r => r.data)
+		console.log(fx, 'back/nuevo-usuario', b)
 	}
 }
 

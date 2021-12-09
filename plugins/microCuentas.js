@@ -8,7 +8,7 @@ import Llavero from '@lib/llavero'
 
 import emisorEventos from '@lib/emisorEventos'
 
-const apiURL = process.env.apiOrigin
+const cuentasURL = process.env.cuentasURL
 
 const cuentaStore = localforage.createInstance({ name: 'criptoCuentaStore' })
 const llaveroStore = localforage.createInstance({ name: 'llaveroStore' })
@@ -57,7 +57,7 @@ const cuenta = {
 
 
 	sinConexion: undefined,
-	apiURL,
+	cuentasURL,
 
 	async init (vm) {
 		const fx = 'microCuentas>init'
@@ -82,7 +82,7 @@ const cuenta = {
 	},
 
 	get host () {
-		return new URL(cuenta.apiURL).host
+		return new URL(cuenta.cuentasURL).host
 	},
 
 	get token () { return this._token },
@@ -117,7 +117,7 @@ const cuenta = {
 		try {
 			consolo.log(fx)
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/llavero`,
+				url: `${cuenta.cuentasURL}/llavero`,
 				method: 'get'
 			}, e => { this.sinConexion = true })
 			consolo.log(fx, 'r', r)
@@ -148,7 +148,7 @@ const cuenta = {
 			}
 			console.log(fx)
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/leer`,
+				url: `${cuenta.cuentasURL}/leer`,
 				method: 'get',
 				headers: { Authorization: `Bearer ${token}` }
 			})
@@ -173,7 +173,7 @@ const cuenta = {
 				return
 			}
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/ingresar`,
+				url: `${cuenta.cuentasURL}/ingresar`,
 				data: {
 					encriptado,
 					llaves
@@ -197,7 +197,7 @@ const cuenta = {
 			}
 			consolo.log(fx, { pass })
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/reautenticar`,
+				url: `${cuenta.cuentasURL}/reautenticar`,
 				data: { pass },
 				method: 'post'
 			})
@@ -221,7 +221,7 @@ const cuenta = {
 		try {
 			consolo.log(fx, { token })
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/ingresarConToken`,
+				url: `${cuenta.cuentasURL}/ingresarConToken`,
 				data: { token },
 				method: 'post'
 			})
@@ -231,32 +231,32 @@ const cuenta = {
 		}
 	},
 
-	async crearCuenta ({ nombre, apellido, email, pass }) {
+	async crearCuenta (autorizaciónBack, { nombre, apellido, email, pass, telefono }) {
 		const fx = 'microCuentas>crearCuenta'
 		try {
-			consolo.log(fx, { nombre, apellido, email, pass })
+			consolo.log(fx, { nombre, apellido, email, pass, telefono })
 
 
 			if (!miLlavero) throw 'Falta miLlavero'
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
 			const llaves = await miLlavero.exportarLlavesPublicas()
-			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass }))
+			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass, telefono }))
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
 			}
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/crear`,
+				url: `${cuenta.cuentasURL}/crear`,
 				data: { encriptado, llaves },
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)
-			cuenta.usuario = r.usuario || false
-			if (r.token) {
-				cuenta.token = r.token
-				await cuenta.leer()
-			}
+			// const ejemplo = {
+			// 	ok: 1,
+			// 	usuarioID: 'fd42f2i3',
+			// 	urlValidacionEmail: 'ache te te pé'
+			// }
 			return r
 		} catch (e) {
 			console.error(fx, e)
@@ -270,7 +270,7 @@ const cuenta = {
 				const usuarioID = cuenta.usuario._id
 				consolo.log(fx)
 				const r = await solicitar.call(this, {
-					url: `${cuenta.apiURL}/pass`,
+					url: `${cuenta.cuentasURL}/pass`,
 					method: 'post',
 					data: { usuarioID, pass, passNuevo }
 				})
@@ -285,7 +285,7 @@ const cuenta = {
 			try {
 				consolo.log(fx)
 				const r = await solicitar.call(this, {
-					url: `${cuenta.apiURL}/pass/codigo`,
+					url: `${cuenta.cuentasURL}/pass/codigo`,
 					method: 'post',
 					data: { email, passNuevo }
 				})
@@ -300,7 +300,7 @@ const cuenta = {
 			try {
 				consolo.log(fx)
 				const r = await solicitar.call(this, {
-					url: `${cuenta.apiURL}/pass/codigo`,
+					url: `${cuenta.cuentasURL}/pass/codigo`,
 					method: 'put',
 					data: { email, codigo }
 				})
@@ -315,7 +315,7 @@ const cuenta = {
 			try {
 				consolo.log(fx)
 				const r = await solicitar.call(this, {
-					url: `${cuenta.apiURL}/pass/token`,
+					url: `${cuenta.cuentasURL}/pass/token`,
 					method: 'post',
 					data: { email, passNuevo }
 				})
@@ -334,7 +334,7 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) throw 'Usuario no conectado'
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/avatar/url`,
+				url: `${cuenta.cuentasURL}/avatar/url`,
 				method: 'get',
 				headers: { Authorization: `Bearer ${token}` }
 			})
@@ -353,7 +353,7 @@ const cuenta = {
 			if (!token) throw 'Usuario no conectado'
 			if (!url) throw 'falta url del avatar'
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/avatar/url`,
+				url: `${cuenta.cuentasURL}/avatar/url`,
 				method: 'put',
 				data: { url },
 				headers: { Authorization: `Bearer ${token}` }
@@ -373,7 +373,7 @@ const cuenta = {
 		try {
 			consolo.log(fx)
 			const r = await solicitar.call(this, {
-				url: `${cuenta.apiURL}/email`,
+				url: `${cuenta.cuentasURL}/email`,
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)

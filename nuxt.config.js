@@ -2,6 +2,7 @@ import path from 'path'
 import webpack from 'webpack'
 
 const dev = process.env.MODO === 'dev'
+const local = process.env.LOCAL
 
 export default {
 	// Target: https://go.nuxtjs.dev/config-target
@@ -13,7 +14,8 @@ export default {
 	},
 	env: {
 		dev,
-		apiOrigin: process.env.LOCAL ? 'https://capi.local.dev' : 'https://capi.lesapoderades.cl'
+		cuentasURL: local ? 'https://capi.local.dev' : dev ? 'https://capi.lesapoderades.cl' : 'https://capi.apoderadosxboric.cl',
+		backURL: local ? 'https://api.local.dev' : dev ? 'http://localhost:3001' : 'https://api.apoderadosxboric.cl'
 	},
 	// Global page headers: https://go.nuxtjs.dev/config-head
 	head: {
