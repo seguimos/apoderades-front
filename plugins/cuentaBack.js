@@ -123,6 +123,104 @@ const cuentaBack = {
 		}
 	},
 
+	async apoderadosXRegion (region, roles) {
+		const fx = 'cuentaBack>apoderadosXRegion'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: 'http://localhost:3001/apoderades/region',
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				params: { region, roles }
+
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async apoderadosXcomuna (comunaCodigo, roles) {
+		const fx = 'cuentaBack>apoderadosXcomuna'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: 'http://localhost:3001/apoderades/comuna',
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				params: { comunaCodigo, roles }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async autoValidarDatos (territorioPreferencia) {
+		const fx = 'cuentaBack>autoValidarDatos'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'post',
+				url: 'http://localhost:3001/apoderade/datos',
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				body: { territorioPreferencia }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async crearApoderade (territorio, rol) {
+		const fx = 'cuentaBack>crearApoderade'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+
+			// antes de esto se debe solicitar a criptocuentas la creacion del usuario
+			const r = await axios({
+				method: 'post',
+				url: 'http://localhost:3001/apoderades',
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				body: { territorio, rol }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
 
 	async salir () {
 		cuentaBack.datosApoderade = null
