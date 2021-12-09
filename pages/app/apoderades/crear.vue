@@ -5,8 +5,8 @@
 	a-form-model.suscribirse(
 		ref="formulario",
 		:model="formulario",
-		:rules="rules"
-		:label-col="{ span: 4 }"
+		:rules="rules",
+		:label-col="{ span: 4 }",
 		:wrapper-col="{ span: 16 }"
 	)
 		a-form-model-item(has-feedback, prop="rut", label="RUT")
@@ -50,7 +50,12 @@
 				a-select-option(:value="3") Apoderado General
 				a-select-option(:value="4") Apoderado de mesa
 
-		a-form-model-item(v-if="formulario.rol", has-feedback, prop="region", label="Región")
+		a-form-model-item(
+			v-if="formulario.rol",
+			has-feedback,
+			prop="region",
+			label="Región"
+		)
 			a-select.input(
 				v-model="formulario.region",
 				@change="handleRegion",
@@ -62,7 +67,12 @@
 					:value="region.label"
 				) {{ region.label }}
 
-		a-form-model-item(v-if="formulario.rol > 2 && regionseleccionada", has-feedback, prop="comuna", label="Comuna")
+		a-form-model-item(
+			v-if="formulario.rol > 2 && regionseleccionada",
+			has-feedback,
+			prop="comuna",
+			label="Comuna"
+		)
 			a-select.input(
 				v-model="formulario.comuna",
 				placeholder="Comuna",
@@ -74,9 +84,14 @@
 					:value="comuna.label"
 				) {{ comuna.label }}
 
-		a-form-model-item(v-if="comunaSeleccionada", has-feedback, prop="local", label="Local")
+		a-form-model-item(
+			v-if="comunaSeleccionada",
+			has-feedback,
+			prop="local",
+			label="Local"
+		)
 			a-select.input(
-				show-search=""
+				show-search="",
 				v-model="formulario.local",
 				type="local",
 				placeholder="Local de Votación",
@@ -93,7 +108,7 @@
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../regiones/regioneschile'
+import regionesComunas from '../../../regiones/regioneschile'
 
 export default {
 	data () {
@@ -254,11 +269,7 @@ export default {
 			this.visible = true
 			const config = {}
 			const respuesta = await this.$axios
-				.post(
-					`${process.env.apiURL}/crearapoderado`,
-					this.formulario,
-					config
-				)
+				.post(`${process.env.apiURL}/crearapoderado`, this.formulario, config)
 				.then(r => r.data)
 				.catch(e => console.error('fallo suscribirse', e))
 			console.log('Respuesta', respuesta)
@@ -299,7 +310,6 @@ export default {
 .root
 	margin: 10px 20px
 
-
 .suscribirme
 	width: 250px
 	color: $petroleo1
@@ -316,6 +326,4 @@ export default {
 		color: $petroleo1
 		padding-top: .25em
 		background-color: $verde3
-
-
 </style>

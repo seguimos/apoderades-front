@@ -10,62 +10,54 @@ a-layout.root
 			.logo
 				.logo-after
 					.iconoAprueboDignidad
-		a-menu(mode='horizontal')
+		a-menu(mode="horizontal")
 			a-sub-menu
-				span.submenu-title-wrapper(slot='title')
-					a-icon(type='user')
+				span.submenu-title-wrapper(slot="title")
+					a-icon(type="user")
 					| Cuentas
-				a-menu-item(key='mi-cuenta')
-					n-link.link(to='/cuenta') Mi cuenta
-				a-menu-item(key='mis-datos')
-					n-link.link(to='/cuenta/datos') Mis datos
-				a-menu-item(key='seguridad')
-					n-link.link(to='/cuenta/seguridad') Seguridad
-				a-menu-item(key='privacidad')
-					n-link.link(to='/cuenta/privacidad') Privacidad
+				a-menu-item(key="mi-cuenta")
+					n-link.link(to="/cuenta") Mi cuenta
+				a-menu-item(key="mis-datos")
+					.link(@click="$cuenta.salir") Salir
 
-			a-sub-menu
-				span.submenu-title-wrapper(slot='title')
-					a-icon(type='team')
+			a-sub-menu(v-if="$usuario")
+				span.submenu-title-wrapper(slot="title")
+					a-icon(type="team")
 					| Apoderades
-				a-menu-item(key='buscar')
-					n-link.link(to='/apoderades/buscar') Buscar
-				a-menu-item(key='crear')
-					n-link.link(to='/apoderades/buscar') Crear
-			a-sub-menu
-				span.submenu-title-wrapper(slot='title')
-					a-icon(type='compass')
+				a-menu-item(key="buscar")
+					n-link.link(to="/app/apoderades/buscar") Buscar
+				a-menu-item(key="crear")
+					n-link.link(to="/app/apoderades/buscar") Crear
+			a-sub-menu(v-if="$usuario")
+				span.submenu-title-wrapper(slot="title")
+					a-icon(type="compass")
 					| Locales
-				a-menu-item(key='resumen-territorial')
-					n-link.link(to='/locales/resumenterritorial') Resumen Territorial
-				a-menu-item(key='asignar-apoderades')
-					n-link.link(to='/locales/resumenterritorial') Asignar Apoderades
+				a-menu-item(key="resumen-territorial")
+					n-link.link(to="/app/locales/resumenterritorial") Resumen Territorial
+				a-menu-item(key="asignar-apoderades")
+					n-link.link(to="/app/locales/resumenterritorial") Asignar Apoderades
 			a-sub-menu
-				span.submenu-title-wrapper(slot='title')
-					a-icon(type='link')
+				span.submenu-title-wrapper(slot="title")
+					a-icon(type="link")
 					| Enlaces útiles
-				a-menu-item-group(title='Servel')
-					a-menu-item(key='datos-votacion')
+				a-menu-item-group(title="Servel")
+					a-menu-item(key="datos-votacion")
 						| Datos Votación
-					a-menu-item(key='resultados')
+					a-menu-item(key="resultados")
 						| Resultados
-					a-menu-item(key='reglamento')
+					a-menu-item(key="reglamento")
 						| Reglamento
-				a-menu-item-group(title='Comando')
-					a-menu-item(key='link-1')
+				a-menu-item-group(title="Comando")
+					a-menu-item(key="link-1")
 						| Link 1
-					a-menu-item(key='link-2')
+					a-menu-item(key="link-2")
 						| Link 2
-
-
-
 </template>
 
 <script>
 export default {
 	data () {
-		return {
-		}
+		return {}
 	},
 	methods: {}
 }
@@ -73,7 +65,6 @@ export default {
 <style lang="sass" scoped>
 @import '@style/utils'
 @import '@style/paleta'
-
 
 $alturaMenu: 5em
 .navbar
@@ -131,8 +122,6 @@ $alturaMenu: 5em
 	color: #ffffff
 	border: none
 
-
 	.ant-menu-item-disabled, .ant-menu-submenu-disabled
 		color: #dddddd
-
 </style>

@@ -4,20 +4,16 @@
 	.resumenterritorial
 		fieldset
 			legend Seleccionar vista
-			a-radio-group(v-model='vista' @change='onChange')
-				a-radio-button(value='mapa')
+			a-radio-group(v-model="vista", @change="onChange")
+				a-radio-button(value="mapa")
 					| Mapa
-				a-radio-button(value='lista')
+				a-radio-button(value="lista")
 					| Lista
-		mapa(
-			:marcadores="marcadores_locales"
-		)
-
-
+		mapa(:marcadores="marcadores_locales")
 </template>
 <script>
-import mapa from '../../components/mapa.vue'
-import locales from '../../data/localesxcomunaexample.js'
+import mapa from '../../../components/mapa'
+import locales from '../../../data/localesxcomunaexample'
 
 export default {
 	components: {
@@ -32,8 +28,12 @@ export default {
 	},
 	computed: {
 		marcadores_locales () {
-			return locales.locales.regiones.map(x => (
-				{ latlon: [x.ubicacion.latitud, x.ubicacion.longitud], id: x._id, nombre: x.nombre, mesas: Object.keys(x.mesas).length }))
+			return locales.locales.regiones.map(x => ({
+				latlon: [x.ubicacion.latitud, x.ubicacion.longitud],
+				id: x._id,
+				nombre: x.nombre,
+				mesas: Object.keys(x.mesas).length
+			}))
 		}
 	},
 	methods: {
@@ -66,6 +66,5 @@ export default {
 }
 </script>
 <style scoped>
-
 </style>
 

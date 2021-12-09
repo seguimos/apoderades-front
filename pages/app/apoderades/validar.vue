@@ -5,8 +5,8 @@
 	a-form-model.enviarFormulario(
 		ref="formulario",
 		:model="formulario",
-		:rules="rules"
-		:label-col="{ span: 4 }"
+		:rules="rules",
+		:label-col="{ span: 4 }",
 		:wrapper-col="{ span: 16 }"
 	)
 		a-form-model-item(has-feedback, prop="rut", label="RUT")
@@ -63,7 +63,12 @@
 					:value="region.label"
 				) {{ region.label }}
 
-		a-form-model-item(v-if="regionseleccionada", has-feedback, prop="comuna", label="Comuna")
+		a-form-model-item(
+			v-if="regionseleccionada",
+			has-feedback,
+			prop="comuna",
+			label="Comuna"
+		)
 			a-select.input(
 				v-model="formulario.comuna",
 				placeholder="Comuna",
@@ -75,9 +80,14 @@
 					:value="comuna.label"
 				) {{ comuna.label }}
 
-		a-form-model-item(v-if="comunaSeleccionada", has-feedback, prop="local", label="Local")
+		a-form-model-item(
+			v-if="comunaSeleccionada",
+			has-feedback,
+			prop="local",
+			label="Local"
+		)
 			a-select.input(
-				show-search=""
+				show-search="",
 				v-model="formulario.local",
 				type="local",
 				placeholder="Local de Votación",
@@ -85,7 +95,11 @@
 			)
 				a-select-option(v-for="local in locales", :key="local", :value="local") {{ local }}
 
-		a-form-model-item(label="¿Estás disponible para otros locales cercanos?",:label-col="{span:18}", :wrapper-col="{ span: 2}")
+		a-form-model-item(
+			label="¿Estás disponible para otros locales cercanos?",
+			:label-col="{ span: 18 }",
+			:wrapper-col="{ span: 2 }"
+		)
 			a-switch(v-model="formulario.disponibleParaOtrosLocales")
 		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 14, offset: 5 }")
 			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
@@ -102,14 +116,13 @@
 			a-spin(size="large")
 		.procusandoCompleto(v-if="procesado")
 			p Pronto recibiras noticias
-
 </template>
 
 <script>
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../regiones/regioneschile'
+import regionesComunas from '../../../regiones/regioneschile'
 
 export default {
 	components: {
@@ -334,13 +347,11 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-
 @import '@style/paleta'
 @import '@style/utils'
 
 .root
 	margin: 10px 20px
-
 
 .suscribirme
 	width: 250px
@@ -358,5 +369,4 @@ export default {
 		color: $petroleo1
 		padding-top: .25em
 		background-color: $verde3
-
 </style>

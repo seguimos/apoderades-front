@@ -7,16 +7,8 @@
 		div
 			cuenta
 	.conectado(v-else)
-		.menuLateral
-			b Menu lateral?
-			n-link.link(to='/cuenta') Tu cuenta
-			n-link.link(to='/cuenta/datos') Tu información
-			n-link.link(to='/cuenta/seguridad') Seguridad
-			n-link.link(to='/cuenta/privacidad' disabled) Privacidad
-			.link(@click="$cuenta.salir") Salir
 		.contenido
 			n-child
-
 </template>
 <script>
 import cuenta from '~/components/cuenta'
@@ -25,8 +17,7 @@ export default {
 	data () {
 		return {}
 	},
-	methods: {
-	}
+	methods: {}
 }
 </script>
 <style lang="sass" scoped>
@@ -60,11 +51,8 @@ export default {
 		.contenido
 			flex: auto 1 1
 
-
 		.menuLateral
 			.link
 				display: block
 				padding: .5em 0
-
-
 </style>
