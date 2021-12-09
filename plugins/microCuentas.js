@@ -3,8 +3,10 @@ import Vue from 'vue'
 import localforage from 'localforage'
 import tokenDecoder from 'jwt-decode'
 
-import consolo from '@mainlib/consolo'
-import Llavero from '@mainlib/llavero'
+import consolo from '@lib/consolo'
+import Llavero from '@lib/llavero'
+
+import emisorEventos from '@lib/emisorEventos'
 
 const apiURL = process.env.apiOrigin
 
@@ -42,6 +44,9 @@ async function procesarInfoUsuario (r) {
 }
 
 const cuenta = {
+	// Proporciona metodos on, off, emit, para emisión y escucha de eventos
+	...emisorEventos,
+
 	vm: undefined,
 	_token: undefined,
 	_expConfianza: undefined,
@@ -205,6 +210,7 @@ const cuenta = {
 	async salir () {
 		cuenta.usuario = null
 		cuenta.token = null
+		if (cuenta.vm.$back) cuenta.vm.$back.salir()
 		await cuentaStore.clear()
 		cuenta.ping()
 		return true

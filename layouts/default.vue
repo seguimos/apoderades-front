@@ -10,23 +10,6 @@
 
 <script>
 export default {
-	mounted () {
-		this.recargarusuario()
-		// this.recargarvisitante()
-	},
-	methods: {
-		async recargarusuario () {
-			const usuario = await this.$storage.getItem('usuario')
-			const token = await this.$storage.getItem('token')
-			this.$store.commit('usuarioLogeado', { usuario, token })
-			console.log('recarga usuario', usuario, token)
-		}
-		// async recargarvisitante () {
-		// 	const visitorId = await this.$storage.getItem('visitorId')
-		// 	this.$store.commit('visitorId', visitorId)
-		// 	// this.$store.setItem('usuarioLogeado', visitorId)
-		// }
-	}
 }
 </script>
 

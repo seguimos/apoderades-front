@@ -1,4 +1,4 @@
-import consolo from '@mainlib/consolo'
+import consolo from '@lib/consolo'
 
 // El consolo es como la consola, pero solo funciona (log, info, error, etc) en desarrollo
 

@@ -5,9 +5,11 @@
 			cuenta
 	.noconectado(v-if="!$usuario")
 		div
+			pre NO CONECTADO
 			cuenta
 	.conectado(v-else)
 		.contenido
+			pre CONECTADO
 			n-child
 </template>
 <script>
@@ -17,7 +19,15 @@ export default {
 	data () {
 		return {}
 	},
-	methods: {}
+	mounted () {
+		this.buscarMisDatos()
+		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
+	},
+	methods: {
+		async buscarMisDatos () {
+			await this.$back.leerMisDatos()
+		}
+	}
 }
 </script>
 <style lang="sass" scoped>

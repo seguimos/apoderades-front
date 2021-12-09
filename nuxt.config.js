@@ -1,7 +1,7 @@
-import path from 'path';
-import webpack from 'webpack';
+import path from 'path'
+import webpack from 'webpack'
 
-const dev = process.env.MODO === 'dev';
+const dev = process.env.MODO === 'dev'
 
 export default {
 	// Target: https://go.nuxtjs.dev/config-target
@@ -47,6 +47,7 @@ export default {
 		'@/plugins/lodash',
 		'@/plugins/i18n',
 		'@/plugins/microCuentas',
+		'@/plugins/cuentaBack',
 		{ src: '@/plugins/leaflet', mode: 'client' },
 		'plugins/localforage.js'
 	],
@@ -77,9 +78,9 @@ export default {
 
 	// Build Configuration: https://go.nuxtjs.dev/config-build
 	build: {
-		extend(config, ctx) {
-			config.resolve.alias['@style'] = path.join(__dirname, 'style');
-			config.resolve.alias['@mainlib'] = path.join(__dirname, 'lib');
+		extend (config, ctx) {
+			config.resolve.alias['@style'] = path.join(__dirname, 'style')
+			config.resolve.alias['@lib'] = path.join(__dirname, 'lib')
 		},
 		plugins: [
 			new webpack.IgnorePlugin({
@@ -88,4 +89,4 @@ export default {
 			})
 		]
 	}
-};
+}
