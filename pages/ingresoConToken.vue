@@ -15,7 +15,7 @@ export default {
 	},
 	mounted () {
 		// Verificar si está ingresando
-
+		// if (this.token)
 	},
 	methods: {
 		async ingresarConToken () {

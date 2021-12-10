@@ -372,8 +372,8 @@ const cuenta = {
 			const tokenDecodificado = tokenDecoder(autorizacion)
 			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
 
-			consolo.log(fx, { nombre, apellido, email, telefono, rut, rol })
 			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono, rut, rol }, v => v && !_.isEmpty(v)))
+			consolo.log(fx, 'serializado', serializado)
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
@@ -416,6 +416,7 @@ const cuenta = {
 			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
 
 			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono, rol }, v => v && !_.isEmpty(v)))
+			consolo.log(fx, 'serializado', serializado)
 			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
@@ -454,6 +455,7 @@ const cuenta = {
 			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
 
 			const serializado = JSON.stringify(_.pickBy({ rut }, v => v && !_.isEmpty(v)))
+			consolo.log(fx, 'serializado', serializado)
 			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
@@ -461,7 +463,7 @@ const cuenta = {
 				return
 			}
 			const r = await solicitar.call(this, {
-				url: `${cuenta.cuentasURL}/buscarxrut`,
+				url: `${cuenta.cuentasURL}/buscarXRut`,
 				data: { encriptado, secretoDecriptado, autorizacion },
 				headers: { Authorization: `Bearer ${token}` },
 				method: 'post'
