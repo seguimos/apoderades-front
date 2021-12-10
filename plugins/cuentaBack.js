@@ -169,7 +169,7 @@ const cuentaBack = {
 		}
 	},
 
-	async autoValidarDatos (territorioPreferencia, disponibleParaOtrosLocales) {
+	async autoValidarDatos ({ territorioPreferencia }) {
 		const fx = 'cuentaBack>autoValidarDatos'
 		const cuenta = this.vm.$cuenta
 		try {
@@ -182,7 +182,7 @@ const cuentaBack = {
 					accept: 'application/json',
 					authorization: `Bearer ${cuenta.token}`
 				},
-				body: { territorioPreferencia, disponibleParaOtrosLocales }
+				data: { territorioPreferencia }
 			}).then(r => r.data)
 
 			if (!r || !r.ok) {
