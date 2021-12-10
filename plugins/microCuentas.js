@@ -265,18 +265,18 @@ const cuenta = {
 		}
 	},
 
-	async editarCuenta (autorizacionBack, { nombre, apellido, email, pass, telefono, rol }) {
+	async editarCuenta (autorizacionBack, { nombre, apellido, email, telefono, rol }) {
 		const fx = 'microCuentas>editarCuenta'
 		const _ = cuenta.vm._
 		try {
-			consolo.log(fx, { nombre, apellido, email, pass, telefono, rol })
+			consolo.log(fx, { nombre, apellido, email, telefono, rol })
 
 
 			if (!miLlavero) throw 'Falta miLlavero'
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
 			const llaves = await miLlavero.exportarLlavesPublicas()
-			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify(_.pick({ nombre, apellido, email, pass, telefono, rol }, v => v && !_.isEmpty(v))))
+			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify(_.pick({ nombre, apellido, email, telefono, rol }, v => v && !_.isEmpty(v))))
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return

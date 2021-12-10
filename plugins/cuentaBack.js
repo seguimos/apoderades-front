@@ -170,30 +170,50 @@ const cuentaBack = {
 		}
 	},
 
-	async autoValidarDatos ({ territorioPreferencia }) {
+	async autoValidarDatos ({ territorioPreferencia, nombre, apellido, rut, email, telefono, rol }) {
 		const fx = 'cuentaBack>autoValidarDatos'
 		const cuenta = this.vm.$cuenta
-		try {
-			console.log(fx)
-			const r = await axios({
-				method: 'post',
-				url: `${backURL}/apoderade/datos`,
-				headers: {
-					'content-type': 'application/json',
-					accept: 'application/json',
-					authorization: `Bearer ${cuenta.token}`
-				},
-				data: { territorioPreferencia }
-			}).then(r => r.data)
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
+		// Primero obtener autorización del back
+		const r = await axios({
+			method: 'get',
+			url: `${backURL}/autorizaredicion`,
+			headers: {
+				authorization: `Bearer ${cuentaBack.token}`
 			}
-			console.log(fx, 'r', r)
-		} catch (e) {
-			console.error(fx, e)
+		}).then(r => r.data)
+		console.log(fx, 'back/autorizarCreacion', r)
+
+		if (!r || !r.ok) {
+			console.error(fx, 'fail autorizando creación de usuario (back)', r)
+			return
 		}
+		const autorizacionBack = r.autorizacion
+		console.log('autorizacionDelBack', autorizacionBack)
+		// Crear usuario en microservicio de cuentas
+		const c = await cuentaBack.vm.$cuenta.editarCuenta(autorizacionBack, { nombre, apellido, email, telefono, rut, rol })
+		if (!c || !c.ok) {
+			console.error(fx, 'fail editando usuario en microcuentas', c)
+			return
+		}
+
+		console.log(fx, 'microcuentas/editarCuenta', c)
+
+		const s = await axios({
+			method: 'post',
+			url: `${backURL}/apoderade/datos`,
+			headers: {
+				'content-type': 'application/json',
+				accept: 'application/json',
+				authorization: `Bearer ${cuenta.token}`
+			},
+			data: { territorioPreferencia }
+		}).then(s => s.data)
+
+		if (!s || !s.ok) {
+			console.error(fx, 'fail', s)
+			return
+		}
+		console.log(fx, 'r', s)
 	},
 
 	async asignarTerritorio ({ apoderadeID, region, comunaCodigo }) {

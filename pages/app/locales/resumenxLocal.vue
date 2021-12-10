@@ -45,16 +45,7 @@ export default {
 			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
 		}
 	},
-	computed: {
-		marcadores_locales () {
-			return locales.locales.regiones.map(x => ({
-				latlon: [x.ubicacion.latitud, x.ubicacion.longitud],
-				id: x._id,
-				nombre: x.nombre,
-				mesas: Object.keys(x.mesas).length
-			}))
-		}
-	},
+
 	methods: {
 		submitForm (formName) {
 			// console.log(this.formulario)

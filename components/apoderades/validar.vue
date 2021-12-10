@@ -210,10 +210,19 @@ export default {
 				rol,
 
 				// datos desde back
-				comunaCodigo: this._.get(this.$back.apoderade, ['territorioPreferencia', 'comunaCodigo']),
-				region: this._.get(this.$back.apoderade, ['territorioPreferencia', 'region']),
+				comunaCodigo: this._.get(this.$back.apoderade, [
+					'territorioPreferencia',
+					'comunaCodigo'
+				]),
+				region: this._.get(this.$back.apoderade, [
+					'territorioPreferencia',
+					'region'
+				]),
 				disponibleParaOtrosLocales: false,
-				localID: this._.get(this.$back.apoderade, ['territorioPreferencia', 'localId'])
+				localID: this._.get(this.$back.apoderade, [
+					'territorioPreferencia',
+					'localId'
+				])
 			},
 			rules: {
 				nombre: [{ validator: validaNombre, trigger: 'change' }],
@@ -289,10 +298,20 @@ export default {
 						comunaCodigo: this.formulario.comunaCodigo,
 						localId: this.formulario.localID
 					}
+					const { nombre, apellido, rut, email, telefono, rol } =
+						this.formulario
 					// const disponibleParaOtrosLocales =
 					// 	this.formulario.disponibleParaOtrosLocales
 
-					await this.$back.autoValidarDatos({ territorioPreferencia })
+					await this.$back.autoValidarDatos({
+						territorioPreferencia,
+						nombre,
+						apellido,
+						rut,
+						email,
+						telefono,
+						rol
+					})
 					// this.$gtm.push({ event: 'Registro_mailing', nombre: 'Registro en Mailchimp', estado: 'completo' })
 				} else {
 					console.log('error submit!!')
