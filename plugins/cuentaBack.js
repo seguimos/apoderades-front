@@ -64,7 +64,7 @@ const cuentaBack = {
 
 	set apoderade (v) {
 		if (usarStores) cuentaBackStore.setItem('apoderade', v)
-		return this._apoderade
+		this._apoderade = v
 	},
 
 	// async ping () {
