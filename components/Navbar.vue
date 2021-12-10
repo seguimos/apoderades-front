@@ -11,7 +11,7 @@ a-layout.root
 				.logo-after
 					.iconoAprueboDignidad
 		a-menu(mode="horizontal")
-			a-menu-item(key="login", v-if="!$usuario").header-menu
+			a-menu-item.header-menu(key="login", v-if="!$usuario")
 				n-link.link(to="/app/login") Iniciar Sesión
 			a-sub-menu(v-if="$usuario")
 				span.submenu-title-wrapper(slot="title")
@@ -28,17 +28,13 @@ a-layout.root
 					a-icon(type="team")
 					| Apoderades
 				a-menu-item(key="buscar")
-					n-link.link(to="/app/apoderades/buscar") Buscar
-				a-menu-item(key="crear")
-					n-link.link(to="/app/apoderades/crear") Crear
-				a-menu-item(key="validar")
-					n-link.link(to="/app/apoderades/validar") Validar
+					n-link.link(to="/app/apoderades") Buscar apoderado
 			a-sub-menu(v-if="$usuario")
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="compass")
 					| Locales
 				a-menu-item(key="resumen-territorial")
-					n-link.link(to="/app/locales/resumenterritorial") Resumen Territorial
+					n-link.link(to="/app/locales") Resumen Territorial
 				a-menu-item(key="asignar-apoderades")
 					n-link.link(to="/app/locales/asignar") Asignar Apoderades
 			a-sub-menu
@@ -125,12 +121,10 @@ $alturaMenu: 5em
 .header-menu
 	color: #fff!important
 
-
 .ant-menu
 	background: none
 	color: #ffffff
 	border: none
-
 
 	.ant-menu-item-disabled, .ant-menu-submenu-disabled
 		color: #dddddd

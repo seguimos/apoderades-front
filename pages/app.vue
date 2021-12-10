@@ -7,10 +7,14 @@
 		div
 			pre NO CONECTADO
 			cuenta
-	.conectado(v-else)
+
+	.cargando(v-else-if="!$back")
+		a-icon(type="loading")
+	.conectado(v-else-if="_.get($back, ['apoderade', 'fechaValidacionDatos'])")
 		.contenido
 			pre CONECTADO
 			n-child
+	apoderades-validar(v-else)
 </template>
 <script>
 import cuenta from '~/components/cuenta'

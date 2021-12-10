@@ -183,12 +183,14 @@ export default {
 				rut: undefined,
 				email: undefined,
 				telefono: undefined,
-				comuna: undefined,
+
+				rol: undefined,
+
+				comunaCodigo: undefined,
 				region: undefined,
 				distrito: undefined,
 				territorioAsignado: undefined,
-				localAsignado: undefined,
-				rol: undefined
+				localAsignado: undefined
 			},
 			rules: {
 				nombre: [{ validator: validaNombre, trigger: 'change' }],
@@ -245,9 +247,7 @@ export default {
 				}
 			})
 		},
-		defineDistrito (d) {
-			this.formulario.distrito = d
-		},
+
 		handleRegion (value) {
 			console.log(`Selectedd: ${value}`)
 			this.regionseleccionada = value
@@ -263,31 +263,22 @@ export default {
 			this.local = value
 		},
 		async suscribirse () {
-			// const { nombre, email, telefono, comuna } = this
-			// const data = { nombre, email, telefono, comuna }
-
-			this.visible = true
-			const config = {}
-			const respuesta = await this.$axios
-				.post(`${process.env.apiURL}/crearapoderado`, this.formulario, config)
-				.then(r => r.data)
-				.catch(e => console.error('fallo suscribirse', e))
-			console.log('Respuesta', respuesta)
-			if (!respuesta) {
-				this.visible = false
-			} else {
-				this.procesado = true
-				this.formulario = {
-					nombre: undefined,
-					email: undefined,
-					telefono: undefined,
-					comuna: undefined,
-					region: undefined,
-					distrito: undefined,
-					milita: null
-				}
+			const { nombre, apellido, email, telefono, rol, rut } = this.formulario
+			const territorioPreferencia = {
+				region: this.formulario.region,
+				comunaCodigo: this.formulario.comunaCodigo,
+				localAsignado: this.formulario.localAsignado
 			}
-			console.log('suscrito', this.visible)
+			const creado = await this.$back.crearApoderade({
+				nombre,
+				apellido,
+				email,
+				telefono,
+				rol,
+				rut,
+				territorioPreferencia
+			})
+			console.log(creado)
 		},
 		showModal () {
 			this.tyc = true
