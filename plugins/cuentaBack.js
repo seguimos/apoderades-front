@@ -188,7 +188,7 @@ const cuentaBack = {
 			return
 		}
 		const autorizacionBack = r.autorizacion
-		console.log('autorizacionDelBack', autorizacionBack)
+		// console.log('autorizacionDelBack', autorizacionBack)
 		// Crear usuario en microservicio de cuentas
 		const c = await cuentaBack.vm.$cuenta.editarCuenta(autorizacionBack, { nombre, apellido, email, telefono, rut, rol })
 		if (!c || !c.ok) {
