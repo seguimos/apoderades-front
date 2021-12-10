@@ -83,40 +83,7 @@ const cuentaBack = {
 				return
 			}
 			console.log(fx, 'r', r)
-
-
-			// if (!apoderade || !apoderade.data.ok) {
-			// 	this.erroDatos = apoderade.data.error
-			// } else {
-			// 	console.log(
-			// 		'apoderade.data.usuario.FechaValidacionDatos',
-			// 		apoderade.data.usuario[0].FechaValidacionDatos
-			// 	)
-			// 	if (!apoderade.data.usuario[0].FechaValidacionDatos) {
-			// 		this.$store.commit('usuarioNoValidado', apoderade.data.usuario[0])
-			// 		this.$router.push('/app/apoderades/validar')
-			// 	} else {
-			// 		this.$store.commit('usuarioLogeado', apoderade.data.usuario[0])
-			// 		this.$router.push('/app/locales/resumenterritorial')
-			// 	}
-			// }
-
-
-
-
-			// 	const token = cuentaBack.token
-			// 	if (!token) {
-			// 		console.log(fx, 'abortado por no haber token')
-			// 		cuentaBack.salir()
-			// 		return
-			// 	}
-			// 	console.log(fx)
-			// 	const r = await solicitar.call(this, {
-			// 		url: `${cuentaBack.backURL}/leer`,
-			// 		method: 'get',
-			// 		headers: { Authorization: `Bearer ${token}` }
-			// 	})
-			// 	return await procesarInfoUsuario(r)
+			return r
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -171,7 +138,7 @@ const cuentaBack = {
 		}
 	},
 
-	async autoValidarDatos (territorioPreferencia) {
+	async autoValidarDatos (territorioPreferencia, disponibleParaOtrosLocales) {
 		const fx = 'cuentaBack>autoValidarDatos'
 		const cuenta = this.vm.$cuenta
 		try {
@@ -180,9 +147,11 @@ const cuentaBack = {
 				method: 'post',
 				url: `${backURL}/apoderade/datos`,
 				headers: {
+					'content-type': 'application/json',
+					accept: 'application/json',
 					authorization: `Bearer ${cuenta.token}`
 				},
-				body: { territorioPreferencia }
+				body: { territorioPreferencia, disponibleParaOtrosLocales }
 			}).then(r => r.data)
 
 			if (!r || !r.ok) {
@@ -276,11 +245,11 @@ const cuentaBack = {
 			console.log(fx)
 			const r = await axios({
 				method: 'get',
-				url: `${backURL}/locales/:region/comunas/:comunaCodigo`,
+				url: `${backURL}/locales/${region}/comunas/${comunaCodigo}/`,
 				headers: {
 					authorization: `Bearer ${cuenta.token}`
-				},
-				params: { region, comunaCodigo }
+				}
+				// params: { region, comunaCodigo }
 			}).then(r => r.data)
 
 			if (!r || !r.ok) {
@@ -288,6 +257,7 @@ const cuentaBack = {
 				return
 			}
 			console.log(fx, 'r', r)
+			return r
 		} catch (e) {
 			console.error(fx, e)
 		}
