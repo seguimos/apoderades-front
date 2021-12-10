@@ -374,7 +374,7 @@ const cuenta = {
 
 			consolo.log(fx, { nombre, apellido, email, telefono, rut, rol })
 			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono, rut, rol }, v => v && !_.isEmpty(v)))
-			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify(serializado))
+			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return

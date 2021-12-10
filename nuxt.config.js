@@ -14,6 +14,7 @@ export default {
 	},
 	env: {
 		dev,
+		MODO: process.env.MODO,
 		cuentasURL: local ? 'https://capi.local.dev' : dev ? 'https://capi.lesapoderades.cl' : 'https://capi.apoderadosxboric.cl',
 		backURL: local ? 'https://api.local.dev' : dev ? 'http://localhost:3001' : 'https://api.apoderadosxboric.cl'
 	},
