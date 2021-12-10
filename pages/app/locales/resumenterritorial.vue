@@ -45,6 +45,7 @@ export default {
 			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
 		}
 	},
+
 	computed: {
 		marcadores_locales () {
 			return locales.locales.regiones.map(x => ({
@@ -55,7 +56,14 @@ export default {
 			}))
 		}
 	},
+	mounted () {
+		// this.buscarResumenComuna()
+	},
 	methods: {
+		async buscarResumenComuna () {
+			const locales = await this.$back.localesXComuna()
+			console.log('locales', locales)
+		},
 		submitForm (formName) {
 			// console.log(this.formulario)
 			this.$refs[formName].validate(valid => {

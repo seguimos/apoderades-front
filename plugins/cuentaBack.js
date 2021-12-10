@@ -102,6 +102,8 @@ const cuentaBack = {
 				method: 'get',
 				url: `${backURL}/apoderade`,
 				headers: {
+					'content-type': 'application/json',
+					accept: 'application/json',
 					authorization: `Bearer ${cuentaBack.token}`
 				}
 			}).then(r => r.data)
@@ -276,6 +278,32 @@ const cuentaBack = {
 			const r = await axios({
 				method: 'get',
 				url: `${backURL}/locales/${region}/comunas/${comunaCodigo}/`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				}
+				// params: { region, comunaCodigo }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+			return r
+		} catch (e) {
+			console.error(fx, e)
+		}
+		this.leyendoDatos = false
+	},
+
+	async misTerritorios () {
+		const fx = 'cuentaBack>misTerritorios'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: `${backURL}/apoderade/territorios`,
 				headers: {
 					authorization: `Bearer ${cuenta.token}`
 				}
