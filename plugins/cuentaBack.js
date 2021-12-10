@@ -389,10 +389,10 @@ const cuentaBack = {
 			console.error(fx, 'fail autorizando creación de usuario (back)', r)
 			return
 		}
-		const autorizacionDelBack = r.autorizacion
+		const autorizacionBack = r.autorizacion
 
 		// Crear usuario en microservicio de cuentas
-		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, { nombre, apellido, email, telefono, rut, rol })
+		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionBack, { nombre, apellido, email, telefono, rut, rol })
 		if (!c || !c.ok) {
 			console.error(fx, 'fail creando usuario en microcuentas', c)
 			return

@@ -380,7 +380,7 @@ const cuenta = {
 				return
 			}
 			const r = await solicitar.call(this, {
-				url: `${cuenta.cuentasURL}/crear`,
+				url: `${cuenta.cuentasURL}/crearPorOtroUsuario`,
 				data: { encriptado, secretoDecriptado, autorizacion },
 				headers: { Authorization: `Bearer ${token}` },
 				method: 'post'
