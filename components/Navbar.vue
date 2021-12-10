@@ -11,7 +11,9 @@ a-layout.root
 				.logo-after
 					.iconoAprueboDignidad
 		a-menu(mode="horizontal")
-			a-sub-menu
+			a-menu-item(key="login", v-if="!$usuario").header-menu
+				n-link.link(to="/app/login") Iniciar Sesión
+			a-sub-menu(v-if="$usuario")
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="user")
 					| Cuentas
@@ -21,7 +23,6 @@ a-layout.root
 					n-link.link(to="/app") Iniciar Sesion
 				a-menu-item(key="mis-datos")
 					.link(@click="$cuenta.salir") Salir
-
 			a-sub-menu(v-if="$usuario")
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="team")
@@ -29,7 +30,9 @@ a-layout.root
 				a-menu-item(key="buscar")
 					n-link.link(to="/app/apoderades/buscar") Buscar
 				a-menu-item(key="crear")
-					n-link.link(to="/app/apoderades/buscar") Crear
+					n-link.link(to="/app/apoderades/crear") Crear
+				a-menu-item(key="validar")
+					n-link.link(to="/app/apoderades/validar") Validar
 			a-sub-menu(v-if="$usuario")
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="compass")
@@ -37,14 +40,14 @@ a-layout.root
 				a-menu-item(key="resumen-territorial")
 					n-link.link(to="/app/locales/resumenterritorial") Resumen Territorial
 				a-menu-item(key="asignar-apoderades")
-					n-link.link(to="/app/locales/resumenterritorial") Asignar Apoderades
+					n-link.link(to="/app/locales/asignar") Asignar Apoderades
 			a-sub-menu
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="link")
 					| Enlaces útiles
 				a-menu-item-group(title="Servel")
 					a-menu-item(key="datos-votacion")
-						| Datos Votación
+						a(href="https://consulta.servel.cl") Datos Votación
 					a-menu-item(key="resultados")
 						| Resultados
 					a-menu-item(key="reglamento")
@@ -119,10 +122,15 @@ $alturaMenu: 5em
 				.logo-after
 					opacity: 1
 
+.header-menu
+	color: #fff!important
+
+
 .ant-menu
 	background: none
 	color: #ffffff
 	border: none
+
 
 	.ant-menu-item-disabled, .ant-menu-submenu-disabled
 		color: #dddddd

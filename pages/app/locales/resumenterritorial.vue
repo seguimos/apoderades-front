@@ -1,28 +1,45 @@
 <template lang="pug">
 .rootParticipa
-	.titulo Apoderades por local
+	h1 Resumen Territorial
 	.resumenterritorial
-		fieldset
-			legend Seleccionar vista
-			a-radio-group(v-model="vista", @change="onChange")
-				a-radio-button(value="mapa")
-					| Mapa
-				a-radio-button(value="lista")
-					| Lista
-		mapa(:marcadores="marcadores_locales")
+		resumenLocal(titulo="Resumen Nacional", :resumen="resumen")
+		a-button.ver-mapa(type="primary", block, @click="mapa = !mapa")
+			span(v-if="!mapa") Ver Mapa
+			span(v-else) Ver Lista
+		mapa(:marcadores="marcadores_locales", v-if="mapa")
+		div(v-else)
+			resumenLocal(v-for="region in regiones", :titulo="region.nombre", :resumen="resumen")
+
+
+
 </template>
 <script>
 import mapa from '../../../components/mapa'
 import locales from '../../../data/localesxcomunaexample'
+import resumenLocal from '../../../components/locales/resumenLocal.vue'
 
 export default {
 	components: {
 		mapa,
-		locales
+		locales,
+		resumenLocal
 	},
 	data () {
 		return {
-			vista: 'mapa'
+			regiones: locales.locales.regiones,
+			mapa: false,
+			resumen: {
+				locales: {
+					total: 10,
+					apoderades: 50,
+					sinApoderades: 10
+				},
+				mesas: {
+					total: 44,
+					abiertas: 10,
+					noConstituidas: 43
+				}
+			}
 			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
 		}
 	},
@@ -65,6 +82,18 @@ export default {
 	}
 }
 </script>
-<style scoped>
+<style lang="sass" scoped>
+
+
+@import '@style/paleta'
+@import '@style/utils'
+
+.ver-mapa
+	margin: 10px 0
+	background-color: $verde3
+	color: $petroleo1
+	font-size: larger
+	height: 40px
+
 </style>
 

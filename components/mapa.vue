@@ -8,12 +8,12 @@ div.wrapper-mapa
 	.mapa
 		VMap(v-if='montado && centroActivo' :zoom='zoom' :center='centroActivo' ref='mapa' @ready='mapReady')
 			VTilelayer(:url='tileConfig.url' :tileSize="tileConfig.tileSize" :options="tileConfig.options")
-
-			VMarker(v-for="marcador in marcadores" :key="`marcador-${marcador.id}`"
-				:latLng='marcador.latlon'
-				:icon='crearPointerMarcador(false)'
+			VCircle(v-for="marcador in marcadores" :key="`marcador-${marcador.id}`"
+				:latLng="marcador.latlon"
+				:icon="crearPointerMarcador(false)"
 				@click="marcadorClickado(marcador)"
-
+				:radius="500"
+				:color='color(marcador.mesas)'
 				:draggable='marcadorMovible'
 				@update:latLng='alMoverMarcador')
 
@@ -87,6 +87,11 @@ export default {
 		})
 	},
 	methods: {
+		color (mesas) {
+			if (mesas > 20) return '#FF00FF'
+			else if (mesas > 10) return '#FED976'
+			return '#00FF80'
+		},
 		mapReady () {
 			console.log('mapReady')
 			this.inicializarMapa()

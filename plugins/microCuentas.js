@@ -86,6 +86,7 @@ const cuenta = {
 	},
 
 	get token () { return this._token },
+	get miLlavero () { return miLlavero },
 
 	set token (tkn) {
 		this._token = tkn
@@ -98,6 +99,7 @@ const cuenta = {
 	set usuario (usr) {
 		this._usuario = usr
 		if (usarStores) cuentaStore.setItem('usuario', usr)
+		if (usr) this.emit('cambioUsuario', usr)
 	},
 
 	get datosPrivados () {

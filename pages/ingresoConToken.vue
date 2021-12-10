@@ -1,16 +1,5 @@
 <template lang="pug">
-.carpetaCuenta
-	//.noconectado
-		div
-			cuenta
-	.noconectado(v-if="!$usuario")
-		div
-			pre NO CONECTADO
-			cuenta
-	.conectado(v-else)
-		.contenido
-			pre CONECTADO
-			n-child
+.paginaIngresoConToken
 </template>
 <script>
 import cuenta from '~/components/cuenta'
@@ -19,18 +8,20 @@ export default {
 	data () {
 		return {}
 	},
-	watch: {
-		$usuario (actual) {
-			if (actual) this.buscarMisDatos()
+	computed: {
+		token () {
+			return this.$route.query.token
 		}
 	},
 	mounted () {
-		if (!this.$usuario) return
-		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
+		// Verificar si está ingresando
+
 	},
 	methods: {
-		async buscarMisDatos () {
-			await this.$back.leerMisDatos()
+		async ingresarConToken () {
+			if (!this.token) return
+			console.log('ingresando con token')
+			await this.$back.ingresarConToken(this.token)
 		}
 	}
 }
