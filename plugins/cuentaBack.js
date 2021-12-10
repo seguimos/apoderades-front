@@ -7,7 +7,9 @@ import emisorEventos from '@lib/emisorEventos'
 
 const backURL = process.env.backURL
 
-const cuentaBackStore = localforage.createInstance({ name: 'cuentaBackBackStore' })
+const cuentaBackStore = localforage.createInstance({
+	name: 'cuentaBackBackStore'
+})
 const usarStores = true
 
 const cuentaBack = {
@@ -25,8 +27,12 @@ const cuentaBack = {
 		this.vm = vm
 		// Revisar que se esté utilizando microservicio de cuentas
 		if (!vm.$cuenta) {
-			console.error('En este punto el microservicio de cuentas debería estar conectado')
-			await new Promise(resolve => { setTimeout(resolve(), 1000) })
+			console.error(
+				'En este punto el microservicio de cuentas debería estar conectado'
+			)
+			await new Promise(resolve => {
+				setTimeout(resolve(), 1000)
+			})
 			return cuentaBack.init(vm)
 		}
 		if (usarStores) this.apoderade = cuentaBackStore.getItem('apoderade', null)
@@ -36,8 +42,8 @@ const cuentaBack = {
 		consolo.log(fx, { token: this._token })
 
 		// Frente a cambios de usuario, reaccionar acorde
-		cuentaBack.vm.$cuenta.on('cambioUsuario', usuario => {
-			if (usuario) cuentaBack.leerMisDatos()
+		cuentaBack.vm.$cuenta.on('cambioToken', token => {
+			if (token) cuentaBack.leerMisDatos()
 			else cuentaBack.salir()
 		})
 	},
@@ -90,6 +96,7 @@ const cuentaBack = {
 		if (this.leyendoDatos) return
 		const fx = 'cuentaBack>leerMisDatos'
 		this.leyendoDatos = true
+		console.log('cuentaBack.token', cuentaBack.token)
 		try {
 			console.log(fx)
 			const r = await axios({
@@ -124,9 +131,6 @@ const cuentaBack = {
 			// 	}
 			// }
 
-
-
-
 			// 	const token = cuentaBack.token
 			// 	if (!token) {
 			// 		console.log(fx, 'abortado por no haber token')
@@ -146,10 +150,8 @@ const cuentaBack = {
 		this.leyendoDatos = false
 	},
 
-
 	async salir () {
 		cuentaBack.datosApoderade = null
-		cuentaBack.token = null
 		await cuentaBackStore.clear()
 		// cuentaBack.ping()
 		return true
@@ -174,7 +176,13 @@ const cuentaBack = {
 		const autorizacionDelBack = r.autorizacion
 
 		// Crear usuario en microservicio de cuentas
-		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, { nombre, apellido, email, pass, telefono })
+		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, {
+			nombre,
+			apellido,
+			email,
+			pass,
+			telefono
+		})
 		if (!c || !c.ok) {
 			console.error(fx, 'fail creando usuario en microcuentas', c)
 			return
@@ -198,7 +206,6 @@ const cuentaBack = {
 		console.log(fx, 'back/nuevo-usuario', b)
 	}
 }
-
 
 Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.datosApoderade)
 // Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)

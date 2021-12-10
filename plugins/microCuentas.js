@@ -92,6 +92,7 @@ const cuenta = {
 		this._token = tkn
 		this._expConfianza = tkn && tokenDecoder(tkn).iat + (60 * minutosDeConfianza)
 		if (usarStores) cuentaStore.setItem('token', tkn)
+		if (tkn) this.emit('cambioToken', tkn)
 	},
 
 	get usuario () { return this._usuario },
@@ -99,7 +100,6 @@ const cuenta = {
 	set usuario (usr) {
 		this._usuario = usr
 		if (usarStores) cuentaStore.setItem('usuario', usr)
-		if (usr) this.emit('cambioUsuario', usr)
 	},
 
 	get datosPrivados () {
