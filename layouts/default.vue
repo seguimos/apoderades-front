@@ -10,6 +10,9 @@
 
 <script>
 export default {
+	mounted () {
+		if (process.env.dev) window.vm = this
+	}
 }
 </script>
 

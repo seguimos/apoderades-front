@@ -3,6 +3,7 @@
 	.interior
 
 		.cargando(v-if="$usuario === undefined")
+			a-icon(type="loading")
 			p Cargando
 
 		.noConectado(v-else-if="!$usuario")

@@ -10,6 +10,7 @@ const backURL = process.env.backURL
 const cuentaBackStore = localforage.createInstance({
 	name: 'cuentaBackBackStore'
 })
+
 const usarStores = true
 
 const cuentaBack = {
@@ -35,7 +36,7 @@ const cuentaBack = {
 			})
 			return cuentaBack.init(vm)
 		}
-		if (usarStores) this.apoderade = cuentaBackStore.getItem('apoderade', null)
+		if (usarStores) this.apoderade = await cuentaBackStore.getItem('apoderade', null)
 
 		// Si ya habia usuario logueado al momento de inicializar este script, leer datos
 		if (this.usuario && !this.apoderade) cuentaBack.leerMisDatos()
@@ -63,7 +64,10 @@ const cuentaBack = {
 	},
 
 	set apoderade (v) {
-		if (usarStores) cuentaBackStore.setItem('apoderade', v)
+		if (usarStores) {
+			if (v) cuentaBackStore.setItem('apoderade', v)
+			else cuentaBackStore.removeItem('apoderade')
+		}
 		this._apoderade = v
 	},
 
@@ -118,6 +122,7 @@ const cuentaBack = {
 			return r
 		} catch (e) {
 			console.error(fx, e)
+			this.apoderade = false
 		}
 	},
 
@@ -388,7 +393,7 @@ const cuentaBack = {
 	},
 
 	async salir () {
-		cuentaBack.datosApoderade = null
+		cuentaBack.apoderade = null
 		await cuentaBackStore.clear()
 		// cuentaBack.ping()
 		return true
@@ -442,7 +447,7 @@ const cuentaBack = {
 	}
 }
 
-Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.datosApoderade)
+Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.apoderade)
 // Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
 
 export default function ({ app }, inject) {
