@@ -236,13 +236,18 @@ const cuenta = {
 	async crearCuenta (autorizacionBack, { nombre, apellido, email, pass, telefono, rut, rol }) {
 		const fx = 'microCuentas>crearCuenta'
 		try {
+			const token = cuenta.token
+			if (!token) {
+				console.log(fx, 'abortado por no haber token')
+				cuenta.salir()
+				return
+			}
 			consolo.log(fx, { nombre, apellido, email, pass, telefono })
 
 
 			if (!miLlavero) throw 'Falta miLlavero'
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
-			const llaves = await miLlavero.exportarLlavesPublicas()
 			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass, telefono, rut, rol }))
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
@@ -250,7 +255,8 @@ const cuenta = {
 			}
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/crear`,
-				data: { encriptado, llaves, autorizacionBack },
+				data: { encriptado, autorizacionBack },
+				headers: { Authorization: `Bearer ${token}` },
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)
@@ -269,13 +275,18 @@ const cuenta = {
 		const fx = 'microCuentas>editarCuenta'
 		const _ = cuenta.vm._
 		try {
+			const token = cuenta.token
+			if (!token) {
+				console.log(fx, 'abortado por no haber token')
+				cuenta.salir()
+				return
+			}
 			consolo.log(fx, { nombre, apellido, email, pass, telefono, rol })
 
 
 			if (!miLlavero) throw 'Falta miLlavero'
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
-			const llaves = await miLlavero.exportarLlavesPublicas()
 			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify(_.pick({ nombre, apellido, email, pass, telefono, rol }, v => v && !_.isEmpty(v))))
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
@@ -283,7 +294,8 @@ const cuenta = {
 			}
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/editar`,
-				data: { encriptado, llaves, autorizacionBack },
+				data: { encriptado, autorizacionBack },
+				headers: { Authorization: `Bearer ${token}` },
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)
