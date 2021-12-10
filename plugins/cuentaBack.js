@@ -20,18 +20,26 @@ const cuentaBack = {
 	sinConexion: undefined,
 	backURL,
 
-	init (vm) {
+	async init (vm) {
 		const fx = 'cuentaBack>init'
 		this.vm = vm
 		// Revisar que se esté utilizando microservicio de cuentas
 		if (!vm.$cuenta) {
 			console.error('En este punto el microservicio de cuentas debería estar conectado')
-			return
+			await new Promise(resolve => { setTimeout(resolve(), 1000) })
+			return cuentaBack.init(vm)
 		}
 		if (usarStores) this.apoderade = cuentaBackStore.getItem('apoderade', null)
-		// Revisar que se haya inicializado
+
+		// Si ya habia usuario logueado al momento de inicializar este script, leer datos
+		if (this.usuario && !this.apoderade) cuentaBack.leerMisDatos()
 		consolo.log(fx, { token: this._token })
-		if (this.usuario) this.leerMisDatos()
+
+		// Frente a cambios de usuario, reaccionar acorde
+		cuentaBack.vm.$cuenta.on('cambioUsuario', usuario => {
+			if (usuario) cuentaBack.leerMisDatos()
+			else cuentaBack.salir()
+		})
 	},
 
 	get token () {
@@ -39,6 +47,9 @@ const cuentaBack = {
 	},
 	get usuario () {
 		return this.vm.$cuenta.usuario
+	},
+	get miLlavero () {
+		return this.vm.$cuenta.miLlavero
 	},
 
 	get apoderade () {
@@ -74,9 +85,11 @@ const cuentaBack = {
 	// 	}
 	// },
 
-
+	leyendoDatos: null,
 	async leerMisDatos () {
+		if (this.leyendoDatos) return
 		const fx = 'cuentaBack>leerMisDatos'
+		this.leyendoDatos = true
 		try {
 			console.log(fx)
 			const r = await axios({
@@ -130,6 +143,7 @@ const cuentaBack = {
 		} catch (e) {
 			console.error(fx, e)
 		}
+		this.leyendoDatos = false
 	},
 
 

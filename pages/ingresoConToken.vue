@@ -13,18 +13,15 @@ export default {
 			return this.$route.query.token
 		}
 	},
-	watch: {
-		$usuario (actual) {
-			if (actual) this.buscarMisDatos()
-		}
-	},
 	mounted () {
 		// Verificar si está ingresando
 
 	},
 	methods: {
-		async buscarMisDatos () {
-			await this.$back.leerMisDatos()
+		async ingresarConToken () {
+			if (!this.token) return
+			console.log('ingresando con token')
+			await this.$back.ingresarConToken(this.token)
 		}
 	}
 }

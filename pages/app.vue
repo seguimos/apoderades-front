@@ -26,7 +26,6 @@ export default {
 	},
 	mounted () {
 		if (!this.$usuario) return
-		this.buscarMisDatos()
 		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
 	},
 	methods: {
