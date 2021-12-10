@@ -13,8 +13,7 @@
 			a-input.input(
 				v-model="formulario.rut",
 				type="rut",
-				placeholder="10.000.000-0",
-				:disabled="true"
+				placeholder="10.000.000-0"
 			)
 
 		a-form-model-item(has-feedback, prop="nombre", label="Nombres")
@@ -45,11 +44,11 @@
 			)
 
 		a-form-model-item(has-feedback, label="Rol")
-			a-select.input(v-model="formulario.rol", placeholder="Elige un Rol...")
-				a-select-option(:value="1") Comando
-				a-select-option(:value="2") Coordinador
-				a-select-option(:value="3") Apoderado General
-				a-select-option(:value="4") Apoderado de mesa
+			a-input.input(
+				v-model="formulario.rol",
+				placeholder="Elige un Rol...",
+				disabled
+			)
 
 		a-form-model-item(has-feedback, prop="region", label="Región")
 			a-select.input(
@@ -60,7 +59,7 @@
 				a-select-option(
 					v-for="region in regiones",
 					:key="region.label",
-					:value="region.label"
+					:value="region.reg"
 				) {{ region.label }}
 
 		a-form-model-item(
@@ -70,14 +69,15 @@
 			label="Comuna"
 		)
 			a-select.input(
-				v-model="formulario.comuna",
+				v-model="formulario.comunaCodigo",
 				placeholder="Comuna",
-				@change="handleComuna"
+				@change="handleComuna",
+				@select="buscarLocales"
 			)
 				a-select-option(
 					v-for="comuna in comunas",
-					:key="comuna.label",
-					:value="comuna.label"
+					:key="comuna.codigo",
+					:value="comuna.codigo"
 				) {{ comuna.label }}
 
 		a-form-model-item(
@@ -93,7 +93,11 @@
 				placeholder="Local de Votación",
 				@change="handleLocal"
 			)
-				a-select-option(v-for="local in locales", :key="local", :value="local") {{ local }}
+				a-select-option(
+					v-for="local in locales",
+					:key="local._id",
+					:value="local._id"
+				) {{ local.nombre }}
 
 		a-form-model-item(
 			label="¿Estás disponible para otros locales cercanos?",
@@ -101,7 +105,7 @@
 			:wrapper-col="{ span: 2 }"
 		)
 			a-switch(v-model="formulario.disponibleParaOtrosLocales")
-		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 14, offset: 5 }")
+		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 14, offset: 2 }")
 			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
 				| VALIDAR DATOS
 
@@ -122,7 +126,7 @@
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../../regiones/regioneschile'
+import regionesComunas from '../regiones/regioneschile'
 
 export default {
 	components: {
@@ -198,16 +202,20 @@ export default {
 		}
 		return {
 			formulario: {
-				nombre: undefined,
-				apellido: undefined,
-				rut: undefined,
-				email: undefined,
-				telefono: undefined,
-				comuna: undefined,
+				// datos desde microcuentas
+				nombre: this.$usuario.nombre,
+				apellido: this.$usuario.apellido,
+				rut: this.$usuario.rut,
+				email: this.$usuario.email,
+				telefono: this.$usuario.telefono,
+				rol: this.$usuario.rol,
+
+				// datos desde back
+				comunaCodigo: undefined,
 				region: undefined,
 				distrito: undefined,
 				disponibleParaOtrosLocales: false,
-				local: undefined,
+				localID: undefined,
 				mesa: undefined
 			},
 			rules: {
@@ -223,6 +231,8 @@ export default {
 				labelCol: { span: 4 },
 				wrapperCol: { span: 14 }
 			},
+
+			locales: [],
 			otroLocalVisible: false,
 			visible: false,
 			tyc: false,
@@ -240,7 +250,7 @@ export default {
 		},
 		comunas () {
 			const re = this.regiones
-			const com = this._.filter(re, ['value', this.regionseleccionada])
+			const com = this._.filter(re, ['reg', this.regionseleccionada])
 			const comunas = com[0].children
 			if (this.regionseleccionada) {
 				// console.log(this.regionseleccionada)
@@ -248,33 +258,40 @@ export default {
 				// console.log('formulario', this.formulario)
 			}
 			return comunas
-		},
-		locales () {
-			return ['TODO', 'TODO2', 'TODO3']
-		},
-		distrito () {
-			const comunaSeleccionada = this.comunaSeleccionada
-			if (this.comunaSeleccionada) {
-				const com = this.comunas
-				const comuna = this._.filter(com, ['value', comunaSeleccionada])
-				const distrito = comuna[0].distrito
-				// console.log('distrito', distrito)
-				this.defineDistrito(distrito)
-				return distrito
-			}
-			return null
 		}
+	},
+	mounted () {
+		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
 	},
 	methods: {
 		otroLocal () {
 			this.otroLocalVisible = true
 			console.log('otro!')
 		},
+		async buscarLocales () {
+			console.log('this.formulario', this.formulario)
+			const locales = await this.$back.localesXComuna({
+				region: this.formulario.region,
+				comunaCodigo: this.formulario.comunaCodigo
+			})
+			console.log('buscarLocales', locales)
+			this.locales = locales.locales
+		},
 		submitForm (formName) {
-			// console.log(this.formulario)
 			this.$refs[formName].validate(valid => {
 				if (valid) {
-					this.enviarFormulario()
+					const territorioPreferencia = {
+						region: this.formulario.region,
+						comunaCodigo: this.formulario.comunaCodigo,
+						localId: this.formulario.localID
+					}
+					const disponibleParaOtrosLocales =
+						this.formulario.disponibleParaOtrosLocales
+
+					this.$back.autoValidarDatos(
+						territorioPreferencia,
+						disponibleParaOtrosLocales
+					)
 					// this.$gtm.push({ event: 'Registro_mailing', nombre: 'Registro en Mailchimp', estado: 'completo' })
 				} else {
 					console.log('error submit!!')
@@ -303,34 +320,6 @@ export default {
 		handleLocal (value) {
 			console.log(`Selected: ${value}`)
 			this.local = value
-		},
-		async enviarFormulario () {
-			this.visible = true
-			const config = {}
-			const respuesta = await this.$axios
-				.post(
-					`${process.env.apiURL}/validardatosapoderado`,
-					this.formulario,
-					config
-				)
-				.then(r => r.data)
-				.catch(e => console.error('fallo enviarFormulario', e))
-			console.log('Respuesta', respuesta)
-			if (!respuesta) {
-				this.visible = false
-			} else {
-				this.procesado = true
-				this.formulario = {
-					nombre: undefined,
-					email: undefined,
-					telefono: undefined,
-					comuna: undefined,
-					region: undefined,
-					distrito: undefined,
-					milita: null
-				}
-			}
-			console.log('suscrito', this.visible)
 		},
 		showModal () {
 			this.tyc = true

@@ -2219,6 +2219,7 @@ const regionesComunas = _.map(chile, regionData => {
 		return {
 			value: comuna.nombre,
 			label: comuna.nombre,
+			codigo: comuna.codigo,
 			distrito: comuna.distrito
 		}
 	}))

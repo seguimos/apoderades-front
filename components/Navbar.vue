@@ -17,8 +17,10 @@ a-layout.root
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="user")
 					| Cuentas
-				a-menu-item(key="mi-cuenta")
+				a-menu-item(v-if="$usuario", key="mi-cuenta")
 					n-link.link(to="/cuenta") Mi cuenta
+				a-menu-item(v-if="!$usuario", key="mi-cuenta")
+					n-link.link(to="/app") Iniciar Sesion
 				a-menu-item(key="mis-datos")
 					.link(@click="$cuenta.salir") Salir
 			a-sub-menu(v-if="$usuario")

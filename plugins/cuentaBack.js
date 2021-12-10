@@ -114,40 +114,209 @@ const cuentaBack = {
 			console.log(fx, 'r', r)
 			const { apoderade } = r
 			this.apoderade = apoderade
+			return r
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
 
-			// if (!apoderade || !apoderade.data.ok) {
-			// 	this.erroDatos = apoderade.data.error
-			// } else {
-			// 	console.log(
-			// 		'apoderade.data.usuario.FechaValidacionDatos',
-			// 		apoderade.data.usuario[0].FechaValidacionDatos
-			// 	)
-			// 	if (!apoderade.data.usuario[0].FechaValidacionDatos) {
-			// 		this.$store.commit('usuarioNoValidado', apoderade.data.usuario[0])
-			// 		this.$router.push('/app/apoderades/validar')
-			// 	} else {
-			// 		this.$store.commit('usuarioLogeado', apoderade.data.usuario[0])
-			// 		this.$router.push('/app/locales/resumenterritorial')
-			// 	}
-			// }
+	async apoderadosXRegion (region, roles) {
+		const fx = 'cuentaBack>apoderadosXRegion'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: `${backURL}/apoderades/region`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				params: { region, roles }
 
-			// 	const token = cuentaBack.token
-			// 	if (!token) {
-			// 		console.log(fx, 'abortado por no haber token')
-			// 		cuentaBack.salir()
-			// 		return
-			// 	}
-			// 	console.log(fx)
-			// 	const r = await solicitar.call(this, {
-			// 		url: `${cuentaBack.backURL}/leer`,
-			// 		method: 'get',
-			// 		headers: { Authorization: `Bearer ${token}` }
-			// 	})
-			// 	return await procesarInfoUsuario(r)
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async apoderadosXcomuna (comunaCodigo, roles) {
+		const fx = 'cuentaBack>apoderadosXcomuna'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: `${backURL}/apoderades/comuna/:comunaCodigo`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				params: { comunaCodigo, roles }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async autoValidarDatos (territorioPreferencia, disponibleParaOtrosLocales) {
+		const fx = 'cuentaBack>autoValidarDatos'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'post',
+				url: `${backURL}/apoderade/datos`,
+				headers: {
+					'content-type': 'application/json',
+					accept: 'application/json',
+					authorization: `Bearer ${cuenta.token}`
+				},
+				body: { territorioPreferencia, disponibleParaOtrosLocales }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async asignarTerritorio ({ apoderadeID, region, comunaCodigo }) {
+		const fx = 'cuentaBack>asignarTerritorio'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'post',
+				url: `${backURL}/apoderades/:criptoIdApoderade/territorio`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				body: { territorio: {	region, comunaCodigo } },
+				params: { apoderadeID }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async asignarLocal ({ region, localId, idCriptocuentas }) {
+		const fx = 'cuentaBack>asignarLocal'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'post',
+				url: `${backURL}/locales/:region/locales/:localId/apoderades`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				body: { idCriptocuentas },
+				params: { region, localId }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async localesXRegion ({ region }) {
+		const fx = 'cuentaBack>localesXRegion'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: `${backURL}/locales/:region`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				params: { region }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async localesXComuna ({ region, comunaCodigo }) {
+		const fx = 'cuentaBack>localesXComuna'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: `${backURL}/locales/${region}/comunas/${comunaCodigo}/`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				}
+				// params: { region, comunaCodigo }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+			return r
 		} catch (e) {
 			console.error(fx, e)
 		}
 		this.leyendoDatos = false
+	},
+
+	async obtenerLocal ({ region, localId }) {
+		const fx = 'cuentaBack>obtenerLocal'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: `${backURL}/locales/:region/locales/:localId`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				},
+				params: { region, localId }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+		} catch (e) {
+			console.error(fx, e)
+		}
 	},
 
 	async salir () {
@@ -157,7 +326,7 @@ const cuentaBack = {
 		return true
 	},
 
-	async crearApoderade ({ nombre, apellido, email, pass, telefono }) {
+	async crearApoderade ({ nombre, apellido, email, pass, telefono, rol, territorioPreferencia }) {
 		const fx = 'cuentaBack>crearApoderade'
 		// Primero obtener autorización del back
 		const r = await axios({
@@ -194,13 +363,15 @@ const cuentaBack = {
 		// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
 		const b = await axios({
 			method: 'post',
-			url: `${backURL}/nuevo-usuario`,
+			url: `${backURL}/apoderades`,
 			headers: {
 				authorization: `Bearer ${cuentaBack.token}`
 			},
 			data: {
 				usuarioID,
-				urlValidacionEmail
+				urlValidacionEmail,
+				rol,
+				territorioPreferencia
 			}
 		}).then(r => r.data)
 		console.log(fx, 'back/nuevo-usuario', b)
