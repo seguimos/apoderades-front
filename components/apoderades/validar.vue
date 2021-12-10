@@ -1,8 +1,8 @@
 <template lang="pug">
 .root
-	h1 Crear un nuevo apoderado
+	h1 Valida tus datos de inscripcion
 
-	a-form-model.suscribirse(
+	a-form-model.enviarFormulario(
 		ref="formulario",
 		:model="formulario",
 		:rules="rules",
@@ -12,7 +12,7 @@
 		a-form-model-item(has-feedback, prop="rut", label="RUT")
 			a-input.input(
 				v-model="formulario.rut",
-				type="nombre",
+				type="rut",
 				placeholder="10.000.000-0"
 			)
 
@@ -44,18 +44,13 @@
 			)
 
 		a-form-model-item(has-feedback, label="Rol")
-			a-select.input(v-model="formulario.rol", placeholder="Elige un Rol...")
-				a-select-option(:value="1") Comando
-				a-select-option(:value="2") Coordinador
-				a-select-option(:value="3") Apoderado General
-				a-select-option(:value="4") Apoderado de mesa
+			a-input.input(
+				v-model="formulario.rol",
+				placeholder="Elige un Rol...",
+				disabled
+			)
 
-		a-form-model-item(
-			v-if="formulario.rol",
-			has-feedback,
-			prop="region",
-			label="Región"
-		)
+		a-form-model-item(has-feedback, prop="region", label="Región")
 			a-select.input(
 				v-model="formulario.region",
 				@change="handleRegion",
@@ -64,24 +59,25 @@
 				a-select-option(
 					v-for="region in regiones",
 					:key="region.label",
-					:value="region.label"
+					:value="region.reg"
 				) {{ region.label }}
 
 		a-form-model-item(
-			v-if="formulario.rol > 2 && regionseleccionada",
+			v-if="regionseleccionada",
 			has-feedback,
 			prop="comuna",
 			label="Comuna"
 		)
 			a-select.input(
-				v-model="formulario.comuna",
+				v-model="formulario.comunaCodigo",
 				placeholder="Comuna",
-				@change="handleComuna"
+				@change="handleComuna",
+				@select="buscarLocales"
 			)
 				a-select-option(
 					v-for="comuna in comunas",
-					:key="comuna.label",
-					:value="comuna.label"
+					:key="comuna.codigo",
+					:value="comuna.codigo"
 				) {{ comuna.label }}
 
 		a-form-model-item(
@@ -92,25 +88,53 @@
 		)
 			a-select.input(
 				show-search="",
-				v-model="formulario.local",
+				v-model="formulario.localID",
 				type="local",
 				placeholder="Local de Votación",
 				@change="handleLocal"
 			)
-				a-select-option(v-for="local in locales", :key="local", :value="local") {{ local }}
+				a-select-option(
+					v-for="local in locales",
+					:key="local._id",
+					:value="local._id"
+				) {{ local.nombre }}
 
-		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 16, offset: 4 }")
+		//- a-form-model-item(
+		//- 	label="¿Estás disponible para otros locales cercanos?",
+		//- 	:label-col="{ span: 18 }",
+		//- 	:wrapper-col="{ span: 2 }"
+		//- )
+		//- 	a-switch(v-model="formulario.disponibleParaOtrosLocales")
+		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 14, offset: 2 }")
 			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
 				| VALIDAR DATOS
+
+	a-modal.modal(
+		v-model="visible",
+		title="Muchas gracias !!",
+		centered,
+		@ok="handleOk",
+		:footer="null"
+	)
+		.procesando(v-if="!procesado")
+			a-spin(size="large")
+		.procusandoCompleto(v-if="procesado")
+			p Pronto recibiras noticias
 </template>
 
 <script>
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../../regiones/regioneschile'
+import regionesComunas from '../../regiones/regioneschile'
 
 export default {
+	components: {
+		VNodes: {
+			functional: true,
+			render: (h, ctx) => ctx.props.vnodes
+		}
+	},
 	data () {
 		// let checkPending
 		const validaTelefono = (rule, value, callback) => {
@@ -178,17 +202,19 @@ export default {
 		}
 		return {
 			formulario: {
-				nombre: undefined,
-				apellido: undefined,
-				rut: undefined,
-				email: undefined,
-				telefono: undefined,
-				comuna: undefined,
-				region: undefined,
-				distrito: undefined,
-				territorioAsignado: undefined,
-				localAsignado: undefined,
-				rol: undefined
+				// datos desde microcuentas
+				nombre: this.$usuario.nombre,
+				apellido: this.$usuario.apellido,
+				rut: this.$usuario.rut,
+				email: this.$usuario.email,
+				telefono: this.$usuario.telefono,
+				rol: this.$back.apoderade.rol,
+
+				// datos desde back
+				comunaCodigo: this.$back.apoderade.territorioPreferencia.comunaCodigo,
+				region: this.$back.apoderade.territorioPreferencia.region,
+				disponibleParaOtrosLocales: false,
+				localID: this.$back.apoderade.territorioPreferencia.localId
 			},
 			rules: {
 				nombre: [{ validator: validaNombre, trigger: 'change' }],
@@ -203,6 +229,9 @@ export default {
 				labelCol: { span: 4 },
 				wrapperCol: { span: 14 }
 			},
+
+			locales: [],
+			otroLocalVisible: false,
 			visible: false,
 			tyc: false,
 			regionseleccionada: null,
@@ -219,7 +248,7 @@ export default {
 		},
 		comunas () {
 			const re = this.regiones
-			const com = this._.filter(re, ['value', this.regionseleccionada])
+			const com = this._.filter(re, ['reg', this.regionseleccionada])
 			const comunas = com[0].children
 			if (this.regionseleccionada) {
 				// console.log(this.regionseleccionada)
@@ -227,17 +256,44 @@ export default {
 				// console.log('formulario', this.formulario)
 			}
 			return comunas
-		},
-		locales () {
-			return ['TODO', 'TODO2', 'TODO3']
 		}
 	},
+	// mounted () {
+	// 	if (this.$back.apoderade.fechaValidacionDatos) {
+	// 		this.$router.replace('/app/locales/resumenterritorial')
+	// 	}
+	// },
 	methods: {
+		rechazalos () {
+			if (this.$back.apoderade.territorioPreferencia) {
+				this.$router.replace('/app/locales/resumenterritorial')
+			}
+		},
+		otroLocal () {
+			this.otroLocalVisible = true
+			console.log('otro!')
+		},
+		async buscarLocales () {
+			console.log('this.formulario', this.formulario)
+			const locales = await this.$back.localesXComuna({
+				region: this.formulario.region,
+				comunaCodigo: this.formulario.comunaCodigo
+			})
+			console.log('buscarLocales', locales)
+			this.locales = locales.locales
+		},
 		submitForm (formName) {
-			// console.log(this.formulario)
-			this.$refs[formName].validate(valid => {
+			this.$refs[formName].validate(async valid => {
 				if (valid) {
-					this.suscribirse()
+					const territorioPreferencia = {
+						region: this.formulario.region,
+						comunaCodigo: this.formulario.comunaCodigo,
+						localId: this.formulario.localID
+					}
+					// const disponibleParaOtrosLocales =
+					// 	this.formulario.disponibleParaOtrosLocales
+
+					await this.$back.autoValidarDatos({ territorioPreferencia })
 					// this.$gtm.push({ event: 'Registro_mailing', nombre: 'Registro en Mailchimp', estado: 'completo' })
 				} else {
 					console.log('error submit!!')
@@ -245,49 +301,25 @@ export default {
 				}
 			})
 		},
-		defineDistrito (d) {
-			this.formulario.distrito = d
-		},
+
 		handleRegion (value) {
 			console.log(`Selectedd: ${value}`)
+			this.comunaSeleccionada = null
+			this.localID = null
+			this.otroLocalVisible = false
 			this.regionseleccionada = value
 			console.log('seleccion', this.regionseleccionada)
 		},
 		handleComuna (value) {
 			console.log(`Selected: ${value}`)
+			this.local = null
+			this.otroLocalVisible = false
 			this.comunaSeleccionada = value
 			console.log('distri', this.distrito)
 		},
 		handleLocal (value) {
 			console.log(`Selected: ${value}`)
-			this.local = value
-		},
-		async suscribirse () {
-			// const { nombre, email, telefono, comuna } = this
-			// const data = { nombre, email, telefono, comuna }
-
-			this.visible = true
-			const config = {}
-			const respuesta = await this.$axios
-				.post(`${process.env.apiURL}/crearapoderado`, this.formulario, config)
-				.then(r => r.data)
-				.catch(e => console.error('fallo suscribirse', e))
-			console.log('Respuesta', respuesta)
-			if (!respuesta) {
-				this.visible = false
-			} else {
-				this.procesado = true
-				this.formulario = {
-					nombre: undefined,
-					email: undefined,
-					telefono: undefined,
-					comuna: undefined,
-					region: undefined,
-					distrito: undefined,
-					milita: null
-				}
-			}
-			console.log('suscrito', this.visible)
+			this.localID = value
 		},
 		showModal () {
 			this.tyc = true

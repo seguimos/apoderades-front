@@ -8,10 +8,12 @@
 			span(v-else) Ver Lista
 		mapa(:marcadores="marcadores_locales", v-if="mapa")
 		div(v-else)
-			resumenLocal(v-for="region in regiones", :titulo="region.nombre", :resumen="resumen")
-
-
-
+			resumenLocal(
+				v-for="region in regiones",
+				:key="region.reg",
+				:titulo="region.nombre",
+				:resumen="resumen"
+			)
 </template>
 <script>
 import mapa from '../../../components/mapa'
@@ -83,8 +85,6 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
-
-
 @import '@style/paleta'
 @import '@style/utils'
 
@@ -94,6 +94,5 @@ export default {
 	color: $petroleo1
 	font-size: larger
 	height: 40px
-
 </style>
 
