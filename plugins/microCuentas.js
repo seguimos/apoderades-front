@@ -233,7 +233,7 @@ const cuenta = {
 		}
 	},
 
-	async crearCuenta (autorizacionBack, { nombre, apellido, email, pass, telefono, rut, rol }) {
+	async crearCuenta (autorizacionBack, { nombre, apellido, email, telefono, rut, rol }) {
 		const fx = 'microCuentas>crearCuenta'
 		try {
 			const token = cuenta.token
@@ -242,20 +242,22 @@ const cuenta = {
 				cuenta.salir()
 				return
 			}
-			consolo.log(fx, { nombre, apellido, email, pass, telefono })
-
-
 			if (!miLlavero) throw 'Falta miLlavero'
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
-			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass, telefono, rut, rol }))
+			// Desencriptar secretoFront
+			const tokenDecodificado = tokenDecoder(autorizacionBack)
+			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
+
+			consolo.log(fx, { nombre, apellido, email, telefono, rut, rol })
+			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, telefono, rut, rol }))
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
 			}
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/crear`,
-				data: { encriptado, autorizacionBack },
+				data: { encriptado, secretoDecriptado, autorizacionBack },
 				headers: { Authorization: `Bearer ${token}` },
 				method: 'post'
 			})
@@ -283,10 +285,14 @@ const cuenta = {
 			}
 			consolo.log(fx, { nombre, apellido, email, telefono, rol })
 
-
 			if (!miLlavero) throw 'Falta miLlavero'
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
+			// Desencriptar secretoFront
+			const tokenDecodificado = tokenDecoder(autorizacionBack)
+			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
+
+			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify(_.pick({ nombre, apellido, email, telefono, rol }, v => v && !_.isEmpty(v))))
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
@@ -294,7 +300,7 @@ const cuenta = {
 			}
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/editar`,
-				data: { encriptado, autorizacionBack },
+				data: { encriptado, secretoDecriptado, autorizacionBack },
 				headers: { Authorization: `Bearer ${token}` },
 				method: 'post'
 			})
