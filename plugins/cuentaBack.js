@@ -31,11 +31,14 @@ const cuentaBack = {
 		if (usarStores) this.apoderade = cuentaBackStore.getItem('apoderade', null)
 		// Revisar que se haya inicializado
 		consolo.log(fx, { token: this._token })
-		this.leer()
+		if (this.usuario) this.leerMisDatos()
 	},
 
 	get token () {
 		return this.vm.$cuenta.token
+	},
+	get usuario () {
+		return this.vm.$cuenta.usuario
 	},
 
 	get apoderade () {
