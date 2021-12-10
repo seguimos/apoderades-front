@@ -1,6 +1,6 @@
 <template lang="pug">
 .rootParticipa
-	h1 Resumen Territorial
+	h1 Resumen Local
 	.resumenterritorial
 		resumenLocal(titulo="Resumen Nacional", :resumen="resumen")
 		a-button.ver-mapa(type="primary", block, @click="mapa = !mapa")
@@ -46,24 +46,7 @@ export default {
 		}
 	},
 
-	computed: {
-		marcadores_locales () {
-			return locales.locales.regiones.map(x => ({
-				latlon: [x.ubicacion.latitud, x.ubicacion.longitud],
-				id: x._id,
-				nombre: x.nombre,
-				mesas: Object.keys(x.mesas).length
-			}))
-		}
-	},
-	mounted () {
-		// this.buscarResumenComuna()
-	},
 	methods: {
-		async buscarResumenComuna () {
-			const locales = await this.$back.localesXComuna()
-			console.log('locales', locales)
-		},
 		submitForm (formName) {
 			// console.log(this.formulario)
 			this.$refs[formName].validate(valid => {
@@ -95,12 +78,5 @@ export default {
 <style lang="sass" scoped>
 @import '@style/paleta'
 @import '@style/utils'
-
-.ver-mapa
-	margin: 10px 0
-	background-color: $verde3
-	color: $petroleo1
-	font-size: larger
-	height: 40px
 </style>
 

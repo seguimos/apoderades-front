@@ -1,5 +1,5 @@
 <template lang="pug">
-.root
+.root(v-if="formulario")
 	h1 Valida tus datos de inscripcion
 
 	a-form-model.enviarFormulario(
@@ -69,7 +69,6 @@
 			label="Comuna"
 		)
 			a-select.input(
-				v-model="formulario.comunaCodigo",
 				placeholder="Comuna",
 				@change="handleComuna",
 				@select="buscarLocales"
@@ -88,7 +87,7 @@
 		)
 			a-select.input(
 				show-search="",
-				v-model="formulario.local",
+				v-model="formulario.localID",
 				type="local",
 				placeholder="Local de Votación",
 				@change="handleLocal"
@@ -99,12 +98,12 @@
 					:value="local._id"
 				) {{ local.nombre }}
 
-		a-form-model-item(
-			label="¿Estás disponible para otros locales cercanos?",
-			:label-col="{ span: 18 }",
-			:wrapper-col="{ span: 2 }"
-		)
-			a-switch(v-model="formulario.disponibleParaOtrosLocales")
+		//- a-form-model-item(
+		//- 	label="¿Estás disponible para otros locales cercanos?",
+		//- 	:label-col="{ span: 18 }",
+		//- 	:wrapper-col="{ span: 2 }"
+		//- )
+		//- 	a-switch(v-model="formulario.disponibleParaOtrosLocales")
 		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 14, offset: 2 }")
 			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
 				| VALIDAR DATOS
@@ -126,7 +125,7 @@
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../regiones/regioneschile'
+import regionesComunas from '../../regiones/regioneschile'
 
 export default {
 	components: {
@@ -200,23 +199,30 @@ export default {
 				callback(new Error('ingresa un rut valido'))
 			}
 		}
+		const { nombre, apellido, rut, email, telefono, rol } = this.$usuario
 		return {
 			formulario: {
-				// datos desde microcuentas
-				nombre: this.$usuario.nombre,
-				apellido: this.$usuario.apellido,
-				rut: this.$usuario.rut,
-				email: this.$usuario.email,
-				telefono: this.$usuario.telefono,
-				rol: this.$usuario.rol,
+				nombre,
+				apellido,
+				rut,
+				email,
+				telefono,
+				rol,
 
 				// datos desde back
-				comunaCodigo: undefined,
-				region: undefined,
-				distrito: undefined,
+				comunaCodigo: this._.get(this.$back.apoderade, [
+					'territorioPreferencia',
+					'comunaCodigo'
+				]),
+				region: this._.get(this.$back.apoderade, [
+					'territorioPreferencia',
+					'region'
+				]),
 				disponibleParaOtrosLocales: false,
-				localID: undefined,
-				mesa: undefined
+				localID: this._.get(this.$back.apoderade, [
+					'territorioPreferencia',
+					'localId'
+				])
 			},
 			rules: {
 				nombre: [{ validator: validaNombre, trigger: 'change' }],
@@ -260,10 +266,17 @@ export default {
 			return comunas
 		}
 	},
-	mounted () {
-		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
-	},
+	// mounted () {
+	// 	if (this.$back.apoderade.fechaValidacionDatos) {
+	// 		this.$router.replace('/app/locales/resumenterritorial')
+	// 	}
+	// },
 	methods: {
+		rechazalos () {
+			if (this.$back.apoderade.territorioPreferencia) {
+				this.$router.replace('/app/locales/resumenterritorial')
+			}
+		},
 		otroLocal () {
 			this.otroLocalVisible = true
 			console.log('otro!')
@@ -278,20 +291,27 @@ export default {
 			this.locales = locales.locales
 		},
 		submitForm (formName) {
-			this.$refs[formName].validate(valid => {
+			this.$refs[formName].validate(async valid => {
 				if (valid) {
 					const territorioPreferencia = {
 						region: this.formulario.region,
 						comunaCodigo: this.formulario.comunaCodigo,
 						localId: this.formulario.localID
 					}
-					const disponibleParaOtrosLocales =
-						this.formulario.disponibleParaOtrosLocales
+					const { nombre, apellido, rut, email, telefono, rol } =
+						this.formulario
+					// const disponibleParaOtrosLocales =
+					// 	this.formulario.disponibleParaOtrosLocales
 
-					this.$back.autoValidarDatos(
+					await this.$back.autoValidarDatos({
 						territorioPreferencia,
-						disponibleParaOtrosLocales
-					)
+						nombre,
+						apellido,
+						rut,
+						email,
+						telefono,
+						rol
+					})
 					// this.$gtm.push({ event: 'Registro_mailing', nombre: 'Registro en Mailchimp', estado: 'completo' })
 				} else {
 					console.log('error submit!!')
@@ -299,13 +319,11 @@ export default {
 				}
 			})
 		},
-		defineDistrito (d) {
-			this.formulario.distrito = d
-		},
+
 		handleRegion (value) {
 			console.log(`Selectedd: ${value}`)
 			this.comunaSeleccionada = null
-			this.local = null
+			this.localID = null
 			this.otroLocalVisible = false
 			this.regionseleccionada = value
 			console.log('seleccion', this.regionseleccionada)
@@ -316,10 +334,11 @@ export default {
 			this.otroLocalVisible = false
 			this.comunaSeleccionada = value
 			console.log('distri', this.distrito)
+			this.formulario.comunaCodigo = value
 		},
 		handleLocal (value) {
 			console.log(`Selected: ${value}`)
-			this.local = value
+			this.localID = value
 		},
 		showModal () {
 			this.tyc = true

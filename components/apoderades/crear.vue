@@ -108,7 +108,7 @@
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../../regiones/regioneschile'
+import regionesComunas from '../../regiones/regioneschile'
 
 export default {
 	data () {

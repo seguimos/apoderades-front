@@ -7,7 +7,9 @@ import emisorEventos from '@lib/emisorEventos'
 
 const backURL = process.env.backURL
 
-const cuentaBackStore = localforage.createInstance({ name: 'cuentaBackBackStore' })
+const cuentaBackStore = localforage.createInstance({
+	name: 'cuentaBackBackStore'
+})
 const usarStores = true
 
 const cuentaBack = {
@@ -25,8 +27,12 @@ const cuentaBack = {
 		this.vm = vm
 		// Revisar que se esté utilizando microservicio de cuentas
 		if (!vm.$cuenta) {
-			console.error('En este punto el microservicio de cuentas debería estar conectado')
-			await new Promise(resolve => { setTimeout(resolve(), 1000) })
+			console.error(
+				'En este punto el microservicio de cuentas debería estar conectado'
+			)
+			await new Promise(resolve => {
+				setTimeout(resolve(), 1000)
+			})
 			return cuentaBack.init(vm)
 		}
 		if (usarStores) this.apoderade = cuentaBackStore.getItem('apoderade', null)
@@ -36,8 +42,8 @@ const cuentaBack = {
 		consolo.log(fx, { token: this._token })
 
 		// Frente a cambios de usuario, reaccionar acorde
-		cuentaBack.vm.$cuenta.on('cambioUsuario', usuario => {
-			if (usuario) cuentaBack.leerMisDatos()
+		cuentaBack.vm.$cuenta.on('cambioToken', token => {
+			if (token) cuentaBack.leerMisDatos()
 			else cuentaBack.salir()
 		})
 	},
@@ -58,7 +64,7 @@ const cuentaBack = {
 
 	set apoderade (v) {
 		if (usarStores) cuentaBackStore.setItem('apoderade', v)
-		return this._apoderade
+		this._apoderade = v
 	},
 
 	// async ping () {
@@ -96,6 +102,8 @@ const cuentaBack = {
 				method: 'get',
 				url: `${backURL}/apoderade`,
 				headers: {
+					'content-type': 'application/json',
+					accept: 'application/json',
 					authorization: `Bearer ${cuentaBack.token}`
 				}
 			}).then(r => r.data)
@@ -162,30 +170,50 @@ const cuentaBack = {
 		}
 	},
 
-	async autoValidarDatos (territorioPreferencia, disponibleParaOtrosLocales) {
+	async autoValidarDatos ({ territorioPreferencia, nombre, apellido, rut, email, telefono, rol }) {
 		const fx = 'cuentaBack>autoValidarDatos'
 		const cuenta = this.vm.$cuenta
-		try {
-			console.log(fx)
-			const r = await axios({
-				method: 'post',
-				url: `${backURL}/apoderade/datos`,
-				headers: {
-					'content-type': 'application/json',
-					accept: 'application/json',
-					authorization: `Bearer ${cuenta.token}`
-				},
-				body: { territorioPreferencia, disponibleParaOtrosLocales }
-			}).then(r => r.data)
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
+		// Primero obtener autorización del back
+		const r = await axios({
+			method: 'get',
+			url: `${backURL}/autorizaredicion`,
+			headers: {
+				authorization: `Bearer ${cuentaBack.token}`
 			}
-			console.log(fx, 'r', r)
-		} catch (e) {
-			console.error(fx, e)
+		}).then(r => r.data)
+		console.log(fx, 'back/autorizarCreacion', r)
+
+		if (!r || !r.ok) {
+			console.error(fx, 'fail autorizando creación de usuario (back)', r)
+			return
 		}
+		const autorizacionBack = r.autorizacion
+		// console.log('autorizacionDelBack', autorizacionBack)
+		// Crear usuario en microservicio de cuentas
+		const c = await cuentaBack.vm.$cuenta.editarCuenta(autorizacionBack, { nombre, apellido, email, telefono, rut, rol })
+		if (!c || !c.ok) {
+			console.error(fx, 'fail editando usuario en microcuentas', c)
+			return
+		}
+
+		console.log(fx, 'microcuentas/editarCuenta', c)
+
+		const s = await axios({
+			method: 'post',
+			url: `${backURL}/apoderade/datos`,
+			headers: {
+				'content-type': 'application/json',
+				accept: 'application/json',
+				authorization: `Bearer ${cuenta.token}`
+			},
+			data: { territorioPreferencia }
+		}).then(s => s.data)
+
+		if (!s || !s.ok) {
+			console.error(fx, 'fail', s)
+			return
+		}
+		console.log(fx, 'r', s)
 	},
 
 	async asignarTerritorio ({ apoderadeID, region, comunaCodigo }) {
@@ -288,6 +316,32 @@ const cuentaBack = {
 		this.leyendoDatos = false
 	},
 
+	async misTerritorios () {
+		const fx = 'cuentaBack>misTerritorios'
+		const cuenta = this.vm.$cuenta
+		try {
+			console.log(fx)
+			const r = await axios({
+				method: 'get',
+				url: `${backURL}/apoderade/territorios`,
+				headers: {
+					authorization: `Bearer ${cuenta.token}`
+				}
+				// params: { region, comunaCodigo }
+			}).then(r => r.data)
+
+			if (!r || !r.ok) {
+				console.error(fx, 'fail', r)
+				return
+			}
+			console.log(fx, 'r', r)
+			return r
+		} catch (e) {
+			console.error(fx, e)
+		}
+		this.leyendoDatos = false
+	},
+
 	async obtenerLocal ({ region, localId }) {
 		const fx = 'cuentaBack>obtenerLocal'
 		const cuenta = this.vm.$cuenta
@@ -314,13 +368,12 @@ const cuentaBack = {
 
 	async salir () {
 		cuentaBack.datosApoderade = null
-		cuentaBack.token = null
 		await cuentaBackStore.clear()
 		// cuentaBack.ping()
 		return true
 	},
 
-	async crearApoderade ({ nombre, apellido, email, pass, telefono, rol, territorioPreferencia }) {
+	async crearApoderade ({ nombre, apellido, email, pass, telefono, rol, rut, territorioPreferencia }) {
 		const fx = 'cuentaBack>crearApoderade'
 		// Primero obtener autorización del back
 		const r = await axios({
@@ -339,7 +392,7 @@ const cuentaBack = {
 		const autorizacionDelBack = r.autorizacion
 
 		// Crear usuario en microservicio de cuentas
-		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, { nombre, apellido, email, pass, telefono })
+		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, { nombre, apellido, email, pass, telefono, rut, rol })
 		if (!c || !c.ok) {
 			console.error(fx, 'fail creando usuario en microcuentas', c)
 			return
@@ -365,7 +418,6 @@ const cuentaBack = {
 		console.log(fx, 'back/nuevo-usuario', b)
 	}
 }
-
 
 Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.datosApoderade)
 // Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
