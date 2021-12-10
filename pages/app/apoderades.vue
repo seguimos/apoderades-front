@@ -1,8 +1,9 @@
 <template lang="pug">
 .root
 	apoderades-validar(v-if="!$back.apoderade.fechaValidacionDatos")
-	.buscarApoderade(v-else)
-		apoderades-buscar
+	//- .buscarApoderade(v-else)
+	//- 	apoderades-buscar
+	//- 	apoderades-crear
 </template>
 <script>
 export default {
