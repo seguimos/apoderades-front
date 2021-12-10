@@ -1,5 +1,5 @@
 <template lang="pug">
-.root
+.root(v-if="formulario")
 	h1 Valida tus datos de inscripcion
 
 	a-form-model.enviarFormulario(
@@ -69,7 +69,6 @@
 			label="Comuna"
 		)
 			a-select.input(
-				v-model="formulario.comunaCodigo",
 				placeholder="Comuna",
 				@change="handleComuna",
 				@select="buscarLocales"
@@ -200,21 +199,21 @@ export default {
 				callback(new Error('ingresa un rut valido'))
 			}
 		}
+		const { nombre, apellido, rut, email, telefono, rol } = this.$usuario
 		return {
 			formulario: {
-				// datos desde microcuentas
-				nombre: this.$usuario.nombre,
-				apellido: this.$usuario.apellido,
-				rut: this.$usuario.rut,
-				email: this.$usuario.email,
-				telefono: this.$usuario.telefono,
-				rol: this.$back.apoderade.rol,
+				nombre,
+				apellido,
+				rut,
+				email,
+				telefono,
+				rol,
 
 				// datos desde back
-				comunaCodigo: this.$back.apoderade.territorioPreferencia.comunaCodigo,
-				region: this.$back.apoderade.territorioPreferencia.region,
+				comunaCodigo: this._.get(this.$back.apoderade, ['territorioPreferencia', 'comunaCodigo']),
+				region: this._.get(this.$back.apoderade, ['territorioPreferencia', 'region']),
 				disponibleParaOtrosLocales: false,
-				localID: this.$back.apoderade.territorioPreferencia.localId
+				localID: this._.get(this.$back.apoderade, ['territorioPreferencia', 'localId'])
 			},
 			rules: {
 				nombre: [{ validator: validaNombre, trigger: 'change' }],
@@ -316,6 +315,7 @@ export default {
 			this.otroLocalVisible = false
 			this.comunaSeleccionada = value
 			console.log('distri', this.distrito)
+			this.formulario.comunaCodigo = value
 		},
 		handleLocal (value) {
 			console.log(`Selected: ${value}`)

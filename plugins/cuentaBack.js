@@ -96,7 +96,6 @@ const cuentaBack = {
 		if (this.leyendoDatos) return
 		const fx = 'cuentaBack>leerMisDatos'
 		this.leyendoDatos = true
-		console.log('cuentaBack.token', cuentaBack.token)
 		try {
 			console.log(fx)
 			const r = await axios({
