@@ -15,30 +15,36 @@ const cuentaBack = {
 	...emisorEventos,
 
 	vm: undefined,
-	_datosApoderade: undefined,
+	_apoderade: undefined,
 
 	sinConexion: undefined,
 	backURL,
 
-	async init (vm) {
+	init (vm) {
 		const fx = 'cuentaBack>init'
-
 		this.vm = vm
-		this.token = (usarStores && await cuentaBackStore.getItem('token')) || null
-
 		// Revisar que se esté utilizando microservicio de cuentas
 		if (!vm.$cuenta) {
 			console.error('En este punto el microservicio de cuentas debería estar conectado')
 			return
 		}
+		if (usarStores) this.apoderade = cuentaBackStore.getItem('apoderade', null)
 		// Revisar que se haya inicializado
-
 		consolo.log(fx, { token: this._token })
 		this.leer()
 	},
 
 	get token () {
 		return this.vm.$cuenta.token
+	},
+
+	get apoderade () {
+		return this._apoderade
+	},
+
+	set apoderade (v) {
+		if (usarStores) cuentaBackStore.setItem('apoderade', v)
+		return this._apoderade
 	},
 
 	// async ping () {
@@ -83,7 +89,8 @@ const cuentaBack = {
 				return
 			}
 			console.log(fx, 'r', r)
-
+			const { apoderade } = r
+			this.apoderade = apoderade
 
 			// if (!apoderade || !apoderade.data.ok) {
 			// 	this.erroDatos = apoderade.data.error
@@ -185,8 +192,11 @@ export default function ({ app }, inject) {
 	if (!app.mixins) app.mixins = []
 	app.mixins.push({
 		mounted () {
-			consolo.log('cuentaBack MOUNTED')
-			cuentaBack.init(this)
+			const vm = this
+			vm.$nextTick(() => {
+				consolo.log('cuentaBack MOUNTED')
+				cuentaBack.init(vm)
+			})
 		}
 	})
 }
