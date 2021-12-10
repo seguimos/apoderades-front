@@ -394,7 +394,7 @@ const cuentaBack = {
 		return true
 	},
 
-	async crearApoderade ({ nombre, apellido, email, telefono, rol, rut, territorioPreferencia }) {
+	async crearApoderade ({ nombre, apellido, email, telefono, rol, rut, region, comunaCodigo, localAsignado }) {
 		const fx = 'cuentaBack>crearApoderade'
 		// Primero obtener autorización del back
 		const r = await axios({
@@ -433,7 +433,9 @@ const cuentaBack = {
 				usuarioID,
 				urlValidacionEmail,
 				rol,
-				territorioPreferencia
+				territorioPreferencia: {
+					region, comunaCodigo, localAsignado
+				}
 			}
 		}).then(r => r.data)
 		console.log(fx, 'back/nuevo-usuario', b)
