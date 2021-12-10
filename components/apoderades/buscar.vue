@@ -66,7 +66,8 @@ export default {
 			// console.log(this.formulario)
 			this.$refs[formName].validate(async valid => {
 				if (valid) {
-					await this.buscar()
+					const rut = this.formulario.rut
+					await this.$back.buscarXRut(rut)
 					// this.$gtm.push({ event: 'Registro_mailing', nombre: 'Registro en Mailchimp', estado: 'completo' })
 				} else {
 					console.log('error submit!!')

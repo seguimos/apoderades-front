@@ -366,6 +366,27 @@ const cuentaBack = {
 		}
 	},
 
+	async buscarXRut (rut) {
+		const fx = 'cuentaBack>buscarXRut'
+		// Primero obtener autorización del back
+		const r = await axios({
+			method: 'get',
+			url: `${backURL}/autorizarBusquedaPorRut`,
+			headers: {
+				authorization: `Bearer ${cuentaBack.token}`
+			}
+		}).then(r => r.data)
+		console.log(fx, 'back/autorizarCreacion', r)
+
+		if (!r || !r.ok) {
+			console.error(fx, 'fail autorizando creación de usuario (back)', r)
+			return
+		}
+		const autorizacion = r.autorizacion
+		const s = await cuentaBack.vm.$cuenta.buscarRut(autorizacion, rut)
+		return s
+	},
+
 	async salir () {
 		cuentaBack.datosApoderade = null
 		await cuentaBackStore.clear()
