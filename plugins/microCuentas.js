@@ -233,7 +233,7 @@ const cuenta = {
 		}
 	},
 
-	async crearCuenta (autorizacionBack, { nombre, apellido, email, pass, telefono, rut, rol }) {
+	async crearCuenta (autorizacionBack, { nombre, apellido, email, telefono, rut, rol }) {
 		const fx = 'microCuentas>crearCuenta'
 		try {
 			const token = cuenta.token
@@ -242,13 +242,13 @@ const cuenta = {
 				cuenta.salir()
 				return
 			}
-			consolo.log(fx, { nombre, apellido, email, pass, telefono })
+			consolo.log(fx, { nombre, apellido, email, telefono })
 
 
 			if (!miLlavero) throw 'Falta miLlavero'
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
-			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass, telefono, rut, rol }))
+			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, telefono, rut, rol }))
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
