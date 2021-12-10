@@ -233,7 +233,7 @@ const cuenta = {
 		}
 	},
 
-	async crearCuenta (autorizacionBack, { nombre, apellido, email, pass, telefono }) {
+	async crearCuenta (autorizacionBack, { nombre, apellido, email, pass, telefono, rut, rol }) {
 		const fx = 'microCuentas>crearCuenta'
 		try {
 			consolo.log(fx, { nombre, apellido, email, pass, telefono })
@@ -243,13 +243,45 @@ const cuenta = {
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
 			const llaves = await miLlavero.exportarLlavesPublicas()
-			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass, telefono }))
+			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass, telefono, rut, rol }))
 			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
 			}
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/crear`,
+				data: { encriptado, llaves, autorizacionBack },
+				method: 'post'
+			})
+			consolo.log(`${fx} r`, r)
+			// const ejemplo = {
+			// 	ok: 1,
+			// 	usuarioID: 'fd42f2i3',
+			// 	urlValidacionEmail: 'ache te te pé'
+			// }
+			return r
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async editarCuenta (autorizacionBack, { nombre, apellido, email, pass, telefono, rol }) {
+		const fx = 'microCuentas>editarCuenta'
+		try {
+			consolo.log(fx, { nombre, apellido, email, pass, telefono })
+
+
+			if (!miLlavero) throw 'Falta miLlavero'
+			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
+
+			const llaves = await miLlavero.exportarLlavesPublicas()
+			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ nombre, apellido, email, pass, telefono, rol }))
+			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
+				console.error('Encriptado vacío', encriptado)
+				return
+			}
+			const r = await solicitar.call(this, {
+				url: `${cuenta.cuentasURL}/editar`,
 				data: { encriptado, llaves, autorizacionBack },
 				method: 'post'
 			})

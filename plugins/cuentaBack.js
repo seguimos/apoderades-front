@@ -326,7 +326,7 @@ const cuentaBack = {
 		return true
 	},
 
-	async crearApoderade ({ nombre, apellido, email, pass, telefono, rol, territorioPreferencia }) {
+	async crearApoderade ({ nombre, apellido, email, pass, telefono, rol, rut, territorioPreferencia }) {
 		const fx = 'cuentaBack>crearApoderade'
 		// Primero obtener autorización del back
 		const r = await axios({
@@ -345,13 +345,7 @@ const cuentaBack = {
 		const autorizacionDelBack = r.autorizacion
 
 		// Crear usuario en microservicio de cuentas
-		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, {
-			nombre,
-			apellido,
-			email,
-			pass,
-			telefono
-		})
+		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, { nombre, apellido, email, pass, telefono, rut, rol })
 		if (!c || !c.ok) {
 			console.error(fx, 'fail creando usuario en microcuentas', c)
 			return
