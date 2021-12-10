@@ -45,10 +45,10 @@
 
 		a-form-model-item(has-feedback, label="Rol")
 			a-select.input(v-model="formulario.rol", placeholder="Elige un Rol...")
-				a-select-option(:value="1") Comando
-				a-select-option(:value="2") Coordinador
-				a-select-option(:value="3") Apoderado General
-				a-select-option(:value="4") Apoderado de mesa
+				a-select-option(value="COM") Comando
+				a-select-option(value="COO") Coordinador
+				a-select-option(value="AG") Apoderado General
+				a-select-option(value="AM") Apoderado de mesa
 
 		a-form-model-item(
 			v-if="formulario.rol",
@@ -64,11 +64,11 @@
 				a-select-option(
 					v-for="region in regiones",
 					:key="region.label",
-					:value="region.label"
+					:value="region.reg"
 				) {{ region.label }}
 
 		a-form-model-item(
-			v-if="formulario.rol > 2 && regionseleccionada",
+			v-if="regionseleccionada",
 			has-feedback,
 			prop="comuna",
 			label="Comuna"
@@ -76,20 +76,16 @@
 			a-select.input(
 				v-model="formulario.comuna",
 				placeholder="Comuna",
-				@change="handleComuna"
+				@change="handleComuna",
+				@select="buscarLocales"
 			)
 				a-select-option(
 					v-for="comuna in comunas",
 					:key="comuna.label",
-					:value="comuna.label"
+					:value="comuna.codigo"
 				) {{ comuna.label }}
 
-		a-form-model-item(
-			v-if="comunaSeleccionada",
-			has-feedback,
-			prop="local",
-			label="Local"
-		)
+		a-form-model-item(v-if="locales", has-feedback, prop="local", label="Local")
 			a-select.input(
 				show-search="",
 				v-model="formulario.local",
@@ -97,7 +93,11 @@
 				placeholder="Local de Votación",
 				@change="handleLocal"
 			)
-				a-select-option(v-for="local in locales", :key="local", :value="local") {{ local }}
+				a-select-option(
+					v-for="local in locales",
+					:key="local._id",
+					:value="local.nombre"
+				) {{ local.nombre }}
 
 		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 16, offset: 4 }")
 			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
@@ -209,8 +209,8 @@ export default {
 			tyc: false,
 			regionseleccionada: null,
 			comunaSeleccionada: null,
-			procesado: null
-			// regiones: this.re
+			procesado: null,
+			locales: null
 		}
 	},
 	computed: {
@@ -221,7 +221,7 @@ export default {
 		},
 		comunas () {
 			const re = this.regiones
-			const com = this._.filter(re, ['value', this.regionseleccionada])
+			const com = this._.filter(re, ['reg', this.regionseleccionada])
 			const comunas = com[0].children
 			if (this.regionseleccionada) {
 				// console.log(this.regionseleccionada)
@@ -229,12 +229,18 @@ export default {
 				// console.log('formulario', this.formulario)
 			}
 			return comunas
-		},
-		locales () {
-			return ['TODO', 'TODO2', 'TODO3']
 		}
 	},
 	methods: {
+		async buscarLocales (value) {
+			console.log('this.formulario', this.formulario)
+			const locales = await this.$back.localesXComuna({
+				region: this.formulario.region,
+				comunaCodigo: value
+			})
+			console.log('buscarLocales', locales)
+			this.locales = locales.locales
+		},
 		submitForm (formName) {
 			// console.log(this.formulario)
 			this.$refs[formName].validate(valid => {
@@ -263,7 +269,18 @@ export default {
 			this.local = value
 		},
 		async suscribirse () {
-			const { nombre, apellido, email, telefono, rol, rut } = this.formulario
+			console.log('formulari crear Usuario', this.formulario)
+			const {
+				nombre,
+				apellido,
+				email,
+				telefono,
+				rol,
+				rut,
+				region,
+				comunaCodigo,
+				localAsignado
+			} = this.formulario
 			const territorioPreferencia = {
 				region: this.formulario.region,
 				comunaCodigo: this.formulario.comunaCodigo,
@@ -276,7 +293,10 @@ export default {
 				telefono,
 				rol,
 				rut,
-				territorioPreferencia
+				territorioPreferencia,
+				region,
+				comunaCodigo,
+				localAsignado
 			})
 			console.log(creado)
 		},
