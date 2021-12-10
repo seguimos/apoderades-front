@@ -257,16 +257,19 @@ export default {
 		handleRegion (value) {
 			console.log(`Selectedd: ${value}`)
 			this.regionseleccionada = value
+			this.formulario.region = value
 			console.log('seleccion', this.regionseleccionada)
 		},
 		handleComuna (value) {
 			console.log(`Selected: ${value}`)
 			this.comunaSeleccionada = value
+			this.formulario.comunaCodigo = value
 			console.log('distri', this.distrito)
 		},
 		handleLocal (value) {
 			console.log(`Selected: ${value}`)
 			this.local = value
+			this.formulario.localAsignado = value
 		},
 		async suscribirse () {
 			console.log('formulari crear Usuario', this.formulario)

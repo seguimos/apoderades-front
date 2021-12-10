@@ -419,7 +419,7 @@ const cuentaBack = {
 			return
 		}
 		const usuarioID = c.usuarioID
-		const urlValidacionEmail = c.urlValidacionEmail
+		const tokenIngresoEncriptado = c.tokenIngresoEncriptado
 		console.log(fx, 'microcuentas/crearCuenta', c)
 
 		// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
@@ -431,7 +431,7 @@ const cuentaBack = {
 			},
 			data: {
 				usuarioID,
-				urlValidacionEmail,
+				tokenIngresoEncriptado,
 				rol,
 				territorioPreferencia: {
 					region, comunaCodigo, localAsignado

@@ -389,7 +389,7 @@ const cuenta = {
 			// const ejemplo = {
 			// 	ok: 1,
 			// 	usuarioID: 'fd42f2i3',
-			// 	urlValidacionEmail: 'ache te te pé'
+			// 	tokenIngresoEncriptado: 'secretopalback'
 			// }
 			return r
 		} catch (e) {
