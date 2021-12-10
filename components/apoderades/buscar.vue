@@ -64,9 +64,9 @@ export default {
 	methods: {
 		submitForm (formName) {
 			// console.log(this.formulario)
-			this.$refs[formName].validate(valid => {
+			this.$refs[formName].validate(async valid => {
 				if (valid) {
-					this.buscar()
+					await this.buscar()
 					// this.$gtm.push({ event: 'Registro_mailing', nombre: 'Registro en Mailchimp', estado: 'completo' })
 				} else {
 					console.log('error submit!!')
@@ -74,38 +74,7 @@ export default {
 				}
 			})
 		},
-		async buscar () {
-			// const { nombre, email, telefono, comuna } = this
-			// const data = { nombre, email, telefono, comuna }
-			const usuario = await this.buscarEnMicrocuentas(this.formulario.rut)
-			console.log('usuario', usuario)
 
-			this.visible = true
-			// const config = {}
-			// const respuesta = await this.$axios
-			// 	.post(`${process.env.apiURL}/buscarapoderado`, this.formulario, config)
-			// 	.then(r => r.data)
-			// 	.catch(e => console.error('fallo suscribirse', e))
-			// console.log('Respuesta', respuesta)
-			// if (!respuesta) {
-			// 	this.visible = false
-			// } else {
-			// 	this.procesado = true
-			// 	this.formulario = {
-			// 		nombre: undefined,
-			// 		email: undefined,
-			// 		telefono: undefined,
-			// 		comuna: undefined,
-			// 		region: undefined,
-			// 		distrito: undefined,
-			// 		milita: null
-			// 	}
-			// }
-			// console.log('suscrito', this.visible)
-		},
-		buscarEnMicrocuentas (rut) {
-			console.log(this.$usuario)
-		},
 		showModal () {
 			this.tyc = true
 			// this.$gtm.push({ event: 'gtm.linkClick', hacia: 'terminos y condiciones' })
