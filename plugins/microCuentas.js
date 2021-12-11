@@ -25,10 +25,10 @@ async function procesarInfoUsuario (r) {
 	// consolo.log(`${fx} r`, r)
 	try {
 		if (!r || !r.ok) throw r
-		const decodificado = tokenDecoder(r.token)
 		// Decriptar datos personales
 		const desencriptado = await miLlavero.desencriptar(r.datosPrivados)
 		const datosPrivados = JSON.parse(desencriptado)
+		const decodificado = tokenDecoder(r.token)
 		cuenta.usuario = {
 			id: decodificado.sub,
 			nombre: decodificado.nombre,
@@ -37,6 +37,16 @@ async function procesarInfoUsuario (r) {
 		cuenta.decodificado = decodificado
 		cuenta.datosPrivados = r.datosPrivados
 		cuenta.token = r.token
+		if (r.token) {
+			const listo = await cuenta.mantenerTokenAutorizado(r.token)
+			console.log(listo)
+			cuenta.vm.$nextTick(() => { cuenta.emit('cambioToken', r.token) })
+		} else {
+			const drama = 'No hay token de microservicio de cuentas!'
+			console.error(drama)
+			throw drama
+		}
+		// cuenta.vm.$nextTick(() => { cuenta.mantenerTokenAutorizado() })
 		return r
 	} catch (e) {
 		console.error('procesarInfoUsuario', e)
@@ -71,10 +81,10 @@ const cuenta = {
 		const llaveroMio = (usarStores && await llaveroStore.getItem('miLlavero')) || null
 		if (llaveroMio) {
 			consolo.log(fx, 'Llavero recuperado', llaveroMio)
-			miLlavero = new Llavero('local')
+			miLlavero = new Llavero('cliente')
 			miLlavero.reinstanciar(llaveroMio)
 		} else {
-			miLlavero = new Llavero('local')
+			miLlavero = new Llavero('cliente')
 			await miLlavero.init({ crearKeys: 1 })
 			consolo.log(fx, 'Llavero creado', miLlavero)
 			if (usarStores) await llaveroStore.setItem('miLlavero', miLlavero)
@@ -95,7 +105,6 @@ const cuenta = {
 		this._token = tkn
 		this._expConfianza = tkn && tokenDecoder(tkn).iat + (60 * minutosDeConfianza)
 		if (usarStores) cuentaStore.setItem('token', tkn)
-		if (tkn) this.emit('cambioToken', tkn)
 	},
 
 	get usuario () { return this._usuario },
@@ -118,14 +127,27 @@ const cuenta = {
 	},
 
 	tokenAutofirmado: null,
-	async mantenerTokenAutorizado () {
-		const fx = 'microCuentas>firmarToken'
+	autofirmando: null,
+	async mantenerTokenAutorizado (token) {
+		const fx = 'microCuentas>mantenerTokenAutorizado'
 		try {
-			const token = cuenta.token
+			token = token || cuenta.token
+			if (!token) {
+				this.autofirmando = false
+				console.log(`%c ${fx} detenido`, 'color: #666;')
+			}
+			if (!this.autofirmando) {
+				this.autofirmando = true
+				console.log(`%c ${fx} iniciado`, 'color: green;')
+			}
+			console.log(`%c ${fx} jti`, 'color: coral;', cuenta.decodificado.jwt)
+			const cuerpoToken = { jti: cuenta.decodificado.jwt }
 			const moment = cuenta.vm.$moment
-			this.tokenAutofirmado = await miLlavero.firmarToken(token)
+			cuerpoToken.exp = moment().add(2, 'm').unix()
+			this.tokenAutofirmado = await miLlavero.firmarToken(cuerpoToken)
 			const proxMinuto = moment().seconds(0).add(1, 'minute')
 			setTimeout(function () { cuenta.mantenerTokenAutorizado() }, proxMinuto.diff(moment()))
+			return true
 		} catch (e) {
 			console.error(fx, e)
 		}

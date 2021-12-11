@@ -29,19 +29,9 @@ export default {
 	data () {
 		return {}
 	},
-	watch: {
-		$usuario (actual) {
-			if (actual) this.buscarMisDatos()
-		}
-	},
 	mounted () {
 		if (!this.$usuario) return
 		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
-	},
-	methods: {
-		async buscarMisDatos () {
-			await this.$back.leerMisDatos()
-		}
 	}
 }
 </script>

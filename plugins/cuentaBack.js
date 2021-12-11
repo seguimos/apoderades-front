@@ -39,11 +39,14 @@ const cuentaBack = {
 		if (usarStores) this.apoderade = await cuentaBackStore.getItem('apoderade', null)
 
 		// Si ya habia usuario logueado al momento de inicializar este script, leer datos
-		if (this.usuario && !this.apoderade) cuentaBack.leerMisDatos()
-		consolo.log(fx, { token: this._token })
+		if (cuentaBack.usuario && !cuentaBack.apoderade && cuentaBack.cuenta.tokenAutofirmado) {
+			cuentaBack.leerMisDatos()
+		}
+		consolo.log(fx, { tokenAutofirmado: cuentaBack.cuenta.tokenAutofirmado })
 
 		// Frente a cambios de usuario, reaccionar acorde
 		cuentaBack.vm.$cuenta.on('cambioToken', token => {
+			console.log('=============== on cambioToken')
 			if (token) cuentaBack.leerMisDatos()
 			else cuentaBack.salir()
 		})
@@ -389,6 +392,9 @@ const cuentaBack = {
 
 
 async function solicitar (request, errorHandler) {
+	const fx = 'cuentaBack.js solicitar'
+	console.log(fx, 'token', cuentaBack.cuenta.token)
+	console.log(fx, 'tokenAutofirmado', cuentaBack.cuenta.tokenAutofirmado)
 	const _ = cuentaBack.vm._
 	const defaultHeaders = {
 		Accept: 'application/json',
