@@ -41,14 +41,17 @@ const cuentaBack = {
 		// Si ya habia usuario logueado al momento de inicializar este script, leer datos
 		if (cuentaBack.usuario && !cuentaBack.apoderade && cuentaBack.cuenta.tokenAutofirmado) {
 			cuentaBack.leerMisDatos()
+			cuentaBack.misTerritorios()
 		}
 		consolo.log(fx, { tokenAutofirmado: cuentaBack.cuenta.tokenAutofirmado })
 
 		// Frente a cambios de usuario, reaccionar acorde
 		cuentaBack.vm.$cuenta.on('cambioToken', token => {
 			console.log('=============== on cambioToken')
-			if (token) cuentaBack.leerMisDatos()
-			else cuentaBack.salir()
+			if (token) {
+				cuentaBack.leerMisDatos()
+				cuentaBack.misTerritorios()
+			} else cuentaBack.salir()
 		})
 	},
 
