@@ -349,18 +349,17 @@ const cuentaBack = {
 			console.log(fx)
 			const r = await axios({
 				method: 'get',
-				url: `${backURL}/locales/:region/locales/:localId`,
+				url: `${backURL}/locales/${region}/locales/${localId}`,
 				headers: {
 					authorization: `Bearer ${cuenta.token}`
-				},
-				params: { region, localId }
+				}
 			}).then(r => r.data)
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
 				return
 			}
-			console.log(fx, 'r', r)
+			return r
 		} catch (e) {
 			console.error(fx, e)
 		}
