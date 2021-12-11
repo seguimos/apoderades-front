@@ -2,14 +2,17 @@
 import Vue from 'vue'
 import { LMap, LTileLayer, LMarker, LCircle } from 'vue2-leaflet'
 import leaflet from 'leaflet'
-require('leaflet/dist/leaflet.css')
+import Vue2LeafletMarkerCluster from 'vue2-leaflet-markercluster'
 
+require('leaflet/dist/leaflet.css')
 Vue.component('VMap', LMap)
 Vue.component('VTilelayer', LTileLayer)
 Vue.component('VMarker', LMarker)
 Vue.component('VCircle', LCircle)
+Vue.component('VMarkerCluster', Vue2LeafletMarkerCluster)
+
 // eslint-disable-next-line
-delete L.Icon.Default.prototype._getIconUrl
+delete L.Icon.Default.prototype._getIconUrl;
 // eslint-disable-next-line
 L.Icon.Default.mergeOptions({
 	iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),

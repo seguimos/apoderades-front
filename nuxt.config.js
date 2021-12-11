@@ -1,8 +1,8 @@
-import path from 'path'
-import webpack from 'webpack'
+import path from 'path';
+import webpack from 'webpack';
 
-const dev = process.env.MODO === 'dev'
-const local = process.env.LOCAL
+const dev = process.env.MODO === 'dev';
+const local = process.env.LOCAL;
 
 export default {
 	// Target: https://go.nuxtjs.dev/config-target
@@ -40,7 +40,10 @@ export default {
 		'ant-design-vue/dist/antd.css',
 		'~/style/base.sass',
 		'~/style/utils.sass',
-		'~/style/paleta.sass'
+		'~/style/paleta.sass',
+		'leaflet.markercluster/dist/MarkerCluster.css',
+		'leaflet.markercluster/dist/MarkerCluster.Default.css'
+
 	],
 
 	// Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -82,9 +85,9 @@ export default {
 
 	// Build Configuration: https://go.nuxtjs.dev/config-build
 	build: {
-		extend (config, ctx) {
-			config.resolve.alias['@style'] = path.join(__dirname, 'style')
-			config.resolve.alias['@lib'] = path.join(__dirname, 'lib')
+		extend(config, ctx) {
+			config.resolve.alias['@style'] = path.join(__dirname, 'style');
+			config.resolve.alias['@lib'] = path.join(__dirname, 'lib');
 		},
 		plugins: [
 			new webpack.IgnorePlugin({
@@ -93,4 +96,4 @@ export default {
 			})
 		]
 	}
-}
+};
