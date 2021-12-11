@@ -24,7 +24,7 @@ a-layout.root
 			a-sub-menu(v-if="$usuario")
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="team")
-					| Apoderades
+					| Apoderados
 				a-menu-item(key="buscar")
 					n-link.link(to="/app/apoderades") Buscar apoderado
 			a-sub-menu(v-if="$usuario")
