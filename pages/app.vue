@@ -18,53 +18,39 @@
 
 	// Conectado, datos del back listos
 	.conectado(v-else-if="_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
+		//- navbar
 		.contenido
 			n-child
 	apoderades-validar(v-else)
 </template>
 <script>
-import cuenta from '~/components/cuenta'
+// import navbar from './app/-navbar.vue'
 export default {
-	components: { cuenta },
-	data () {
-		return {}
-	}
+	// components: { navbar }
+	// layout: 'app'
 }
 </script>
 <style lang="sass" scoped>
 @import "@style/vars"
 
 .carpetaApp
-	height: 100%
-	// border: 1px solid red
-	.noconectado,
-	.conectadoPeroSinBack,
-	.cargando
-		min-height: 80vh
-		display: flex
-		// flex-flow: column nowrap
-		// flex: auto 1 0
-		// display: flex
-		justify-content: center
-		align-items: center
-		text-align: center
-		.ant-btn
-			margin-top: 2em
+.noconectado,
+.conectadoPeroSinBack,
+.cargando
+	min-height: 80vh
+	display: flex
+	justify-content: center
+	align-items: center
+	text-align: center
+	.ant-btn
+		margin-top: 2em
 
-	.conectado
-		display: flex
+.conectado
+	width: 900px
+	max-width: 100%
+	margin: 0 auto
+	.contenido
+		flex: auto 1 1
 		padding: 2em
-		width: 900px
-		max-width: 100%
-		margin: 0 auto
-		.menuLateral
-			flex: auto 0 0
-			margin-right: 5em
-		.contenido
-			flex: auto 1 1
 
-		.menuLateral
-			.link
-				display: block
-				padding: .5em 0
 </style>

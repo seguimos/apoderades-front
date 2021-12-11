@@ -1,15 +1,21 @@
 <template lang="pug">
-.main
-	.header
+a-config-provider(:locale="esEs")
+	.main
 		Navbar
-	div
-		a-row
-			a-col( :xs="{ span: 24, offset: 0}", :sm="{span: 18, offset: 3}", :md="{span: 16, offset: 4}", :lg="{span: 10, offset: 7}")
-				Nuxt
+		div
+			a-row
+				a-col( :xs="{ span: 24, offset: 0}", :sm="{span: 18, offset: 3}", :md="{span: 16, offset: 4}", :lg="{span: 10, offset: 7}")
+					Nuxt
 </template>
 
 <script>
+import esEs from 'ant-design-vue/lib/locale-provider/es_ES'
 export default {
+	data () {
+		return {
+			esEs
+		}
+	},
 	mounted () {
 		if (process.env.dev) window.vm = this
 	}

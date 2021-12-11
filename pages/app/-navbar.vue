@@ -1,34 +1,31 @@
 <template lang="pug">
 .navbar
-	nuxt-link.logo-container(
-		to="/",
-		alt="Inicio",
-		title="Inicio"
-	)
+	nuxt-link.logo-container(to="/", alt="Inicio", title="Inicio")
 		.logo
 			.logo-after
 				.iconoAprueboDignidad
 
 	a-menu(mode="horizontal")
+
 		a-sub-menu
 			span.submenu-title-wrapper(slot="title")
 				a-icon(type="user")
 				| Cuentas
-			a-menu-item(v-if="$usuario" key="mi-cuenta")
+			a-menu-item(v-if="$usuario", key="mi-cuenta")
 				n-link.link(to="/app") Mi cuenta
-			a-menu-item(v-else key="mi-cuenta")
+			a-menu-item(v-if="!$usuario", key="mi-cuenta")
 				n-link.link(to="/app") Iniciar Sesion
-			a-menu-item(v-if="$usuario" key="mis-datos")
+			a-menu-item(key="mis-datos")
 				.link(@click="$cuenta.salir") Salir
 
-		a-sub-menu(v-if="$usuario")
+		a-sub-menu
 			span.submenu-title-wrapper(slot="title")
 				a-icon(type="team")
 				| Apoderados
 			a-menu-item(key="buscar")
 				n-link.link(to="/app/apoderades") Buscar apoderado
 
-		a-sub-menu(v-if="$usuario")
+		a-sub-menu
 			span.submenu-title-wrapper(slot="title")
 				a-icon(type="compass")
 				| Locales
