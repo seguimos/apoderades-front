@@ -9,7 +9,7 @@ import emisorEventos from '@lib/emisorEventos'
 
 import { _ } from './lodash'
 
-const cuentasURL = process.env.cuentasURL
+
 
 const cuentaStore = localforage.createInstance({ name: 'criptoCuentaStore' })
 const llaveroStore = localforage.createInstance({ name: 'llaveroStore' })
@@ -56,6 +56,7 @@ async function procesarInfoUsuario (r) {
 }
 
 const cuenta = {
+	cuentasURL: null,
 	// Proporciona metodos on, off, emit, para emisión y escucha de eventos
 	...emisorEventos,
 
@@ -71,13 +72,13 @@ const cuenta = {
 
 
 	sinConexion: undefined,
-	cuentasURL,
 
 	async init (vm) {
 		const fx = 'microCuentas>init'
 
 		this.vm = vm
 		this.token = (usarStores && await cuentaStore.getItem('token')) || null
+		this.cuentasURL = process.env.dev ? process.env.cuentasURL : process.env.cuentasURL.replace('HOST', `capi.${window.location.host}`)
 
 		const llaveroMio = (usarStores && await llaveroStore.getItem('miLlavero')) || null
 		if (llaveroMio) {

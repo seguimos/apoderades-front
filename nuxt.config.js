@@ -1,8 +1,8 @@
-import path from 'path';
-import webpack from 'webpack';
+import path from 'path'
+import webpack from 'webpack'
 
-const dev = process.env.MODO === 'dev';
-const local = process.env.LOCAL;
+const dev = process.env.MODO === 'dev'
+const local = process.env.LOCAL
 
 export default {
 	// Target: https://go.nuxtjs.dev/config-target
@@ -15,8 +15,8 @@ export default {
 	env: {
 		dev,
 		MODO: process.env.MODO,
-		cuentasURL: local ? 'https://capi.local.dev' : dev ? 'https://capi.lesapoderades.cl' : 'https://capi.apoderadosxboric.cl',
-		backURL: local ? 'https://api.local.dev' : dev ? 'http://localhost:3001' : 'https://api.apoderadosxboric.cl'
+		cuentasURL: local ? 'https://capi.local.dev' : dev ? 'https://capi.lesapoderades.cl' : 'https://capi.HOST',
+		backURL: local ? 'https://api.local.dev' : dev ? 'http://localhost:3001' : 'https://api.HOST'
 	},
 	// Global page headers: https://go.nuxtjs.dev/config-head
 	head: {
@@ -85,9 +85,9 @@ export default {
 
 	// Build Configuration: https://go.nuxtjs.dev/config-build
 	build: {
-		extend(config, ctx) {
-			config.resolve.alias['@style'] = path.join(__dirname, 'style');
-			config.resolve.alias['@lib'] = path.join(__dirname, 'lib');
+		extend (config, ctx) {
+			config.resolve.alias['@style'] = path.join(__dirname, 'style')
+			config.resolve.alias['@lib'] = path.join(__dirname, 'lib')
 		},
 		plugins: [
 			new webpack.IgnorePlugin({
@@ -96,4 +96,4 @@ export default {
 			})
 		]
 	}
-};
+}
