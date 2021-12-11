@@ -3,7 +3,7 @@
 	h1 Resumen Territorial
 	.resumenterritorial(v-if="territorioActual")
 		a(@click="subirUnNivel()")
-			resumenTerritorial(:titulo="territorioActual.nombre", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
+			locales-resumenTerritorial(:titulo="territorioActual.nombre", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
 		mapa(:marcadores="marcadoresLocales", v-if="mapa")
 		div(v-else)
 			a(
@@ -11,7 +11,7 @@
 				@click="irATerritorio(hijo.tipo, hijo.id)",
 				:key="hijo.id",
 			)
-				resumenTerritorial(
+				locales-resumenTerritorial(
 					:titulo="hijo.nombre",
 					:resumen="hijo.estadisticas"
 				)
@@ -23,14 +23,7 @@
 		| Cargando...
 </template>
 <script>
-import mapa from '../../../components/mapa'
-import resumenTerritorial from '../../../components/locales/resumenTerritorial.vue'
-
 export default {
-	components: {
-		mapa,
-		resumenTerritorial
-	},
 	data () {
 		return {
 			territorios: null,

@@ -2,9 +2,7 @@
 .paginaIngresoConToken
 </template>
 <script>
-import cuenta from '~/components/cuenta'
 export default {
-	components: { cuenta },
 	data () {
 		return {}
 	},
@@ -21,7 +19,8 @@ export default {
 		async ingresarConToken () {
 			if (!this.token) return
 			console.log('ingresando con token')
-			await this.$cuentaBack.ingresarConToken(this.token)
+			const ingresoConToken = await this.$cuentaBack.ingresarConToken(this.token)
+			if (ingresoConToken.ok) this.$router.replace('/app')
 		}
 	}
 }
