@@ -334,11 +334,11 @@ const cuentaBack = {
 			// Crear usuario en microservicio de cuentas
 			const c = await cuentaBack.cuenta.crearCuenta(autorizacion, { nombre, apellido, email, telefono, rut })
 			if (!c || !c.ok) throw ['fail creando usuario en microcuentas', c]
-			console.log(fx, 'microcuentas/crearCuenta', c)
+			// console.log(fx, 'microcuentas/crearCuenta', c)
 			const { usuarioID, tokenIngresoEncriptado } = c
 
 			// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
-			const b = await solicitar({
+			const registroEnBack = await solicitar({
 				method: 'post',
 				url: `${backURL}/apoderades`,
 				data: {
@@ -348,9 +348,12 @@ const cuentaBack = {
 					territorio: { region, comunaCodigo, localAsignado }
 				}
 			})
-			console.log(fx, 'back/nuevo-usuario', b)
+			if (!registroEnBack || !registroEnBack.ok) throw ['fail creando usuario en microcuentas', registroEnBack]
+			cuentaBack.vm.$message.success('Registro realizado, se enviará correo al inscrito')
 		} catch (e) {
-			console.error(fx, e)
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
 	}
 }
