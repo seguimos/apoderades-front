@@ -31,7 +31,7 @@ div
 				a-col(:span="12" class="col-apoderado")
 					| {{ apoderado.nombre }}
 				a-col(:span="12" style="text-align: end"  class="col-apoderado")
-					a-button(type="link" v-if="apoderadoInLocal(apoderado.id)" class="button-success" @click="habilitarApoderado(apoderado.id)")
+					a-button(type="link" v-if="!apoderado.habilitado" class="button-success" @click="habilitarApoderado(apoderado.id)")
 						| Habilitar
 					a-button(type="link" v-else class="button-danger" @click="bloquearApoderado(apoderado.id)")
 						| Bloquear
@@ -49,8 +49,7 @@ export default {
 				mesas: [],
 				apoderados: [],
 				apoderadoGeneral: ''
-			},
-			apoderados: []
+			}
 		}
 	},
 	computed: {
@@ -67,8 +66,8 @@ export default {
 		},
 		apoderadosFilter () {
 			const buscar = this.buscar
-			if (!buscar) return this.apoderados
-			return this.apoderados.filter(apoderado => {
+			if (!buscar) return this.local.apoderados
+			return this.local.apoderados.filter(apoderado => {
 				return (apoderado.nombre.toLocaleLowerCase().search(buscar.toLocaleLowerCase()) > -1)
 			})
 		}
@@ -77,9 +76,11 @@ export default {
 		this.getLocal()
 	},
 	methods: {
+		// TODO: ir a asignar apoderado general
 		toAsignarApoderadoGeneral () {
 			console.warn('toAsignarApoderadoGeneral')
 		},
+		// TODO: ir a reportes
 		toReportes () {
 			console.warn('toReportes')
 		},
@@ -88,15 +89,15 @@ export default {
 			const localId = this.$route.params.localId
 			this.$router.push('/app/locales/asignar-apoderado/' + region + '/' + localId)
 		},
+		// TODO: Bloquear Apoderado
 		bloquearApoderado (apoderadoId) {
 			console.warn('bloquearApoderado' + apoderadoId)
 		},
+		// TODO: Habilitar Apoderado
 		habilitarApoderado (apoderadoId) {
 			console.warn('habilitarApoderado' + apoderadoId)
 		},
-		apoderadoInLocal (apoderadoId) {
-			return this.local.apoderados.some(apoderado => apoderado.id === apoderadoId)
-		},
+		// TODO: Obtener Apoderados Local
 		getLocal () {
 			const region = this.$route.params.region
 			const localId = this.$route.params.localId
@@ -107,11 +108,8 @@ export default {
 					this.local.apoderadoGeneral = 'Gabriel Boric'
 					this.local.mesas = Object.values(response.local.mesas)
 					this.local.apoderados = [
-						{ id: 2 }
-					]
-					this.apoderados = [
-						{ id: 1, nombre: 'Gabriel Boric' },
-						{ id: 2, nombre: 'Juan Perez' }
+						{ id: 1, nombre: 'Gabriel Boric', habilitado: false },
+						{ id: 2, nombre: 'Juan Perez', habilitado: true }
 					]
 				})
 		}
