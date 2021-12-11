@@ -28,8 +28,10 @@ async function procesarInfoUsuario (r) {
 		if (!r || !r.ok) throw r
 		// Decriptar datos personales
 		const desencriptado = await miLlavero.desencriptar(r.datosPrivados)
+
 		const datosPrivados = JSON.parse(desencriptado)
 		const decodificado = tokenDecoder(r.token)
+		miLlavero.renombrar(decodificado.sub)
 		cuenta.usuario = {
 			id: decodificado.sub,
 			nombre: decodificado.nombre,
@@ -83,10 +85,10 @@ const cuenta = {
 		const llaveroMio = (usarStores && await llaveroStore.getItem('miLlavero')) || null
 		if (llaveroMio) {
 			consolo.log(fx, 'Llavero recuperado', llaveroMio)
-			miLlavero = new Llavero('cliente')
+			miLlavero = new Llavero()
 			miLlavero.reinstanciar(llaveroMio)
 		} else {
-			miLlavero = new Llavero('cliente')
+			miLlavero = new Llavero()
 			await miLlavero.init({ crearKeys: 1 })
 			consolo.log(fx, 'Llavero creado', miLlavero)
 			if (usarStores) await llaveroStore.setItem('miLlavero', miLlavero)
