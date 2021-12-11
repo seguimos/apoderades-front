@@ -166,7 +166,7 @@ const cuenta = {
 				url: `${cuenta.cuentasURL}/llavero`,
 				method: 'get'
 			}, e => { this.sinConexion = true })
-			consolo.log(fx, 'r', r)
+			// consolo.log(fx, 'r', r)
 			this.sinConexion = !(r && r.ok)
 			if (!r) return
 
@@ -189,7 +189,6 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				console.log(fx, 'abortado por no haber token')
-				cuenta.salir()
 				return
 			}
 			console.log(fx)
@@ -238,7 +237,6 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				console.log(fx, 'abortado por no haber token')
-				cuenta.salir()
 				return
 			}
 			consolo.log(fx, { pass })
@@ -259,6 +257,13 @@ const cuenta = {
 		if (cuenta.vm.$cuentaBack) cuenta.vm.$cuentaBack.salir()
 		await cuentaStore.clear()
 		cuenta.ping()
+		// Renovar llavero
+		if (miLlavero) {
+			consolo.log('Recreando llavero')
+			miLlavero = new Llavero()
+			await miLlavero.init({ crearKeys: 1 })
+			if (usarStores) await llaveroStore.setItem('miLlavero', miLlavero)
+		}
 		return true
 	},
 
@@ -406,7 +411,6 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				console.log(fx, 'abortado por no haber token')
-				cuenta.salir()
 				return
 			}
 			if (!miLlavero) throw 'Falta miLlavero'
@@ -448,7 +452,6 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				console.log(fx, 'abortado por no haber token')
-				cuenta.salir()
 				return
 			}
 
@@ -486,7 +489,6 @@ const cuenta = {
 		try {
 			if (!cuenta.token) {
 				console.log(fx, 'abortado por no haber token')
-				cuenta.salir()
 				return
 			}
 
