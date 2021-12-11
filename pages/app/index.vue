@@ -2,13 +2,13 @@
 .rootParticipa
 	h1 Resumen Territorial
 	.resumenterritorial
-		resumenLocal(titulo="Resumen Nacional", :resumen="resumen")
+		locales-resumenTerritorial(titulo="Resumen Nacional", :resumen="resumen")
 		a-button.ver-mapa(type="primary", block, @click="mapa = !mapa")
 			span(v-if="!mapa") Ver Mapa
 			span(v-else) Ver Lista
 		mapa(:marcadores="marcadores_locales", v-if="mapa")
 		div(v-else)
-			resumenLocal(
+			locales-resumenTerritorial(
 				v-for="region in regiones",
 				:key="region.reg",
 				:titulo="region.nombre",
@@ -16,15 +16,11 @@
 			)
 </template>
 <script>
-import mapa from '../../components/mapa'
 import locales from '../../data/localesxcomunaexample'
-import resumenLocal from '../../components/locales/resumenLocal.vue'
 
 export default {
 	components: {
-		mapa,
-		locales,
-		resumenLocal
+		locales
 	},
 	data () {
 		return {
