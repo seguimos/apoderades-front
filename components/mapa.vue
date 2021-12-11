@@ -8,14 +8,15 @@ div.wrapper-mapa
 	.mapa
 		VMap(v-if='montado && centroActivo' :zoom='zoom' :center='centroActivo' ref='mapa' @ready='mapReady')
 			VTilelayer(:url='tileConfig.url' :tileSize="tileConfig.tileSize" :options="tileConfig.options")
-			VCircle(v-for="marcador in marcadores" :key="`marcador-${marcador.id}`"
-				:latLng="marcador.latlon"
-				:icon="crearPointerMarcador(false)"
-				@click="marcadorClickado(marcador)"
-				:radius="500"
-				:color='color(marcador.mesas)'
-				:draggable='marcadorMovible'
-				@update:latLng='alMoverMarcador')
+			VMarkerCluster
+				VCircle(v-for="marcador in marcadores" :key="`marcador-${marcador.id}`"
+					:latLng="marcador.latlon"
+					:icon="crearPointerMarcador(false)"
+					@click="marcadorClickado(marcador)"
+					:radius="50"
+					:color='color(marcador.mesas)'
+					:draggable='marcadorMovible'
+					@update:latLng='alMoverMarcador')
 
 </template>
 

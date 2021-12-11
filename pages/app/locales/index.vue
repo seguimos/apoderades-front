@@ -4,7 +4,7 @@
 	.resumenterritorial(v-if="territorioActual")
 		a(@click="subirUnNivel()")
 			resumenTerritorial(:titulo="territorioActual.nombre", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
-		mapa(:marcadores="marcadores_locales", v-if="mapa")
+		mapa(:marcadores="marcadoresLocales", v-if="mapa")
 		div(v-else)
 			a(
 				v-for="hijo in territorioActual.hijos",
@@ -35,16 +35,16 @@ export default {
 		return {
 			territorios: null,
 			mapa: this.$route.query.mapa,
-			region: this.$route.query.region,			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
-			comuna: this.$route.query.comuna,			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
-			local: this.$route.query.local			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
+			region: this.$route.query.region,
+			comuna: this.$route.query.comuna,
+			local: this.$route.query.local
 		}
 	},
 
 	computed: {
-		marcadores_locales () {
+		marcadoresLocales () {
 			const locales = []
-			this.territorios.hijos.forEach(region => {
+			this.territorios.hijos.forEach(region => { // todo: mostrar solo actuales
 				region.hijos.forEach(comuna => {
 					comuna.hijos.forEach(local => {
 						locales.push({
@@ -121,10 +121,14 @@ export default {
 			}
 		},
 		irATerritorio (tipo, territorio) {
-			this[tipo] = territorio
-			const currentRoute = { ...this.$route.query }
-			currentRoute[tipo] = territorio
-			this.$router.push({ path: this.$route.path, query: currentRoute })
+			if (tipo !== 'local') {
+				this[tipo] = territorio
+				const currentRoute = { ...this.$route.query }
+				currentRoute[tipo] = territorio
+				this.$router.push({ path: this.$route.path, query: currentRoute })
+			} else {
+				// TODO ir al local
+			}
 		},
 		subirUnNivel () {
 			const currentRoute = this.$route.query
