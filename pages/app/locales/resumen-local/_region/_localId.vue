@@ -84,7 +84,9 @@ export default {
 			console.warn('toReportes')
 		},
 		toAsingarApoderados () {
-			console.warn('toAsingarApoderados')
+			const region = this.$route.params.region
+			const localId = this.$route.params.localId
+			this.$router.push('/app/locales/asignar-apoderado/' + region + '/' + localId)
 		},
 		bloquearApoderado (apoderadoId) {
 			console.warn('bloquearApoderado' + apoderadoId)
