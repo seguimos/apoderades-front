@@ -202,16 +202,16 @@ export default {
 				telefono,
 
 				// datos desde back
-				comunaCodigo: this._.get(this.$back.apoderade, [
+				comunaCodigo: this._.get(this.$cuentaBack.apoderade, [
 					'territorioPreferencia',
 					'comunaCodigo'
 				]),
-				region: this._.get(this.$back.apoderade, [
+				region: this._.get(this.$cuentaBack.apoderade, [
 					'territorioPreferencia',
 					'region'
 				]),
 				disponibleParaOtrosLocales: false,
-				localID: this._.get(this.$back.apoderade, [
+				localID: this._.get(this.$cuentaBack.apoderade, [
 					'territorioPreferencia',
 					'localId'
 				])
@@ -259,13 +259,13 @@ export default {
 		}
 	},
 	// mounted () {
-	// 	if (this.$back.apoderade.fechaValidacionDatos) {
+	// 	if (this.$cuentaBack.apoderade.fechaValidacionDatos) {
 	// 		this.$router.replace('/app/locales/resumenterritorial')
 	// 	}
 	// },
 	methods: {
 		rechazalos () {
-			if (this.$back.apoderade.territorioPreferencia) {
+			if (this.$cuentaBack.apoderade.territorioPreferencia) {
 				this.$router.replace('/app/locales/resumenterritorial')
 			}
 		},
@@ -275,7 +275,7 @@ export default {
 		},
 		async buscarLocales () {
 			console.log('this.formulario', this.formulario)
-			const locales = await this.$back.localesXComuna({
+			const locales = await this.$cuentaBack.localesXComuna({
 				region: this.formulario.region,
 				comunaCodigo: this.formulario.comunaCodigo
 			})
@@ -294,7 +294,7 @@ export default {
 					// const disponibleParaOtrosLocales =
 					// 	this.formulario.disponibleParaOtrosLocales
 
-					await this.$back.autoValidarDatos({
+					await this.$cuentaBack.autoValidarDatos({
 						territorioPreferencia,
 						nombre,
 						apellido,

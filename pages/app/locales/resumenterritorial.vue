@@ -61,7 +61,7 @@ export default {
 	},
 	methods: {
 		async buscarResumenComuna () {
-			const locales = await this.$back.localesXComuna()
+			const locales = await this.$cuentaBack.localesXComuna()
 			console.log('locales', locales)
 		},
 		submitForm (formName) {

@@ -237,7 +237,7 @@ export default {
 	methods: {
 		async buscarLocales (value) {
 			console.log('this.formulario', this.formulario)
-			const locales = await this.$back.localesXComuna({
+			const locales = await this.$cuentaBack.localesXComuna({
 				region: this.formulario.region,
 				comunaCodigo: value
 			})
@@ -288,7 +288,7 @@ export default {
 				localAsignado
 			} = this.formulario
 
-			const creado = await this.$back.crearApoderade({
+			const creado = await this.$cuentaBack.crearApoderade({
 				nombre,
 				apellido,
 				email,

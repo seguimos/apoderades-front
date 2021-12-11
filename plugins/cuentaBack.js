@@ -418,7 +418,7 @@ async function solicitar (request, errorHandler) {
 		console.error('Sin respuesta')
 		return data
 	}
-	if (data.desconectar) cuentaBack.salir()
+	if (data.desconectar) cuentaBack.cuenta.salir()
 	if (!data.ok && _.get(data, 'error.titulo')) {
 		// Mostrar mensaje de error ya preconfigurado
 	}
@@ -446,7 +446,7 @@ Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.apoderade)
 // Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
 
 export default function ({ app }, inject) {
-	inject('back', cuentaBack)
+	inject('cuentaBack', cuentaBack)
 
 	if (!app.mixins) app.mixins = []
 	app.mixins.push({

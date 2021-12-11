@@ -251,7 +251,7 @@ const cuenta = {
 	async salir () {
 		cuenta.usuario = null
 		cuenta.token = null
-		if (cuenta.vm.$back) cuenta.vm.$back.salir()
+		if (cuenta.vm.$cuentaBack) cuenta.vm.$cuentaBack.salir()
 		await cuentaStore.clear()
 		cuenta.ping()
 		return true

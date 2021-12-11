@@ -11,8 +11,8 @@ export default {
 		}
 	},
 	mounted () {
-		if (!this.$back.apoderade.fechaValidacionDatos) return
-		const ap = this.$back.apoderade.rol
+		if (!this.$cuentaBack.apoderade.fechaValidacionDatos) return
+		const ap = this.$cuentaBack.apoderade.rol
 		if (ap === 'AM') {
 			this.$router.replace('/app/locales')
 		} else return true

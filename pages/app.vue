@@ -5,19 +5,19 @@
 			cuenta
 
 	// Conectado, pero no se obtuvo datos del back
-	.conectadoPeroSinBack(v-else-if="$back.apoderade === false")
+	.conectadoPeroSinBack(v-else-if="$cuentaBack.apoderade === false")
 		.tac
 			b Error
 			p No se pudo conectar con el back
 
 	// Conectado, obteniendo datos del back
-	.cargando(v-else-if="!$back.apoderade")
+	.cargando(v-else-if="!$cuentaBack.apoderade")
 		.tac
 			a-icon(type="loading")
 			p Cargando
 
 	// Conectado, datos del back listos
-	.conectado(v-else-if="_.get($back, ['apoderade', 'fechaValidacionDatos'])")
+	.conectado(v-else-if="_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
 		.contenido
 			n-child
 	apoderades-validar(v-else)

@@ -21,7 +21,7 @@ export default {
 		async ingresarConToken () {
 			if (!this.token) return
 			console.log('ingresando con token')
-			await this.$back.ingresarConToken(this.token)
+			await this.$cuentaBack.ingresarConToken(this.token)
 		}
 	}
 }
