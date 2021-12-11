@@ -72,7 +72,7 @@ export default {
     background-color: #EFEFEF
 
     &:hover
-        filter: brightness(120%);
+        filter: brightness(120%)
 
     h3
         display: inline

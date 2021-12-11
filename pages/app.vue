@@ -10,11 +10,16 @@
 			b Error
 			p No se pudo conectar con el back
 
+	// No se pudo contarcar con back
+	.cargando(v-else-if="$cuentaBack.apoderade === false")
+		.tac
+			a-alert(type="error" message="No se pudo conectar con back")
+
 	// Conectado, obteniendo datos del back
 	.cargando(v-else-if="!$cuentaBack.apoderade")
 		.tac
 			a-icon(type="loading")
-			p Cargando
+			p Conectando back
 
 	// Conectado, datos del back listos
 	.conectado(v-else-if="_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
@@ -34,7 +39,7 @@ export default {
 <style lang="sass" scoped>
 @import "@style/vars"
 
-.carpetaApp
+// .carpetaApp
 .noconectado,
 .conectadoPeroSinBack,
 .cargando

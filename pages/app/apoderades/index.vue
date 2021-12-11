@@ -2,62 +2,48 @@
 .appApoderadesIndex
 
 	.miniNavbar
-		n-link.link(@click="pasarAEtapa()") Buscar
-		n-link.link(@click="pasarAEtapa()") Inscribir
+		.cambioEtapa(@click="pasarAEtapa('busquedaRut')") Buscar
+		.cambioEtapa(@click="pasarAEtapa('datosPersonales')") Inscribir
+		.cambioEtapa(@click="pasarAEtapa('asignacionTerritorial')") Asignar territorio
 
-	.rutForm
-		a-form-model(ref="rutForm" :model="rutForm" :rules="rules")
-			a-form-model-item( has-feedback prop="rut" label="Ingresa RUT del apoderado" )
-				a-input.input(v-model="rutForm.rut" type="rut" allow-clear)
-			a-form-model-item
-				a-button.w100.bpStyle.verde(type="primary" @click="submitForm") BUSCAR
+	.etapas
 
-	.datosPersonalesForm(v-if="rutInscrito && etapa === 'datosPersonales'")
-		a-form-model(ref="personalesForm" :model="personalesForm" :rules="rules")
-			a-form-model-item(has-feedback, prop="nombre" label="Nombres")
-				a-input.input(
-					v-model="personalesForm.nombre"
-					type="nombre"
-					placeholder="Gabriel"
-				)
+		.rutForm(v-if="etapa === 'busquedaRut'")
+			a-form-model(ref="rutForm" :model="rutForm" :rules="rules")
+				a-form-model-item( has-feedback prop="rut" label="Ingresa RUT del apoderado" )
+					a-input.input(v-model="rutForm.rut" type="rut" allow-clear)
+				a-form-model-item
+					a-button.w100.bpStyle.verde(type="primary" @click="submitForm") BUSCAR
 
-			a-form-model-item(has-feedback, prop="apellido" label="Apellidos")
-				a-input.input(
-					v-model="personalesForm.apellido"
-					
-					type="apellido"
-					placeholder="Boric Font"
-				)
+		.datosPersonalesForm(v-if="rutInscrito && etapa === 'datosPersonales'")
+			a-form-model(ref="personalesForm" :model="personalesForm" :rules="rules")
+				a-form-model-item(has-feedback, prop="nombre" label="Nombres")
+					a-input.input( v-model="personalesForm.nombre" type="nombre" placeholder="Gabriel" )
 
-			a-form-model-item(has-feedback, prop="email" label="Correo")
-				a-input.input(
-					v-model="personalesForm.email"
-					type="email"
-					placeholder="gabriel@lesapoderades.cl"
-				)
+				a-form-model-item(has-feedback, prop="apellido" label="Apellidos")
+					a-input.input( v-model="personalesForm.apellido" type="apellido" placeholder="Boric Font" )
 
-			a-form-model-item(has-feedback, prop="telefono" label="Teléfono")
-				a-input.input(
-					v-model="personalesForm.telefono"
-					type="tel"
-					placeholder="+56 x xxxx xxxx"
-				)
+				a-form-model-item(has-feedback, prop="email" label="Correo")
+					a-input.input( v-model="personalesForm.email" type="email" placeholder="gabriel@lesapoderades.cl" )
 
-			a-form-model-item
-				a-button.w100.bpStyle.verde(type="primary" @click="submitForm") BUSCAR
+				a-form-model-item(has-feedback, prop="telefono" label="Teléfono")
+					a-input.input( v-model="personalesForm.telefono" type="tel" placeholder="+56 x xxxx xxxx" )
 
-	.asignacionTerritorial(v-if="usuarioID && etapa === 'asignacionTerritorial'")
-		a-form-model-item( v-if="asignacionTerritorialForm.rol" has-feedback, prop="region" label="Región" )
-			a-select.input( v-model="asignacionTerritorialForm.region" @change="handleRegion" placeholder="Región" )
-				a-select-option( v-for="region in regiones" :key="region.label" :value="region.reg" ) {{ region.label }}
+				a-form-model-item
+					a-button.w100.bpStyle.verde(type="primary" @click="submitForm") BUSCAR
 
-		a-form-model-item( v-if="regionseleccionada" has-feedback, prop="comuna" label="Comuna" )
-			a-select.input( v-model="asignacionTerritorialForm.comuna" placeholder="Comuna" @change="handleComuna" @select="buscarLocales" )
-				a-select-option( v-for="comuna in comunas" :key="comuna.label" :value="comuna.codigo" ) {{ comuna.label }}
+		.asignacionTerritorial(v-if="usuarioID && etapa === 'asignacionTerritorial'")
+			a-form-model-item( v-if="asignacionTerritorialForm.rol" has-feedback, prop="region" label="Región" )
+				a-select.input( v-model="asignacionTerritorialForm.region" @change="handleRegion" placeholder="Región" )
+					a-select-option( v-for="region in regiones" :key="region.label" :value="region.reg" ) {{ region.label }}
 
-		a-form-model-item(v-if="locales" has-feedback, prop="local" label="Local")
-			a-select.input( show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="handleLocal" )
-				a-select-option( v-for="local in locales" :key="local._id" :value="local.nombre" ) {{ local.nombre }}
+			a-form-model-item( v-if="regionseleccionada" has-feedback, prop="comuna" label="Comuna" )
+				a-select.input( v-model="asignacionTerritorialForm.comuna" placeholder="Comuna" @change="handleComuna" @select="buscarLocales" )
+					a-select-option( v-for="comuna in comunas" :key="comuna.label" :value="comuna.codigo" ) {{ comuna.label }}
+
+			a-form-model-item(v-if="locales" has-feedback, prop="local" label="Local")
+				a-select.input( show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="handleLocal" )
+					a-select-option( v-for="local in locales" :key="local._id" :value="local.nombre" ) {{ local.nombre }}
 </template>
 <script>
 import * as Rut from "rut.js";

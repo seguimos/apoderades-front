@@ -8,11 +8,9 @@ import { _ } from './lodash'
 
 const backURL = process.env.backURL
 
-const cuentaBackStore = localforage.createInstance({
-	name: 'cuentaBackBackStore'
-})
+const cuentaBackStore = localforage.createInstance({ name: 'cuentaBackBackStore' })
 
-const usarStores = true
+const usarStores = false
 
 const cuentaBack = {
 	// Proporciona metodos on, off, emit, para emisión y escucha de eventos
