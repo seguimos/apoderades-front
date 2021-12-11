@@ -98,9 +98,7 @@ const cuenta = {
 		this.leer()
 	},
 
-	get host () {
-		return new URL(cuenta.cuentasURL).host
-	},
+	get host () { return new URL(cuenta.cuentasURL).host },
 
 	get token () { return this._token },
 	get miLlavero () { return miLlavero },
@@ -188,6 +186,7 @@ const cuenta = {
 		try {
 			const token = cuenta.token
 			if (!token) {
+				if (cuenta.usuario !== null) cuenta.usuario = null
 				console.log(fx, 'abortado por no haber token')
 				return
 			}
@@ -236,6 +235,7 @@ const cuenta = {
 		try {
 			const token = cuenta.token
 			if (!token) {
+				if (cuenta.usuario !== null) cuenta.usuario = null
 				console.log(fx, 'abortado por no haber token')
 				return
 			}
@@ -410,6 +410,7 @@ const cuenta = {
 		try {
 			const token = cuenta.token
 			if (!token) {
+				if (cuenta.usuario !== null) cuenta.usuario = null
 				console.log(fx, 'abortado por no haber token')
 				return
 			}
@@ -451,6 +452,7 @@ const cuenta = {
 		try {
 			const token = cuenta.token
 			if (!token) {
+				if (cuenta.usuario !== null) cuenta.usuario = null
 				console.log(fx, 'abortado por no haber token')
 				return
 			}
@@ -488,6 +490,7 @@ const cuenta = {
 		const _ = cuenta.vm._
 		try {
 			if (!cuenta.token) {
+				if (cuenta.usuario !== null) cuenta.usuario = null
 				console.log(fx, 'abortado por no haber token')
 				return
 			}
