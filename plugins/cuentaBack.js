@@ -366,6 +366,27 @@ const cuentaBack = {
 		}
 	},
 
+	async buscarXRut (rut) {
+		const fx = 'cuentaBack>buscarXRut'
+		// Primero obtener autorización del back
+		const r = await axios({
+			method: 'get',
+			url: `${backURL}/autorizarBusquedaPorRut`,
+			headers: {
+				authorization: `Bearer ${cuentaBack.token}`
+			}
+		}).then(r => r.data)
+		console.log(fx, 'back/autorizarCreacion', r)
+
+		if (!r || !r.ok) {
+			console.error(fx, 'fail autorizando creación de usuario (back)', r)
+			return
+		}
+		const autorizacion = r.autorizacion
+		const s = await cuentaBack.vm.$cuenta.buscarRut(autorizacion, rut)
+		return s
+	},
+
 	async salir () {
 		cuentaBack.datosApoderade = null
 		await cuentaBackStore.clear()
@@ -373,7 +394,7 @@ const cuentaBack = {
 		return true
 	},
 
-	async crearApoderade ({ nombre, apellido, email, pass, telefono, rol, rut, territorioPreferencia }) {
+	async crearApoderade ({ nombre, apellido, email, telefono, rol, rut, region, comunaCodigo, localAsignado }) {
 		const fx = 'cuentaBack>crearApoderade'
 		// Primero obtener autorización del back
 		const r = await axios({
@@ -389,16 +410,16 @@ const cuentaBack = {
 			console.error(fx, 'fail autorizando creación de usuario (back)', r)
 			return
 		}
-		const autorizacionDelBack = r.autorizacion
+		const autorizacionBack = r.autorizacion
 
 		// Crear usuario en microservicio de cuentas
-		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionDelBack, { nombre, apellido, email, pass, telefono, rut, rol })
+		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionBack, { nombre, apellido, email, telefono, rut, rol })
 		if (!c || !c.ok) {
 			console.error(fx, 'fail creando usuario en microcuentas', c)
 			return
 		}
 		const usuarioID = c.usuarioID
-		const urlValidacionEmail = c.urlValidacionEmail
+		const tokenIngresoEncriptado = c.tokenIngresoEncriptado
 		console.log(fx, 'microcuentas/crearCuenta', c)
 
 		// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
@@ -410,9 +431,11 @@ const cuentaBack = {
 			},
 			data: {
 				usuarioID,
-				urlValidacionEmail,
+				tokenIngresoEncriptado,
 				rol,
-				territorioPreferencia
+				territorioPreferencia: {
+					region, comunaCodigo, localAsignado
+				}
 			}
 		}).then(r => r.data)
 		console.log(fx, 'back/nuevo-usuario', b)
