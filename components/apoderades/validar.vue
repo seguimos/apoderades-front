@@ -43,13 +43,6 @@
 				placeholder="+56 x xxxx xxxx"
 			)
 
-		a-form-model-item(has-feedback, label="Rol")
-			a-input.input(
-				v-model="formulario.rol",
-				placeholder="Elige un Rol...",
-				disabled
-			)
-
 		a-form-model-item(has-feedback, prop="region", label="Región")
 			a-select.input(
 				v-model="formulario.region",
@@ -199,7 +192,7 @@ export default {
 				callback(new Error('ingresa un rut valido'))
 			}
 		}
-		const { nombre, apellido, rut, email, telefono, rol } = this.$usuario
+		const { nombre, apellido, rut, email, telefono } = this.$usuario
 		return {
 			formulario: {
 				nombre,
@@ -207,7 +200,6 @@ export default {
 				rut,
 				email,
 				telefono,
-				rol,
 
 				// datos desde back
 				comunaCodigo: this._.get(this.$back.apoderade, [
@@ -298,8 +290,7 @@ export default {
 						comunaCodigo: this.formulario.comunaCodigo,
 						localId: this.formulario.localID
 					}
-					const { nombre, apellido, rut, email, telefono, rol } =
-						this.formulario
+					const { nombre, apellido, rut, email, telefono } = this.formulario
 					// const disponibleParaOtrosLocales =
 					// 	this.formulario.disponibleParaOtrosLocales
 
@@ -309,8 +300,7 @@ export default {
 						apellido,
 						rut,
 						email,
-						telefono,
-						rol
+						telefono
 					})
 					// this.$gtm.push({ event: 'Registro_mailing', nombre: 'Registro en Mailchimp', estado: 'completo' })
 				} else {

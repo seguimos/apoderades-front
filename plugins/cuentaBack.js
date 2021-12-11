@@ -281,6 +281,7 @@ const cuentaBack = {
 		this.leyendoDatos = false
 	},
 
+	territorios: null,
 	async misTerritorios () {
 		const fx = 'cuentaBack>misTerritorios'
 		try {
@@ -295,7 +296,7 @@ const cuentaBack = {
 				return
 			}
 			console.log(fx, 'r', r)
-			return r
+			cuentaBack.territorios = r.territorio
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -342,6 +343,7 @@ const cuentaBack = {
 
 	async salir () {
 		cuentaBack.apoderade = null
+		cuentaBack.territorio = null
 		await cuentaBackStore.clear()
 		// cuentaBack.ping()
 		return true
@@ -379,8 +381,8 @@ const cuentaBack = {
 			data: {
 				usuarioID,
 				tokenIngresoEncriptado,
-				rol,
-				territorioPreferencia: {
+				url: `${new URL(window.location.href).origin}/ingresoConToken?token=`,
+				territorio: {
 					region, comunaCodigo, localAsignado
 				}
 			}

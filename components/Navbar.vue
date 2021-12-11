@@ -11,14 +11,12 @@ a-layout.root
 				.logo-after
 					.iconoAprueboDignidad
 		a-menu(mode="horizontal")
-			a-menu-item.header-menu(key="login", v-if="!$usuario")
-				n-link.link(to="/app/login") Iniciar Sesión
 			a-sub-menu(v-if="$usuario")
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="user")
 					| Cuentas
 				a-menu-item(v-if="$usuario", key="mi-cuenta")
-					n-link.link(to="/cuenta") Mi cuenta
+					n-link.link(to="/app") Mi cuenta
 				a-menu-item(v-if="!$usuario", key="mi-cuenta")
 					n-link.link(to="/app") Iniciar Sesion
 				a-menu-item(key="mis-datos")
@@ -26,7 +24,7 @@ a-layout.root
 			a-sub-menu(v-if="$usuario")
 				span.submenu-title-wrapper(slot="title")
 					a-icon(type="team")
-					| Apoderades
+					| Apoderados
 				a-menu-item(key="buscar")
 					n-link.link(to="/app/apoderades") Buscar apoderado
 			a-sub-menu(v-if="$usuario")
@@ -45,7 +43,7 @@ a-layout.root
 					a-menu-item(key="datos-votacion")
 						a(href="https://consulta.servel.cl") Datos Votación
 					a-menu-item(key="resultados")
-						| Resultados
+						a(href="https://resultados.servel.cl") Datos Votación
 					a-menu-item(key="reglamento")
 						| Reglamento
 				a-menu-item-group(title="Comando")

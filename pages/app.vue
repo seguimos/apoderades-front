@@ -6,13 +6,13 @@
 
 	// Conectado, pero no se obtuvo datos del back
 	.conectadoPeroSinBack(v-else-if="$back.apoderade === false")
-		div.tac
+		.tac
 			b Error
 			p No se pudo conectar con el back
 
 	// Conectado, obteniendo datos del back
 	.cargando(v-else-if="!$back.apoderade")
-		div.tac
+		.tac
 			a-icon(type="loading")
 			p Cargando
 
@@ -28,10 +28,6 @@ export default {
 	components: { cuenta },
 	data () {
 		return {}
-	},
-	mounted () {
-		if (!this.$usuario) return
-		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
 	}
 }
 </script>
