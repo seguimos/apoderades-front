@@ -397,9 +397,9 @@ const cuentaBack = {
 
 
 async function solicitar (request, errorHandler) {
-	const fx = 'cuentaBack.js solicitar'
-	console.log(fx, 'token', cuentaBack.cuenta.token)
-	console.log(fx, 'tokenAutofirmado', cuentaBack.cuenta.tokenAutofirmado)
+	// const fx = 'cuentaBack.js solicitar'
+	// console.log(fx, 'token', cuentaBack.cuenta.token)
+	// console.log(fx, 'tokenAutofirmado', cuentaBack.cuenta.tokenAutofirmado)
 	const _ = cuentaBack.vm._
 	const defaultHeaders = {
 		Accept: 'application/json',
