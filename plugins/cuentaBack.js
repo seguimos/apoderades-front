@@ -437,8 +437,8 @@ const cuentaBack = {
 			data: {
 				usuarioID,
 				tokenIngresoEncriptado,
-				rol,
-				territorioPreferencia: {
+				url: `${new URL(window.location.href).origin}/ingresoConToken?token=`,
+				territorio: {
 					region, comunaCodigo, localAsignado
 				}
 			}

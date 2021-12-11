@@ -43,6 +43,9 @@
 				placeholder="+56 x xxxx xxxx"
 			)
 
+		a-radio-group(default-value="a", button-style="solid")
+			a-radio-button(value="")
+
 		a-form-model-item(has-feedback, label="Rol")
 			a-select.input(v-model="formulario.rol", placeholder="Elige un Rol...")
 				a-select-option(value="COM") Comando
@@ -178,11 +181,11 @@ export default {
 		}
 		return {
 			formulario: {
-				nombre: undefined,
-				apellido: undefined,
-				rut: undefined,
-				email: undefined,
-				telefono: undefined,
+				nombre: 'ramon',
+				apellido: 'ramas',
+				rut: '102222222',
+				email: 'hhg@gmail.com',
+				telefono: '+56982061888',
 
 				rol: undefined,
 
@@ -284,11 +287,7 @@ export default {
 				comunaCodigo,
 				localAsignado
 			} = this.formulario
-			const territorioPreferencia = {
-				region: this.formulario.region,
-				comunaCodigo: this.formulario.comunaCodigo,
-				localAsignado: this.formulario.localAsignado
-			}
+
 			const creado = await this.$back.crearApoderade({
 				nombre,
 				apellido,
@@ -296,7 +295,6 @@ export default {
 				telefono,
 				rol,
 				rut,
-				territorioPreferencia,
 				region,
 				comunaCodigo,
 				localAsignado

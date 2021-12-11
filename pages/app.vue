@@ -6,13 +6,13 @@
 
 	// Conectado, pero no se obtuvo datos del back
 	.conectadoPeroSinBack(v-else-if="$back.apoderade === false")
-		div.tac
+		.tac
 			b Error
 			p No se pudo conectar con el back
 
 	// Conectado, obteniendo datos del back
 	.cargando(v-else-if="!$back.apoderade")
-		div.tac
+		.tac
 			a-icon(type="loading")
 			p Cargando
 
@@ -40,7 +40,11 @@ export default {
 	},
 	methods: {
 		async buscarMisDatos () {
-			await this.$back.leerMisDatos()
+			const usuarioBack = await this.$back.leerMisDatos()
+			if (usuarioBack) {
+				const territorio = await this.$back.misTerritorios()
+				console.log('buscarMisDatos-territorio', territorio)
+			}
 		}
 	}
 }
