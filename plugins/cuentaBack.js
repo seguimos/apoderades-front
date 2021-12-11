@@ -166,7 +166,7 @@ const cuentaBack = {
 			// TODO Marcar datos validados
 			cuentaBack.vm.$message.success('Has confirmado tus datos')
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}
@@ -187,7 +187,7 @@ const cuentaBack = {
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}
@@ -207,7 +207,7 @@ const cuentaBack = {
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}
@@ -227,7 +227,7 @@ const cuentaBack = {
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}
@@ -246,7 +246,7 @@ const cuentaBack = {
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}
@@ -266,7 +266,7 @@ const cuentaBack = {
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}
@@ -286,7 +286,7 @@ const cuentaBack = {
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}
@@ -307,7 +307,7 @@ const cuentaBack = {
 			else cuentaBack.vm.$message.ward('Rut no inscrito')
 			return s
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}
@@ -351,7 +351,7 @@ const cuentaBack = {
 			if (!registroEnBack || !registroEnBack.ok) throw ['fail creando usuario en microcuentas', registroEnBack]
 			cuentaBack.vm.$message.success('Registro realizado, se enviará correo al inscrito')
 		} catch (e) {
-			if (_.isArray(e)) console.error(fx, ...e)
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
 		}

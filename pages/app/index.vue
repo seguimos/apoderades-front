@@ -16,9 +16,16 @@
 			)
 </template>
 <script>
+import mapa from '../../components/mapa'
 import locales from '../../data/localesxcomunaexample'
+import resumenLocal from '../../components/locales/resumenLocal.vue'
 
 export default {
+	components: {
+		mapa,
+		locales,
+		resumenLocal
+	},
 	data () {
 		return {
 			regiones: locales.locales.regiones,
@@ -49,7 +56,7 @@ export default {
 			}))
 		},
 		territorios () {
-			return this.$cuentaBack.territorios
+			return this.$back.territorios
 		}
 	},
 	mounted () {
@@ -58,7 +65,7 @@ export default {
 	},
 	methods: {
 		async buscarResumenComuna () {
-			const locales = await this.$cuentaBack.localesXComuna()
+			const locales = await this.$back.localesXComuna()
 			console.log('locales', locales)
 		},
 		submitForm (formName) {
