@@ -52,9 +52,8 @@ const cuentaBack = {
 	get token () {
 		return this.vm.$cuenta.token
 	},
-	get usuario () {
-		return this.vm.$cuenta.usuario
-	},
+	get cuenta () { return this.vm.$cuenta },
+	get usuario () { return this.vm.$cuenta.usuario },
 	get miLlavero () {
 		return this.vm.$cuenta.miLlavero
 	},
@@ -75,7 +74,7 @@ const cuentaBack = {
 	// 	const fx = 'cuentaBack>ping'
 	// 	try {
 	// 		consolo.log(fx)
-	// 		const r = await solicitar.call(this, {
+	// 		const r = await solicitar({
 	// 			url: `${cuentaBack.backURL}/llavero`,
 	// 			method: 'get'
 	// 		}, e => { this.sinConexion = true })
@@ -102,15 +101,10 @@ const cuentaBack = {
 		this.leyendoDatos = true
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderade`,
-				headers: {
-					'content-type': 'application/json',
-					accept: 'application/json',
-					authorization: `Bearer ${cuentaBack.token}`
-				}
-			}).then(r => r.data)
+				url: `${backURL}/apoderade`
+			})
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -128,19 +122,13 @@ const cuentaBack = {
 
 	async apoderadosXRegion (region, roles) {
 		const fx = 'cuentaBack>apoderadosXRegion'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'get',
 				url: `${backURL}/apoderades/region`,
-				headers: {
-					authorization: `Bearer ${cuenta.token}`
-				},
 				params: { region, roles }
-
-			}).then(r => r.data)
-
+			})
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
 				return
@@ -153,17 +141,13 @@ const cuentaBack = {
 
 	async apoderadosXcomuna (comunaCodigo, roles) {
 		const fx = 'cuentaBack>apoderadosXcomuna'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'get',
 				url: `${backURL}/apoderades/comuna/:comunaCodigo`,
-				headers: {
-					authorization: `Bearer ${cuenta.token}`
-				},
 				params: { comunaCodigo, roles }
-			}).then(r => r.data)
+			})
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -177,17 +161,12 @@ const cuentaBack = {
 
 	async autoValidarDatos ({ territorioPreferencia, nombre, apellido, rut, email, telefono, rol }) {
 		const fx = 'cuentaBack>autoValidarDatos'
-		const cuenta = this.vm.$cuenta
 		// Primero obtener autorización del back
-		const r = await axios({
+		const r = await solicitar({
 			method: 'get',
-			url: `${backURL}/autorizaredicion`,
-			headers: {
-				authorization: `Bearer ${cuentaBack.token}`
-			}
-		}).then(r => r.data)
-		console.log(fx, 'back/autorizarCreacion', r)
-
+			url: `${backURL}/autorizaredicion`
+		})
+		console.log(fx, 'back/autorizaredicion', r)
 		if (!r || !r.ok) {
 			console.error(fx, 'fail autorizando creación de usuario (back)', r)
 			return
@@ -203,16 +182,11 @@ const cuentaBack = {
 
 		console.log(fx, 'microcuentas/editarCuenta', c)
 
-		const s = await axios({
+		const s = await solicitar({
 			method: 'post',
 			url: `${backURL}/apoderade/datos`,
-			headers: {
-				'content-type': 'application/json',
-				accept: 'application/json',
-				authorization: `Bearer ${cuenta.token}`
-			},
 			data: { territorioPreferencia }
-		}).then(s => s.data)
+		})
 
 		if (!s || !s.ok) {
 			console.error(fx, 'fail', s)
@@ -223,18 +197,14 @@ const cuentaBack = {
 
 	async asignarTerritorio ({ apoderadeID, region, comunaCodigo }) {
 		const fx = 'cuentaBack>asignarTerritorio'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'post',
-				url: `${backURL}/apoderades/:criptoIdApoderade/territorio`,
-				headers: {
-					authorization: `Bearer ${cuenta.token}`
-				},
+				url: `${backURL}/apoderades/:apoderadeID/territorio`,
 				body: { territorio: {	region, comunaCodigo } },
 				params: { apoderadeID }
-			}).then(r => r.data)
+			})
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -248,18 +218,14 @@ const cuentaBack = {
 
 	async asignarLocal ({ region, localId, idCriptocuentas }) {
 		const fx = 'cuentaBack>asignarLocal'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'post',
 				url: `${backURL}/locales/:region/locales/:localId/apoderades`,
-				headers: {
-					authorization: `Bearer ${cuenta.token}`
-				},
 				body: { idCriptocuentas },
 				params: { region, localId }
-			}).then(r => r.data)
+			})
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -273,17 +239,13 @@ const cuentaBack = {
 
 	async localesXRegion ({ region }) {
 		const fx = 'cuentaBack>localesXRegion'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'get',
 				url: `${backURL}/locales/:region`,
-				headers: {
-					authorization: `Bearer ${cuenta.token}`
-				},
 				params: { region }
-			}).then(r => r.data)
+			})
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -297,17 +259,12 @@ const cuentaBack = {
 
 	async localesXComuna ({ region, comunaCodigo }) {
 		const fx = 'cuentaBack>localesXComuna'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/locales/${region}/comunas/${comunaCodigo}/`,
-				headers: {
-					authorization: `Bearer ${cuenta.token}`
-				}
-				// params: { region, comunaCodigo }
-			}).then(r => r.data)
+				url: `${backURL}/locales/${region}/comunas/${comunaCodigo}/`
+			})
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -323,17 +280,12 @@ const cuentaBack = {
 
 	async misTerritorios () {
 		const fx = 'cuentaBack>misTerritorios'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderade/territorios`,
-				headers: {
-					authorization: `Bearer ${cuenta.token}`
-				}
-				// params: { region, comunaCodigo }
-			}).then(r => r.data)
+				url: `${backURL}/apoderade/territorios`
+			})
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -349,17 +301,13 @@ const cuentaBack = {
 
 	async obtenerLocal ({ region, localId }) {
 		const fx = 'cuentaBack>obtenerLocal'
-		const cuenta = this.vm.$cuenta
 		try {
 			console.log(fx)
-			const r = await axios({
+			const r = await solicitar({
 				method: 'get',
 				url: `${backURL}/locales/:region/locales/:localId`,
-				headers: {
-					authorization: `Bearer ${cuenta.token}`
-				},
 				params: { region, localId }
-			}).then(r => r.data)
+			})
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -374,14 +322,11 @@ const cuentaBack = {
 	async buscarXRut (rut) {
 		const fx = 'cuentaBack>buscarXRut'
 		// Primero obtener autorización del back
-		const r = await axios({
+		const r = await solicitar({
 			method: 'get',
-			url: `${backURL}/autorizarBusquedaPorRut`,
-			headers: {
-				authorization: `Bearer ${cuentaBack.token}`
-			}
-		}).then(r => r.data)
-		console.log(fx, 'back/autorizarCreacion', r)
+			url: `${backURL}/autorizarBusquedaPorRut`
+		})
+		// console.log(fx, 'back/autorizarBusquedaPorRut', r)
 
 		if (!r || !r.ok) {
 			console.error(fx, 'fail autorizando creación de usuario (back)', r)
@@ -402,14 +347,11 @@ const cuentaBack = {
 	async crearApoderade ({ nombre, apellido, email, telefono, rol, rut, region, comunaCodigo, localAsignado }) {
 		const fx = 'cuentaBack>crearApoderade'
 		// Primero obtener autorización del back
-		const r = await axios({
+		const r = await solicitar({
 			method: 'get',
-			url: `${backURL}/autorizarCreacion`,
-			headers: {
-				authorization: `Bearer ${cuentaBack.token}`
-			}
-		}).then(r => r.data)
-		console.log(fx, 'back/autorizarCreacion', r)
+			url: `${backURL}/autorizarCreacion`
+		})
+		// console.log(fx, 'back/autorizarCreacion', r)
 
 		if (!r || !r.ok) {
 			console.error(fx, 'fail autorizando creación de usuario (back)', r)
@@ -423,17 +365,14 @@ const cuentaBack = {
 			console.error(fx, 'fail creando usuario en microcuentas', c)
 			return
 		}
+		console.log(fx, 'microcuentas/crearCuenta', c)
 		const usuarioID = c.usuarioID
 		const tokenIngresoEncriptado = c.tokenIngresoEncriptado
-		console.log(fx, 'microcuentas/crearCuenta', c)
 
 		// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
-		const b = await axios({
+		const b = await solicitar({
 			method: 'post',
 			url: `${backURL}/apoderades`,
-			headers: {
-				authorization: `Bearer ${cuentaBack.token}`
-			},
 			data: {
 				usuarioID,
 				tokenIngresoEncriptado,
@@ -442,9 +381,54 @@ const cuentaBack = {
 					region, comunaCodigo, localAsignado
 				}
 			}
-		}).then(r => r.data)
+		})
 		console.log(fx, 'back/nuevo-usuario', b)
 	}
+}
+
+
+
+async function solicitar (request, errorHandler) {
+	const _ = cuentaBack.vm._
+	const defaultHeaders = {
+		Accept: 'application/json',
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${cuentaBack.cuenta.token}`,
+		'Token-Autofirmado': cuentaBack.cuenta.tokenAutofirmado
+	}
+	const ops = _.merge({ headers: defaultHeaders }, request)
+
+	const data = await axios(ops).then(r => {
+		if (cuentaBack.sinConexion === undefined || cuentaBack.sinConexion) cuentaBack.sinConexion = false
+		return r.data
+	}).catch(errorHandler || capturadorErrorSolicitud)
+
+	if (!data) {
+		console.error('Sin respuesta')
+		return data
+	}
+	if (data.desconectar) cuentaBack.salir()
+	if (!data.ok && _.get(data, 'error.titulo')) {
+		// Mostrar mensaje de error ya preconfigurado
+	}
+	if (_.get(data, 'notificar.titulo')) {
+		// Mostrar mensaje ya preconfigurado
+	}
+	return data
+}
+
+function capturadorErrorSolicitud (error) {
+	console.error('capturadorErrorSolicitud', error)
+	if (error.response) {
+		const { status, data } = error.response
+		console.log('Status fuera del rango 2XX', { status, data })
+	} else if (error.request) {
+		console.log('Sin respuesta (capturadorErrorSolicitud)')
+		// consolo.log(error.request)
+	} else {
+		console.log('Error inesperado (capturadorErrorSolicitud)', error.message)
+	}
+	consolo.log(error.config)
 }
 
 Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.apoderade)

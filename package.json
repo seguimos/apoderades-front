@@ -13,12 +13,12 @@
   "dependencies": {
     "ant-design-vue": "^1.7.8",
     "axios": "^0.24.0",
-    "chalk": "^5.0.0",
     "jose": "^4.3.7",
     "jwt-decode": "^3.1.2",
     "leaflet": "^1.7.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
+    "moment-range": "^4.0.2",
     "moment-timezone": "^0.5.34",
     "nuxt": "^2.15.7",
     "phone": "^3.1.10",

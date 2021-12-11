@@ -34,6 +34,7 @@ async function procesarInfoUsuario (r) {
 			nombre: decodificado.nombre,
 			...datosPrivados
 		}
+		cuenta.decodificado = decodificado
 		cuenta.datosPrivados = r.datosPrivados
 		cuenta.token = r.token
 		return r
@@ -51,6 +52,8 @@ const cuenta = {
 	_token: undefined,
 	_expConfianza: undefined,
 	_usuario: undefined,
+	decodificado: undefined,
+
 	_datosPrivados: undefined,
 
 	llaveroPropio: undefined,
@@ -112,6 +115,20 @@ const cuenta = {
 
 	set datosPrivados (usr) {
 		this._datosPrivados = usr
+	},
+
+	tokenAutofirmado: null,
+	async mantenerTokenAutorizado () {
+		const fx = 'microCuentas>firmarToken'
+		try {
+			const token = cuenta.token
+			const moment = cuenta.vm.$moment
+			this.tokenAutofirmado = await miLlavero.firmarToken(token)
+			const proxMinuto = moment().seconds(0).add(1, 'minute')
+			setTimeout(function () { cuenta.mantenerTokenAutorizado() }, proxMinuto.diff(moment()))
+		} catch (e) {
+			console.error(fx, e)
+		}
 	},
 
 	async ping () {
@@ -440,8 +457,7 @@ const cuenta = {
 		const fx = 'microCuentas>buscarRut'
 		const _ = cuenta.vm._
 		try {
-			const token = cuenta.token
-			if (!token) {
+			if (!cuenta.token) {
 				console.log(fx, 'abortado por no haber token')
 				cuenta.salir()
 				return
@@ -465,7 +481,7 @@ const cuenta = {
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/buscarXRut`,
 				data: { encriptado, secretoDecriptado, autorizacion },
-				headers: { Authorization: `Bearer ${token}` },
+				headers: { Authorization: `Bearer ${cuenta.token}` },
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)
@@ -478,24 +494,9 @@ const cuenta = {
 
 
 async function solicitar (request, errorHandler) {
-	// const fx = 'solicitar'
 	const _ = cuenta.vm._
-
-	// console.log(fx, request)
-	// console.log('Preparacion de headers para firma', firma)
-	// console.log('Preparacion de headers para encriptacion', encriptacion)
-
 	const defaultHeaders = { Accept: 'application/json' }
-
 	const ops = _.merge({ headers: defaultHeaders }, request)
-
-	// const {firma, encriptacion} = miLlavero && await miLlavero.exportarLlavesPublicas()
-	// if (firma && encriptacion) {
-	// 	ops.headers.firma = firma.publica
-	// 	ops.headers.encriptacion = encriptacion.publica
-	// }
-
-	// console.log(fx, 'ops', ops)
 
 	const data = await axios(ops).then(r => {
 		// console.log('r', r)

@@ -49,6 +49,7 @@ export default {
 		'@/plugins/consolo',
 		'@/plugins/lodash',
 		'@/plugins/i18n',
+		'@/plugins/fechas',
 		'@/plugins/microCuentas',
 		'@/plugins/cuentaBack',
 		{ src: '@/plugins/leaflet', mode: 'client' },
