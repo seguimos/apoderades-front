@@ -34,7 +34,7 @@ export default {
 	data () {
 		return {
 			territorios: null,
-			mapa: false,
+			mapa: this.$route.query.mapa,
 			region: this.$route.query.region,			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
 			comuna: this.$route.query.comuna,			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
 			local: this.$route.query.local			// marcadores: [{ id: 'a', imagen: false, latlon: [-33.429413, -70.627576] }, { id: 'b', imagen: false, latlon: [-33.425555, -70.620127] }]
@@ -121,16 +121,25 @@ export default {
 			}
 		},
 		irATerritorio (tipo, territorio) {
-			console.log('hola!')
 			this[tipo] = territorio
+			const currentRoute = { ...this.$route.query }
+			currentRoute[tipo] = territorio
+			this.$router.push({ path: this.$route.path, query: currentRoute })
 		},
 		subirUnNivel () {
+			const currentRoute = this.$route.query
 			if (this.local) {
 				this.local = undefined
+				this.$router.push({ path: this.$route.path, query: { region: currentRoute.region, comuna: currentRoute.comuna } })
 			} else if (this.comuna) {
+				this.local = undefined
 				this.comuna = undefined
+				this.$router.push({ path: this.$route.path, query: { region: currentRoute.region } })
 			} else {
+				this.local = undefined
+				this.comuna = undefined
 				this.region = undefined
+				this.$router.push({ path: this.$route.path, query: { } })
 			}
 		}
 	}
