@@ -46,7 +46,7 @@
 		a-radio-group(default-value="a", button-style="solid")
 			a-radio-button(value="")
 
-		a-form-model-item(has-feedback, label="Rol")
+		//a-form-model-item(has-feedback, label="Rol")
 			a-select.input(v-model="formulario.rol", placeholder="Elige un Rol...")
 				a-select-option(value="COM") Comando
 				a-select-option(value="COO") Coordinador
@@ -187,7 +187,7 @@ export default {
 				email: 'hhg@gmail.com',
 				telefono: '+56982061888',
 
-				rol: undefined,
+				// rol: undefined,
 
 				comunaCodigo: undefined,
 				region: undefined,
@@ -276,29 +276,8 @@ export default {
 		},
 		async suscribirse () {
 			console.log('formulari crear Usuario', this.formulario)
-			const {
-				nombre,
-				apellido,
-				email,
-				telefono,
-				rol,
-				rut,
-				region,
-				comunaCodigo,
-				localAsignado
-			} = this.formulario
-
-			const creado = await this.$cuentaBack.crearApoderade({
-				nombre,
-				apellido,
-				email,
-				telefono,
-				rol,
-				rut,
-				region,
-				comunaCodigo,
-				localAsignado
-			})
+			const apoderade = this._.pick(this.formulario, 'nombre apellido email telefono rut region comunaCodigo localAsignado'.split(' '))
+			const creado = await this.$cuentaBack.crearApoderade(apoderade)
 			console.log(creado)
 		},
 		showModal () {

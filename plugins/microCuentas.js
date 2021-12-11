@@ -5,8 +5,9 @@ import tokenDecoder from 'jwt-decode'
 
 import consolo from '@lib/consolo'
 import Llavero from '@lib/llavero'
-
 import emisorEventos from '@lib/emisorEventos'
+
+import { _ } from './lodash'
 
 const cuentasURL = process.env.cuentasURL
 
@@ -209,7 +210,7 @@ const cuenta = {
 
 			const llaves = await miLlavero.exportarLlavesPublicas()
 			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ email, pass }))
-			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
+			if (!encriptado || _.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
 			}
@@ -414,7 +415,7 @@ const cuenta = {
 			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono, rut, rol }, v => v && !_.isEmpty(v)))
 			consolo.log(fx, 'serializado', serializado)
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
-			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
+			if (!encriptado || _.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
 			}
@@ -458,7 +459,7 @@ const cuenta = {
 			consolo.log(fx, 'serializado', serializado)
 			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
-			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
+			if (!encriptado || _.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
 			}
@@ -496,7 +497,7 @@ const cuenta = {
 			consolo.log(fx, 'serializado', serializado)
 			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
-			if (!encriptado || cuenta.vm._.isEmpty(encriptado)) {
+			if (!encriptado || _.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
 			}

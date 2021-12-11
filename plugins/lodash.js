@@ -5,7 +5,9 @@ const _ = { isEmpty, map, merge, get, filter, find, reverse, replace, mapValues,
 
 Vue.prototype._ = _
 
-
+export {
+	_
+}
 
 export default (ctx, inject) => {
 	inject('lodash', _)

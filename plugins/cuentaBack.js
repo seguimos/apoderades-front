@@ -4,6 +4,7 @@ import localforage from 'localforage'
 
 import consolo from '@lib/consolo'
 import emisorEventos from '@lib/emisorEventos'
+import { _ } from './lodash'
 
 const backURL = process.env.backURL
 
@@ -46,7 +47,7 @@ const cuentaBack = {
 		consolo.log(fx, { tokenAutofirmado: cuentaBack.cuenta.tokenAutofirmado })
 
 		// Frente a cambios de usuario, reaccionar acorde
-		cuentaBack.vm.$cuenta.on('cambioToken', token => {
+		cuentaBack.cuenta.on('cambioToken', token => {
 			console.log('=============== on cambioToken')
 			if (token) {
 				cuentaBack.leerMisDatos()
@@ -76,30 +77,6 @@ const cuentaBack = {
 		this._apoderade = v
 	},
 
-	// async ping () {
-	// 	const fx = 'cuentaBack>ping'
-	// 	try {
-	// 		consolo.log(fx)
-	// 		const r = await solicitar({
-	// 			url: `${cuentaBack.backURL}/llavero`,
-	// 			method: 'get'
-	// 		}, e => { this.sinConexion = true })
-	// 		consolo.log(fx, 'r', r)
-	// 		this.sinConexion = !(r && r.ok)
-	// 		if (!r) return
-
-	// 		const { llaveroID, llaves } = r
-	// 		if (!llaveroID) throw 'Falta llaveroID'
-	// 		const llavero = new Llavero(llaveroID)
-	// 		await llavero.prepararDestinatario(llaves)
-	// 		llaverocuentaBack = llavero
-	// 		if (usarStores) cuentaBackStore.setItem('llaverocuentaBack', llavero)
-	// 		return llaverocuentaBack
-	// 	} catch (e) {
-	// 		console.error(fx, e)
-	// 	}
-	// },
-
 	leyendoDatos: null,
 	async leerMisDatos () {
 		if (this.leyendoDatos) return
@@ -111,6 +88,7 @@ const cuentaBack = {
 				method: 'get',
 				url: `${backURL}/apoderade`
 			})
+			this.leyendoDatos = false
 
 			if (!r || !r.ok) {
 				console.error(fx, 'fail', r)
@@ -123,6 +101,7 @@ const cuentaBack = {
 		} catch (e) {
 			console.error(fx, e)
 			this.apoderade = false
+			this.leyendoDatos = false
 		}
 	},
 
@@ -135,11 +114,8 @@ const cuentaBack = {
 				url: `${backURL}/apoderades/region`,
 				params: { region, roles }
 			})
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
-			}
-			console.log(fx, 'r', r)
+			if (!r || !r.ok) throw r
+			return r
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -154,12 +130,8 @@ const cuentaBack = {
 				url: `${backURL}/apoderades/comuna/:comunaCodigo`,
 				params: { comunaCodigo, roles }
 			})
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
-			}
-			console.log(fx, 'r', r)
+			if (!r || !r.ok) throw r
+			return r
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -167,38 +139,37 @@ const cuentaBack = {
 
 	async autoValidarDatos ({ territorioPreferencia, nombre, apellido, rut, email, telefono, rol }) {
 		const fx = 'cuentaBack>autoValidarDatos'
-		// Primero obtener autorización del back
-		const r = await solicitar({
-			method: 'get',
-			url: `${backURL}/autorizaredicion`
-		})
-		console.log(fx, 'back/autorizaredicion', r)
-		if (!r || !r.ok) {
-			console.error(fx, 'fail autorizando creación de usuario (back)', r)
-			return
-		}
-		const autorizacionBack = r.autorizacion
-		// console.log('autorizacionDelBack', autorizacionBack)
-		// Crear usuario en microservicio de cuentas
-		const c = await cuentaBack.vm.$cuenta.editarCuenta(autorizacionBack, { nombre, apellido, email, telefono, rut, rol })
-		if (!c || !c.ok) {
-			console.error(fx, 'fail editando usuario en microcuentas', c)
-			return
-		}
+		try {
+			// Primero obtener autorización del back
+			const r = await solicitar({
+				method: 'get',
+				url: `${backURL}/autorizaredicion`
+			})
+			// console.log(fx, 'back/autorizaredicion', r)
+			if (!r || !r.ok) throw ['fail autorizando creación de usuario (back)', r]
+			const { autorizacion } = r
 
-		console.log(fx, 'microcuentas/editarCuenta', c)
+			// Crear usuario en microservicio de cuentas
+			const c = await cuentaBack.cuenta.editarCuenta(autorizacion, { nombre, apellido, email, telefono, rut, rol })
+			if (!c || !c.ok) throw ['fail editando usuario en microcuentas', c]
 
-		const s = await solicitar({
-			method: 'post',
-			url: `${backURL}/apoderade/datos`,
-			data: { territorioPreferencia }
-		})
+			const s = await solicitar({
+				method: 'post',
+				url: `${backURL}/apoderade/datos`,
+				data: { territorioPreferencia }
+			})
+			if (!s || !s.ok) throw ['fail editando autovalidando datos', s]
 
-		if (!s || !s.ok) {
-			console.error(fx, 'fail', s)
-			return
+			// Recargar info que indica si el usuario ha confirmado sus datos
+			await cuentaBack.leerMisDatos()
+
+			// TODO Marcar datos validados
+			cuentaBack.vm.$message.success('Has confirmado tus datos')
+		} catch (e) {
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
-		console.log(fx, 'r', s)
 	},
 
 	async asignarTerritorio ({ apoderadeID, region, comunaCodigo }) {
@@ -211,35 +182,34 @@ const cuentaBack = {
 				body: { territorio: {	region, comunaCodigo } },
 				params: { apoderadeID }
 			})
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
-			}
+			if (!r || !r.ok) throw ['No se pudo asignar territorio', r]
+			cuentaBack.vm.$message.success('Se asignó territorio')
 			console.log(fx, 'r', r)
+			return r
 		} catch (e) {
-			console.error(fx, e)
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
 
 	async asignarLocal ({ region, localId, idCriptocuentas }) {
 		const fx = 'cuentaBack>asignarLocal'
 		try {
-			console.log(fx)
 			const r = await solicitar({
 				method: 'post',
 				url: `${backURL}/locales/:region/locales/:localId/apoderades`,
 				body: { idCriptocuentas },
 				params: { region, localId }
 			})
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
-			}
+			if (!r || !r.ok) throw ['No se pudo asignar local', r]
+			cuentaBack.vm.$message.success('Se asignó local')
 			console.log(fx, 'r', r)
+			return r
 		} catch (e) {
-			console.error(fx, e)
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
 
@@ -252,14 +222,14 @@ const cuentaBack = {
 				url: `${backURL}/locales/:region`,
 				params: { region }
 			})
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
-			}
+			if (!r || !r.ok) throw ['No se pudo cargar locales de la región', r]
+			cuentaBack.vm.$message.success('Locales cargados')
 			console.log(fx, 'r', r)
+			return r
 		} catch (e) {
-			console.error(fx, e)
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
 
@@ -271,17 +241,15 @@ const cuentaBack = {
 				method: 'get',
 				url: `${backURL}/locales/${region}/comunas/${comunaCodigo}/`
 			})
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
-			}
+			if (!r || !r.ok) throw ['No se pudo cargar locales de comuna', r]
+			cuentaBack.vm.$message.success('Locales cargados')
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
-			console.error(fx, e)
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
-		this.leyendoDatos = false
 	},
 
 	territorios: null,
@@ -293,17 +261,15 @@ const cuentaBack = {
 				method: 'get',
 				url: `${backURL}/apoderade/territorios`
 			})
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
-			}
+			if (!r || !r.ok) throw ['No se pudo cargar territorios del usuario', r]
+			// cuentaBack.vm.$message.success('Locales cargados')
 			console.log(fx, 'r', r)
-			cuentaBack.territorios = r.territorio
+			return r
 		} catch (e) {
-			console.error(fx, e)
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
-		this.leyendoDatos = false
 	},
 
 	async obtenerLocal ({ region, localId }) {
@@ -315,82 +281,77 @@ const cuentaBack = {
 				url: `${backURL}/locales/:region/locales/:localId`,
 				params: { region, localId }
 			})
-
-			if (!r || !r.ok) {
-				console.error(fx, 'fail', r)
-				return
-			}
+			if (!r || !r.ok) throw ['No se pudo cargar local', r]
+			cuentaBack.vm.$message.success('Local cargados')
 			console.log(fx, 'r', r)
+			return r
 		} catch (e) {
-			console.error(fx, e)
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
 
 	async buscarXRut (rut) {
 		const fx = 'cuentaBack>buscarXRut'
+		try {
 		// Primero obtener autorización del back
-		const r = await solicitar({
-			method: 'get',
-			url: `${backURL}/autorizarBusquedaPorRut`
-		})
-		// console.log(fx, 'back/autorizarBusquedaPorRut', r)
-
-		if (!r || !r.ok) {
-			console.error(fx, 'fail autorizando creación de usuario (back)', r)
-			return
+			const r = await solicitar({
+				method: 'get',
+				url: `${backURL}/autorizarBusquedaPorRut`
+			})
+			if (!r || !r.ok) throw ['No se pudo cargar local', r]
+			const { autorizacion } = r
+			const s = await cuentaBack.cuenta.buscarRut(autorizacion, rut)
+			if (s.usuarioID) cuentaBack.vm.$message.success('Rut previamente inscrito')
+			else cuentaBack.vm.$message.ward('Rut no inscrito')
+			return s
+		} catch (e) {
+			if (_.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
-		const autorizacion = r.autorizacion
-		const s = await cuentaBack.vm.$cuenta.buscarRut(autorizacion, rut)
-		return s
 	},
 
 	async salir () {
 		cuentaBack.apoderade = null
 		cuentaBack.territorio = null
 		await cuentaBackStore.clear()
-		// cuentaBack.ping()
 		return true
 	},
 
-	async crearApoderade ({ nombre, apellido, email, telefono, rol, rut, region, comunaCodigo, localAsignado }) {
+	async crearApoderade ({ nombre, apellido, email, telefono, rut, region, comunaCodigo, localAsignado }) {
 		const fx = 'cuentaBack>crearApoderade'
-		// Primero obtener autorización del back
-		const r = await solicitar({
-			method: 'get',
-			url: `${backURL}/autorizarCreacion`
-		})
-		// console.log(fx, 'back/autorizarCreacion', r)
+		try {
+			// Primero obtener autorización del back
+			const r = await solicitar({
+				method: 'get',
+				url: `${backURL}/autorizarCreacion`
+			})
+			if (!r || !r.ok) throw ['fail autorizando creación de usuario (back)', r]
+			const { autorizacion } = r
 
-		if (!r || !r.ok) {
-			console.error(fx, 'fail autorizando creación de usuario (back)', r)
-			return
-		}
-		const autorizacionBack = r.autorizacion
+			// Crear usuario en microservicio de cuentas
+			const c = await cuentaBack.cuenta.crearCuenta(autorizacion, { nombre, apellido, email, telefono, rut })
+			if (!c || !c.ok) throw ['fail creando usuario en microcuentas', c]
+			console.log(fx, 'microcuentas/crearCuenta', c)
+			const { usuarioID, tokenIngresoEncriptado } = c
 
-		// Crear usuario en microservicio de cuentas
-		const c = await cuentaBack.vm.$cuenta.crearCuenta(autorizacionBack, { nombre, apellido, email, telefono, rut, rol })
-		if (!c || !c.ok) {
-			console.error(fx, 'fail creando usuario en microcuentas', c)
-			return
-		}
-		console.log(fx, 'microcuentas/crearCuenta', c)
-		const usuarioID = c.usuarioID
-		const tokenIngresoEncriptado = c.tokenIngresoEncriptado
-
-		// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
-		const b = await solicitar({
-			method: 'post',
-			url: `${backURL}/apoderades`,
-			data: {
-				usuarioID,
-				tokenIngresoEncriptado,
-				url: `${new URL(window.location.href).origin}/ingresoConToken?token=`,
-				territorio: {
-					region, comunaCodigo, localAsignado
+			// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
+			const b = await solicitar({
+				method: 'post',
+				url: `${backURL}/apoderades`,
+				data: {
+					usuarioID,
+					url: `${new URL(window.location.href).origin}/ingresoConToken?token=`,
+					tokenIngresoEncriptado,
+					territorio: { region, comunaCodigo, localAsignado }
 				}
-			}
-		})
-		console.log(fx, 'back/nuevo-usuario', b)
+			})
+			console.log(fx, 'back/nuevo-usuario', b)
+		} catch (e) {
+			console.error(fx, e)
+		}
 	}
 }
 
@@ -400,7 +361,6 @@ async function solicitar (request, errorHandler) {
 	// const fx = 'cuentaBack.js solicitar'
 	// console.log(fx, 'token', cuentaBack.cuenta.token)
 	// console.log(fx, 'tokenAutofirmado', cuentaBack.cuenta.tokenAutofirmado)
-	const _ = cuentaBack.vm._
 	const defaultHeaders = {
 		Accept: 'application/json',
 		'Content-Type': 'application/json',
