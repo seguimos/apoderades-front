@@ -278,8 +278,7 @@ const cuentaBack = {
 			console.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/locales/:region/locales/:localId`,
-				params: { region, localId }
+				url: `${backURL}/locales/${region}/locales/${localId}`
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar local', r]
 			cuentaBack.vm.$message.success('Local cargados')
