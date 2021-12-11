@@ -1,6 +1,6 @@
 <template lang="pug">
 .root
-	h1 Crear un nuevo apoderado
+	h1 Inscripción apoderado
 
 	a-form-model.suscribirse(
 		ref="formulario",
@@ -9,45 +9,42 @@
 		:label-col="{ span: 4 }",
 		:wrapper-col="{ span: 16 }"
 	)
-		a-form-model-item(has-feedback, prop="rut", label="RUT")
+		a-form-model-item(has-feedback, prop="rut" label="RUT")
 			a-input.input(
 				v-model="formulario.rut",
 				type="nombre",
 				placeholder="10.000.000-0"
 			)
 
-		a-form-model-item(has-feedback, prop="nombre", label="Nombres")
+		a-form-model-item(has-feedback, prop="nombre" label="Nombres")
 			a-input.input(
 				v-model="formulario.nombre",
 				type="nombre",
 				placeholder="Gabriel"
 			)
-		a-form-model-item(has-feedback, prop="apellido", label="Apellidos")
+		a-form-model-item(has-feedback, prop="apellido" label="Apellidos")
 			a-input.input(
 				v-model="formulario.apellido",
 				type="apellido",
 				placeholder="Boric Font"
 			)
 
-		a-form-model-item(has-feedback, prop="email", label="Correo")
+		a-form-model-item(has-feedback, prop="email" label="Correo")
 			a-input.input(
 				v-model="formulario.email",
 				type="email",
 				placeholder="gabriel@lesapoderades.cl"
 			)
 
-		a-form-model-item(has-feedback, prop="telefono", label="Teléfono")
+		a-form-model-item(has-feedback, prop="telefono" label="Teléfono")
 			a-input.input(
 				v-model="formulario.telefono",
 				type="tel",
 				placeholder="+56 x xxxx xxxx"
 			)
 
-		a-radio-group(default-value="a", button-style="solid")
-			a-radio-button(value="")
-
 		//a-form-model-item(has-feedback, label="Rol")
-			a-select.input(v-model="formulario.rol", placeholder="Elige un Rol...")
+			a-select.input(v-model="formulario.rol" placeholder="Elige un Rol...")
 				a-select-option(value="COM") Comando
 				a-select-option(value="COO") Coordinador
 				a-select-option(value="AG") Apoderado General
@@ -88,7 +85,7 @@
 					:value="comuna.codigo"
 				) {{ comuna.label }}
 
-		a-form-model-item(v-if="locales", has-feedback, prop="local", label="Local")
+		a-form-model-item(v-if="locales" has-feedback, prop="local" label="Local")
 			a-select.input(
 				show-search="",
 				v-model="formulario.local",
@@ -102,16 +99,15 @@
 					:value="local.nombre"
 				) {{ local.nombre }}
 
-		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 16, offset: 4 }")
-			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
-				| VALIDAR DATOS
+		a-form-model-item
+			a-button.w100.bpStyle.verde(type="primary" @click="submitForm('formulario')") VALIDAR DATOS
 </template>
 
 <script>
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../regiones/regioneschile'
+import regionesComunas from '../../../regiones/regioneschile'
 
 export default {
 	data () {
@@ -297,15 +293,7 @@ export default {
 <style lang="sass" scoped>
 @import '@style/paleta'
 @import '@style/utils'
-
-.root
-	margin: 10px 20px
-
 .suscribirme
-	width: 250px
-	color: $petroleo1
-	background-color: $verde3
-	border-radius: 3px
 	font-weight: 900
 	font-size: 1.4em
 .contenedorBoton

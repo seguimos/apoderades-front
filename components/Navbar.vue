@@ -25,8 +25,10 @@
 			span.submenu-title-wrapper(slot="title")
 				a-icon(type="team")
 				| Apoderados
-			a-menu-item(key="buscar")
-				n-link.link(to="/app/apoderades") Buscar apoderado
+			a-menu-item(key="buscar-apoderades")
+				n-link.link(to="/app/apoderades/buscar") Buscar apoderados
+			a-menu-item(key="inscribir-apoderades")
+				n-link.link(to="/app/apoderades/inscribir") Inscribir apoderados
 
 		a-sub-menu(v-if="$usuario")
 			span.submenu-title-wrapper(slot="title")

@@ -24,9 +24,10 @@
 	apoderades-validar(v-else)
 </template>
 <script>
-// import navbar from './app/-navbar.vue'
+import navbar from './app/-navbar.vue'
+import validaTusDatos from './app/-validaTusDatos.vue'
 export default {
-	// components: { navbar }
+	components: { navbar, validaTusDatos }
 	// layout: 'app'
 }
 </script>
