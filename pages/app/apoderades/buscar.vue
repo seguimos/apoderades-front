@@ -17,28 +17,20 @@
 </template>
 
 <script>
-import { validate, format, clean } from 'rut.js'
+import * as Rut from 'rut.js'
 
 export default {
 	data () {
 		const validaRut = (rule, value, callback) => {
 			if (!value) return callback(new Error('Ingresa tu rut'))
 			if (value.length < 8) return callback(new Error('Ingresa un rut valido'))
-
-			if (!value) return callback(new Error('ingresa un rut valido'))
-			const limpio = clean(value)
-			const rutformateado = format(limpio)
-			const validado = validate(rutformateado)
+			const validado = Rut.validate(Rut.format(Rut.clean(value)))
 			if (!validado) return callback(new Error('Ingresa un rut valido'))
 			return callback()
 		}
 		return {
-			formulario: {
-				rut: undefined
-			},
-			rules: {
-				rut: [{ validator: validaRut, trigger: 'change' }]
-			}
+			formulario: { rut: undefined },
+			rules: { rut: [{ validator: validaRut, trigger: 'change' }] }
 		}
 	},
 	methods: {
@@ -49,8 +41,14 @@ export default {
 					console.log('error submit!!')
 					return false
 				}
-				const rut = this.formulario.rut
-				await this.$cuentaBack.buscarXRut(rut)
+				const rut = Rut.format(this.formulario.rut)
+				const r = await this.$cuentaBack.buscarXRut(rut)
+				if (r.usuarioID) {
+					// TODO Mostrar info usuario
+				} else {
+					// Preparar para inscribir si
+				}
+				console.log('submitForm r', r)
 			})
 		}
 	}

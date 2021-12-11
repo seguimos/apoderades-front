@@ -27,7 +27,7 @@ module.exports = {
 		'no-throw-literal': 'off',
 		'no-multiple-empty-lines': 'off',
 		'vue/html-indent': ['error', 'tab', {
-			attribute: 1,
+			attribute: 0,
 			baseIndent: 1,
 			closeBracket: 0,
 			alignAttributesVertically: true,

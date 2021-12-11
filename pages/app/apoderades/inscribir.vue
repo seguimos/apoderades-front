@@ -3,43 +3,43 @@
 	h1 Inscripción apoderado
 
 	a-form-model.suscribirse(
-		ref="formulario",
-		:model="formulario",
-		:rules="rules",
-		:label-col="{ span: 4 }",
+		ref="formulario"
+		:model="formulario"
+		:rules="rules"
+		:label-col="{ span: 4 }"
 		:wrapper-col="{ span: 16 }"
 	)
 		a-form-model-item(has-feedback, prop="rut" label="RUT")
 			a-input.input(
-				v-model="formulario.rut",
-				type="nombre",
+				v-model="formulario.rut"
+				type="nombre"
 				placeholder="10.000.000-0"
 			)
 
 		a-form-model-item(has-feedback, prop="nombre" label="Nombres")
 			a-input.input(
-				v-model="formulario.nombre",
-				type="nombre",
+				v-model="formulario.nombre"
+				type="nombre"
 				placeholder="Gabriel"
 			)
 		a-form-model-item(has-feedback, prop="apellido" label="Apellidos")
 			a-input.input(
-				v-model="formulario.apellido",
-				type="apellido",
+				v-model="formulario.apellido"
+				type="apellido"
 				placeholder="Boric Font"
 			)
 
 		a-form-model-item(has-feedback, prop="email" label="Correo")
 			a-input.input(
-				v-model="formulario.email",
-				type="email",
+				v-model="formulario.email"
+				type="email"
 				placeholder="gabriel@lesapoderades.cl"
 			)
 
 		a-form-model-item(has-feedback, prop="telefono" label="Teléfono")
 			a-input.input(
-				v-model="formulario.telefono",
-				type="tel",
+				v-model="formulario.telefono"
+				type="tel"
 				placeholder="+56 x xxxx xxxx"
 			)
 
@@ -51,51 +51,51 @@
 				a-select-option(value="AM") Apoderado de mesa
 
 		a-form-model-item(
-			v-if="formulario.rol",
+			v-if="formulario.rol"
 			has-feedback,
-			prop="region",
+			prop="region"
 			label="Región"
 		)
 			a-select.input(
-				v-model="formulario.region",
-				@change="handleRegion",
+				v-model="formulario.region"
+				@change="handleRegion"
 				placeholder="Región"
 			)
 				a-select-option(
-					v-for="region in regiones",
-					:key="region.label",
+					v-for="region in regiones"
+					:key="region.label"
 					:value="region.reg"
 				) {{ region.label }}
 
 		a-form-model-item(
-			v-if="regionseleccionada",
+			v-if="regionseleccionada"
 			has-feedback,
-			prop="comuna",
+			prop="comuna"
 			label="Comuna"
 		)
 			a-select.input(
-				v-model="formulario.comuna",
-				placeholder="Comuna",
-				@change="handleComuna",
+				v-model="formulario.comuna"
+				placeholder="Comuna"
+				@change="handleComuna"
 				@select="buscarLocales"
 			)
 				a-select-option(
-					v-for="comuna in comunas",
-					:key="comuna.label",
+					v-for="comuna in comunas"
+					:key="comuna.label"
 					:value="comuna.codigo"
 				) {{ comuna.label }}
 
 		a-form-model-item(v-if="locales" has-feedback, prop="local" label="Local")
 			a-select.input(
-				show-search="",
-				v-model="formulario.local",
-				type="local",
-				placeholder="Local de Votación",
+				show-search=""
+				v-model="formulario.local"
+				type="local"
+				placeholder="Local de Votación"
 				@change="handleLocal"
 			)
 				a-select-option(
-					v-for="local in locales",
-					:key="local._id",
+					v-for="local in locales"
+					:key="local._id"
 					:value="local.nombre"
 				) {{ local.nombre }}
 

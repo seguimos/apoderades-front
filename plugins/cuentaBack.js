@@ -300,10 +300,12 @@ const cuentaBack = {
 				url: `${backURL}/autorizarBusquedaPorRut`
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar local', r]
+
 			const { autorizacion } = r
 			const s = await cuentaBack.cuenta.buscarRut(autorizacion, rut)
+
 			if (s.usuarioID) cuentaBack.vm.$message.success('Rut previamente inscrito')
-			else cuentaBack.vm.$message.ward('Rut no inscrito')
+			else cuentaBack.vm.$message.warn('Rut no inscrito')
 			return s
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
