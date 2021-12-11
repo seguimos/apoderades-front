@@ -142,8 +142,9 @@ const cuenta = {
 				this.autofirmando = true
 				console.log(`%c ${fx} iniciado`, 'color: green;')
 			}
-			console.log(`%c ${fx} jti`, 'color: coral;', cuenta.decodificado.jwt)
-			const cuerpoToken = { jti: cuenta.decodificado.jwt }
+			// console.log(`%c ${fx} decodificado`, 'color: coral;', cuenta.decodificado)
+			// console.log(`%c ${fx} jti`, 'color: coral;', cuenta.decodificado.jti)
+			const cuerpoToken = { jtiCuentas: cuenta.decodificado.jti }
 			const moment = cuenta.vm.$moment
 			cuerpoToken.exp = moment().add(2, 'm').unix()
 			this.tokenAutofirmado = await miLlavero.firmarToken(cuerpoToken)
