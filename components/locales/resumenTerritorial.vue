@@ -1,20 +1,20 @@
 <template lang="pug">
     .container
-        .status-icon.green
+        .status-icon(:class="getColor(resumen)")
         h3 {{ titulo }}
-        a-row
+        a-row(v-if="resumen")
             a-col(:span="8")
-                b {{ resumen.locales.total }} locales
+                b {{ resumen.numeroLocales }} locales
             a-col(:span="8")
-                | {{ resumen.locales.apoderades }} apoderados
+                | {{ resumen.numeroApoderados }} apoderados
             a-col(:span="8")
-                | {{ resumen.locales.sinApoderade }} sin apoderado
+                | X sin apoderado
             a-col(:span="8")
-                b {{ resumen.mesas.total }} mesas
+                b {{ resumen.numeroMesas }} mesas
             a-col(:span="8")
-                | {{resumen.mesas.abiertas }} abiertas
+                | X abiertas
             a-col(:span="8")
-                | {{resumen.mesas.noConstituidas }} no constituidas
+                | X no constituidas
 </template>
 
 <script>
@@ -22,7 +22,21 @@ export default {
 	props: [
 		'titulo',
 		'resumen'
-	]
+	],
+	methods: {
+		getColor (resumen) {
+			const porcentaje = resumen.numeroApoderados / resumen.numeroMesas * 100
+			if (porcentaje < 25) {
+				return 'red'
+			} else if (porcentaje < 50) {
+				return 'orange'
+			} else if (porcentaje < 75) {
+				return 'yellow'
+			} else {
+				return 'green'
+			}
+		}
+	}
 }
 </script>
 
@@ -54,6 +68,11 @@ export default {
     padding: 10px
     border-radius: 10px
     margin: 10px 0
+    cursor: pointer
+    background-color: #EFEFEF
+
+    &:hover
+        filter: brightness(120%);
 
     h3
         display: inline

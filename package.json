@@ -27,7 +27,8 @@
     "rut.js": "^2.1.0",
     "sass-loader": "^10.1.1",
     "validator": "^13.7.0",
-    "vue2-leaflet": "^2.7.1"
+    "vue2-leaflet": "^2.7.1",
+    "vue2-leaflet-markercluster": "^3.1.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.14.7",
