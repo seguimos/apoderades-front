@@ -16,16 +16,9 @@
 			)
 </template>
 <script>
-import mapa from '../../components/mapa'
 import locales from '../../data/localesxcomunaexample'
-import resumenLocal from '../../components/locales/resumenLocal.vue'
 
 export default {
-	components: {
-		mapa,
-		locales,
-		resumenLocal
-	},
 	data () {
 		return {
 			regiones: locales.locales.regiones,

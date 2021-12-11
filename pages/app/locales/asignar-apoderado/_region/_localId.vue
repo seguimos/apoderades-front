@@ -101,7 +101,7 @@ export default {
 		getLocal () {
 			const region = this.$route.params.region
 			const localId = this.$route.params.localId
-			this.$back.obtenerLocal({ region, localId })
+			this.$cuentaBack.obtenerLocal({ region, localId })
 				.then(response => {
 					console.warn('Implementar datos de local en ResumenLocal')
 					this.local.nombre = response.local.nombre

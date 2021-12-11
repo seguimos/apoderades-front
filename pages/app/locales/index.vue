@@ -84,7 +84,7 @@ export default {
 	},
 	methods: {
 		async buscarResumenComuna () {
-			const resp = await this.$back.misTerritorios()
+			const resp = await this.$cuentaBack.misTerritorios()
 			if (resp.ok === 1) {
 				this.territorios = {
 					nombre: 'Resumen Nacional',
