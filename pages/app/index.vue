@@ -54,9 +54,13 @@ export default {
 				nombre: x.nombre,
 				mesas: Object.keys(x.mesas).length
 			}))
+		},
+		territorios () {
+			return this.$back.territorios
 		}
 	},
 	mounted () {
+		console.log(this.territorio)
 		// this.buscarResumenComuna()
 	},
 	methods: {

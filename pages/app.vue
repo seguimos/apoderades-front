@@ -28,24 +28,6 @@ export default {
 	components: { cuenta },
 	data () {
 		return {}
-	},
-	watch: {
-		$usuario (actual) {
-			if (actual) this.buscarMisDatos()
-		}
-	},
-	mounted () {
-		if (!this.$usuario) return
-		console.log('this.$usuario', JSON.parse(JSON.stringify(this.$usuario)))
-	},
-	methods: {
-		async buscarMisDatos () {
-			const usuarioBack = await this.$back.leerMisDatos()
-			if (usuarioBack) {
-				const territorio = await this.$back.misTerritorios()
-				console.log('buscarMisDatos-territorio', territorio)
-			}
-		}
 	}
 }
 </script>

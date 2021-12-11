@@ -39,13 +39,18 @@ const cuentaBack = {
 		if (usarStores) this.apoderade = await cuentaBackStore.getItem('apoderade', null)
 
 		// Si ya habia usuario logueado al momento de inicializar este script, leer datos
-		if (this.usuario && !this.apoderade) cuentaBack.leerMisDatos()
+		if (this.usuario && !this.apoderade) {
+			cuentaBack.leerMisDatos()
+			cuentaBack.misTerritorios()
+		}
 		consolo.log(fx, { token: this._token })
 
 		// Frente a cambios de usuario, reaccionar acorde
 		cuentaBack.vm.$cuenta.on('cambioToken', token => {
-			if (token) cuentaBack.leerMisDatos()
-			else cuentaBack.salir()
+			if (token) {
+				cuentaBack.leerMisDatos()
+				cuentaBack.misTerritorios()
+			} else cuentaBack.salir()
 		})
 	},
 
@@ -321,6 +326,7 @@ const cuentaBack = {
 		this.leyendoDatos = false
 	},
 
+	territorios: null,
 	async misTerritorios () {
 		const fx = 'cuentaBack>misTerritorios'
 		const cuenta = this.vm.$cuenta
@@ -340,7 +346,7 @@ const cuentaBack = {
 				return
 			}
 			console.log(fx, 'r', r)
-			return r
+			cuentaBack.territorios = r.territorio
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -394,6 +400,7 @@ const cuentaBack = {
 
 	async salir () {
 		cuentaBack.apoderade = null
+		cuentaBack.territorio = null
 		await cuentaBackStore.clear()
 		// cuentaBack.ping()
 		return true
