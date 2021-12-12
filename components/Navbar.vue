@@ -47,14 +47,13 @@
 				a-menu-item(key="datos-votacion")
 					a(href="https://consulta.servel.cl") Datos Votación
 				a-menu-item(key="resultados")
-					a(href="https://resultados.servel.cl") Datos Votación
+					a(href="https://resultados.servel.cl") Resultados
 				a-menu-item(key="reglamento")
-					| Reglamento
+					a(href="https://servel.cl/wp-content/uploads/2021/11/DICTA_NORMAS_E_INSTRUCCIONES_QUE_INDICA_PARA_ELECCION_PRESIDENCIAL_EN_SEGUNDA_VOTACION_-_ACUERDO_24_NOV.pdf") Normas Oficiales
 			a-menu-item-group(title="Comando")
-				a-menu-item(key="link-1")
-					| Link 1
-				a-menu-item(key="link-2")
-					| Link 2
+				a-menu-item(key="tg-canal")
+					a(href="https://t.me/s/apoderades") Canal Apoderados
+
 </template>
 
 <script>
