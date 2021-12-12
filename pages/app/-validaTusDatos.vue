@@ -14,77 +14,28 @@
 			a-input.input(:value="$usuario.rut" placeholder="Rut" disabled)
 
 		a-form-model-item(has-feedback, prop="nombre", label="Nombres")
-			a-input.input(
-				v-model="formulario.nombre",
-				placeholder="Gabriel"
-			)
+			a-input.input( v-model="formulario.nombre", placeholder="Gabriel" )
+
 		a-form-model-item(has-feedback, prop="apellido", label="Apellidos")
-			a-input.input(
-				v-model="formulario.apellido",
-				placeholder="Boric Font"
-			)
+			a-input.input( v-model="formulario.apellido", placeholder="Boric Font" )
 
 		a-form-model-item(has-feedback, prop="email", label="Correo")
-			a-input.input(
-				v-model="formulario.email",
-				type="email",
-				placeholder="gabriel@lesapoderades.cl"
-			)
+			a-input.input( v-model="formulario.email", type="email", placeholder="gabriel@lesapoderades.cl" )
 
 		a-form-model-item(has-feedback, prop="telefono", label="Teléfono")
-			a-input.input(
-				v-model="formulario.telefono",
-				type="tel",
-				placeholder="+56 x xxxx xxxx"
-			)
+			a-input.input( v-model="formulario.telefono", type="tel", placeholder="+56 x xxxx xxxx" )
 
-		a-form-model-item(has-feedback, prop="region", label="Región")
-			a-select.input(
-				v-model="formulario.region",
-				@change="handleRegion",
-				placeholder="Región"
-			)
-				a-select-option(
-					v-for="region in regiones",
-					:key="region.label",
-					:value="region.reg"
-				) {{ region.label }}
+		//- a-form-model-item(has-feedback, prop="region", label="Región")
+		//- 	a-select.input( v-model="formulario.region", @change="handleRegion", placeholder="Región" )
+		//- 		a-select-option( v-for="region in regiones", :key="region.label", :value="region.reg" ) {{ region.label }}
 
-		a-form-model-item(
-			v-if="regionseleccionada",
-			has-feedback,
-			prop="comuna",
-			label="Comuna"
-		)
-			a-select.input(
-				placeholder="Comuna",
-				@change="handleComuna",
-				@select="buscarLocales"
-			)
-				a-select-option(
-					v-for="comuna in comunas",
-					:key="comuna.codigo",
-					:value="comuna.codigo"
-				) {{ comuna.label }}
+		//- a-form-model-item( v-if="regionseleccionada", has-feedback, prop="comuna", label="Comuna" )
+		//- 	a-select.input( placeholder="Comuna", @change="handleComuna", @select="buscarLocales" )
+		//- 		a-select-option( v-for="comuna in comunas", :key="comuna.codigo", :value="comuna.codigo" ) {{ comuna.label }}
 
-		a-form-model-item(
-			v-if="comunaSeleccionada",
-			has-feedback,
-			prop="local",
-			label="Local"
-		)
-			a-select.input(
-				show-search="",
-				v-model="formulario.localID",
-				type="local",
-				placeholder="Local de Votación",
-				@change="handleLocal"
-			)
-				a-select-option(
-					v-for="local in locales",
-					:key="local._id",
-					:value="local._id"
-				) {{ local.nombre }}
+		//- a-form-model-item( v-if="comunaSeleccionada", has-feedback, prop="local", label="Local" )
+		//- 	a-select.input( show-search="", v-model="formulario.localID", type="local", placeholder="Local de Votación", @change="handleLocal" )
+		//- 		a-select-option( v-for="local in locales", :key="local._id", :value="local._id" ) {{ local.nombre }}
 
 		//- a-form-model-item(
 		//- 	label="¿Estás disponible para otros locales cercanos?",
@@ -93,7 +44,7 @@
 		//- )
 		//- 	a-switch(v-model="formulario.disponibleParaOtrosLocales")
 		a-form-model-item.contenedorbtn(:wrapper-col="{ span: 14, offset: 2 }")
-			a-button.suscribirme(type="primary", @click="submitForm('formulario')")
+			a-button.suscribirme(type="primary", @click="validarDatosPersonales('formulario')")
 				| VALIDAR DATOS
 
 	a-modal.modal(
@@ -245,23 +196,16 @@ export default {
 			console.log('buscarLocales', locales)
 			this.locales = locales.locales
 		},
-		submitForm (formName) {
+		validarDatosPersonales (formName) {
 			this.$refs[formName].validate(async valid => {
 				if (valid) {
-					const territorioPreferencia = {
-						region: this.formulario.region,
-						comunaCodigo: this.formulario.comunaCodigo,
-						localId: this.formulario.localID
-					}
-					const { nombre, apellido, rut, email, telefono } = this.formulario
+					const { nombre, apellido, email, telefono } = this.formulario
 					// const disponibleParaOtrosLocales =
 					// 	this.formulario.disponibleParaOtrosLocales
 
-					await this.$cuentaBack.autoValidarDatos({
-						territorioPreferencia,
+					await this.$cuenta.editar({
 						nombre,
 						apellido,
-						rut,
 						email,
 						telefono
 					})
