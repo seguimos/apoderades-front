@@ -1,42 +1,74 @@
 <template lang="pug">
 .asignadorTerritorio
-	a-form-model(ref="asignacionTerritorialForm" :model="asignacionTerritorialForm" :rules="reglasFormAsignacionTerritorial")
 
-		//a-form-model-item(has-feedback prop="region" label="Región")
-			a-select.input(v-model="asignacionTerritorialForm.region" @change="elegirRegion" placeholder="Región")
-				a-select-option(v-for="(region, regionID) in regionesAsignables" :key="`region-${regionID}`" :value="regionID") {{ region.nombre }}
+	//- pre asignacionTerritorialForm
+	//- div {{asignacionTerritorialForm}}
+	.modosAsignacion
+		a-radio-group(v-model="modoAsignacion" button-style="solid")
+			a-radio-button(value='region') Gestor Región
+			a-radio-button(value='comuna') Gestor Comuna
+			a-radio-button(value='local') Asignar local
 
-		a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre de la comuna' @search="filtrarSugerenciasComunas" @select="elegirComuna")
-			template(slot='dataSource')
-				a-select-opt-group(v-for='(region, regionID) in comunasSugeridasPorBusqueda' :key='`reg-${regionID}`')
-					span(slot='label')
-						| {{ region.nombre }}
-						//- a(style='float: right' href='https://www.google.com/search?q=antd' target='_blank' rel='noopener noreferrer') more
-					a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='(comuna, comunaID) in region.comunas' :key='`comuna-${comunaID}`' :value='comunaID')
-						| {{ comuna.nombre }}
-						//- span.certain-search-item-count {{ comuna.count }} people
-				//- a-select-option.show-all(key='all' disabled='')
-					a(href='https://www.google.com/search?q=ant-design-vue' target='_blank' rel='noopener noreferrer') View all results
-			a-input
-				a-icon.certain-category-icon(slot='suffix' type='search')
-				
-		//a-form-model-item
-			div {{comunasSugeridasPorBusqueda}}
+	.asignadores
+		a-form-model.asignadores(ref="asignacionTerritorialForm" :model="asignacionTerritorialForm" :rules="reglasFormAsignacionTerritorial")
+			.asignadorLocal(v-if="modoAsignacion === 'local'")
 
-		//a-form-model-item(has-feedback prop="comuna" label="Comuna")
-			a-select.input(v-model="asignacionTerritorialForm.comuna" placeholder="Comuna" @change="elegirComuna")
-				a-select-option(v-for="(comuna, comunaID) in comunasAsignables" :key="`comuna-${comunaID}`" :value="comunaID") {{ comuna.nombre }}
+				p.descripcionAsignacion Al asignar a un apoderado a un local de votación, si se marca como apoderado general, podrá validar a los demás apoderados para utilizar la plataforma y cargar información de mesas.
+				a-form-model-item(has-feedback prop="comuna" label="Comuna")
+					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre de la comuna' @search="filtrarSugerenciasComunas" @select="elegirComuna")
+						template(slot='dataSource')
+							a-select-opt-group(v-for='(region, regionID) in comunasSugeridasPorBusqueda' :key='`reg-${regionID}`')
+								span(slot='label')
+									| {{ region.nombre }}
+									//- a(style='float: right' href='https://www.google.com/search?q=antd' target='_blank' rel='noopener noreferrer') more
+								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='(comuna, comunaID) in region.comunas' :key='`comuna-${comunaID}`' :value='comunaID')
+									| {{ comuna.nombre }}
+									//- span.certain-search-item-count {{ comuna.count }} people
+							//- a-select-option.show-all(key='all' disabled='')
+								a(href='https://www.google.com/search?q=ant-design-vue' target='_blank' rel='noopener noreferrer') View all results
+						a-input
+							a-icon.certain-category-icon(slot='suffix' type='search')
 
-		a-form-model-item(has-feedback prop="local" label="Local")
-			a-select.input(show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="elegirLocal")
-				a-select-option(v-for="(local, localID) in localesAsignables" :key="localID" :value="local.nombre") {{ local.nombre }}
+				a-form-model-item(has-feedback prop="local" label="Local")
+					a-select.input(show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="elegirLocal")
+						a-select-option(v-for="(local, localID) in localesAsignables" :key="localID" :value="local.nombre") {{ local.nombre }}
 
-		//a-form-model-item
-			div {{localesAsignables}}
+				a-form-model-item
+					a-button.w100.bpStyle.verde(type="primary" @click="asignarTerritorio") Asignar a local
 
 
-		a-form-model-item
-			a-button.w100.bpStyle.verde(type="primary" @click="asignarTerritorio") Asignar territorio
+			.asignadorComuna(v-if="modoAsignacion === 'comuna'")
+
+				p.descripcionAsignacion El apoderado podrá gestionar a otros usuarios dentro de la comuna.
+
+				a-form-model-item(has-feedback prop="comuna" label="Comuna")
+					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre de la comuna' @search="filtrarSugerenciasComunas" @select="elegirComuna")
+						template(slot='dataSource')
+							a-select-opt-group(v-for='(region, regionID) in comunasSugeridasPorBusqueda' :key='`reg-${regionID}`')
+								span(slot='label')
+									| {{ region.nombre }}
+									//- a(style='float: right' href='https://www.google.com/search?q=antd' target='_blank' rel='noopener noreferrer') more
+								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='(comuna, comunaID) in region.comunas' :key='`comuna-${comunaID}`' :value='comunaID')
+									| {{ comuna.nombre }}
+									//- span.certain-search-item-count {{ comuna.count }} people
+							//- a-select-option.show-all(key='all' disabled='')
+								a(href='https://www.google.com/search?q=ant-design-vue' target='_blank' rel='noopener noreferrer') View all results
+						a-input
+							a-icon.certain-category-icon(slot='suffix' type='search')
+						
+				a-form-model-item
+					a-button.w100.bpStyle.verde(type="primary" @click="asignarTerritorio") Dar permiso en toda la comuna
+
+
+			.asignadorRegion(v-if="modoAsignacion === 'region'")
+
+				p.descripcionAsignacion El apoderado podrá gestionar a otros usuarios dentro de la región.
+				a-form-model-item(has-feedback prop="region" label="Región")
+					a-select.input(v-model="asignacionTerritorialForm.region" @change="elegirRegion" placeholder="Región")
+						a-select-option(v-for="(region, regionID) in regionesAsignables" :key="`region-${regionID}`" :value="regionID") {{ region.nombre }}
+
+				a-form-model-item
+					a-button.w100.bpStyle.verde(type="primary" @click="asignarTerritorio") Dar permiso en toda la región
 </template>
 <script>
 import { regionesYSusComunas, comunasEnUnaRegion, regionIDDeComuna } from '@lib/regioneschile'
@@ -50,6 +82,7 @@ export default {
 	},
 	data () {
 		return {
+			modoAsignacion: 'local',
 			// Asignacion territorial
 			asignacionTerritorialForm: {
 				region: undefined,
@@ -61,8 +94,17 @@ export default {
 		}
 	},
 	computed: {
-
 		reglasFormAsignacionTerritorial () {
+			if (this.modoAsignacion === 'region') {
+				return {
+					region: [{ required: true, message: '*', whitespace: true }],
+				}
+			} else if (this.modoAsignacion === 'comuna') {
+				return {
+					region: [{ required: true, message: '*', whitespace: true }],
+					comuna: [{ required: true, message: '*', whitespace: true }],
+				}
+			}
 			return {
 				region: [{ required: true, message: '*', whitespace: true }],
 				comuna: [{ required: true, message: '*', whitespace: true }],
@@ -135,8 +177,10 @@ export default {
 		},
 		elegirComuna (comunaID) {
 			console.log('elegirComuna', comunaID)
+			this.asignacionTerritorialForm.comuna = comunaID
 			const regionID = regionIDDeComuna(comunaID)
 			if (this.asignacionTerritorialForm.region !== regionID) this.asignacionTerritorialForm.region = regionID
+			this.$refs.asignacionTerritorialForm.validate()
 			this.buscarLocales(regionID, comunaID)
 		},
 		elegirLocal (e) {
@@ -163,4 +207,9 @@ export default {
 	}
 }
 </script>
-<style lang="sass" scoped></style>
+<style lang="sass" scoped>
+.modosAsignacion
+	margin-bottom: 3em
+.descripcionAsignacion
+	line-height: 1.4
+</style>
