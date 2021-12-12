@@ -6,7 +6,6 @@ import consolo from '@lib/consolo'
 import emisorEventos from '@lib/emisorEventos'
 import { _ } from './lodash'
 
-const backURL = process.env.backURL
 const dev = process.env.dev
 
 const cuentaBackStore = localforage.createInstance({ name: 'cuentaBackBackStore' })
@@ -21,11 +20,13 @@ const cuentaBack = {
 	_apoderade: undefined,
 
 	sinConexion: undefined,
-	backURL,
+	backURL: null,
 
 	async init (vm) {
 		const fx = 'cuentaBack>init'
 		this.vm = vm
+
+		this.cuentasURL = process.env.dev ? process.env.backURL : process.env.backURL.replace('HOST', window.location.host)
 		// Revisar que se esté utilizando microservicio de cuentas
 		if (!vm.$cuenta) {
 			console.error(
@@ -87,7 +88,7 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderade`
+				url: `${cuentaBack.backURL}/apoderade`
 			})
 			this.leyendoDatos = false
 
@@ -114,7 +115,7 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderade/territorios`
+				url: `${cuentaBack.backURL}/apoderade/territorios`
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar territorios del usuario', r]
 			// cuentaBack.vm.$message.success('Locales cargados')
@@ -140,7 +141,7 @@ const cuentaBack = {
 			// Primero obtener autorización del back
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/autorizarCreacion`
+				url: `${cuentaBack.backURL}/autorizarCreacion`
 			})
 			if (!r || !r.ok) throw ['fail autorizando creación de usuario (back)', r]
 			const { autorizacion } = r
@@ -154,7 +155,7 @@ const cuentaBack = {
 			// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
 			const registroEnBack = await solicitar({
 				method: 'post',
-				url: `${backURL}/apoderades`,
+				url: `${cuentaBack.backURL}/apoderades`,
 				data: {
 					usuarioID,
 					url: `${new URL(window.location.href).origin}/ingresoConToken?token=`,
@@ -176,7 +177,7 @@ const cuentaBack = {
 			// Primero obtener autorización del back
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/autorizarCreacion`
+				url: `${cuentaBack.backURL}/autorizarCreacion`
 			})
 			if (!r || !r.ok) throw ['fail autorizando creación de usuario (back)', r]
 			const { autorizacion } = r
@@ -190,7 +191,7 @@ const cuentaBack = {
 			// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
 			const registroEnBack = await solicitar({
 				method: 'post',
-				url: `${backURL}/apoderades`,
+				url: `${cuentaBack.backURL}/apoderades`,
 				data: {
 					nombre,
 					email,
@@ -218,7 +219,7 @@ const cuentaBack = {
 			consolo.log(fx, apoderadeID)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderades/apoderade/${apoderadeID}`
+				url: `${cuentaBack.backURL}/apoderades/apoderade/${apoderadeID}`
 			})
 			this.leyendoDatos = false
 			consolo.log(fx, 'r', r)
@@ -235,7 +236,7 @@ const cuentaBack = {
 		// Primero obtener autorización del back
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/autorizarBusquedaPorRut`
+				url: `${cuentaBack.backURL}/autorizarBusquedaPorRut`
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar local', r]
 
@@ -260,7 +261,7 @@ const cuentaBack = {
 			if (comunaID) data.comunaCodigo = comunaID
 			const r = await solicitar({
 				method: 'post',
-				url: `${backURL}/apoderades/${apoderadeID}/territorio`,
+				url: `${cuentaBack.backURL}/apoderades/${apoderadeID}/territorio`,
 				data
 			})
 			if (!r || !r.ok) throw ['No se pudo asignar territorio', r]
@@ -279,8 +280,8 @@ const cuentaBack = {
 		try {
 			const r = await solicitar({
 				method: 'post',
-				url: `${backURL}/apoderades/${apoderadeID}/territorio`,
-				// url: `${backURL}/locales/${regionID}/locales/${localID}/apoderades`,
+				url: `${cuentaBack.backURL}/apoderades/${apoderadeID}/territorio`,
+				// url: `${cuentaBack.backURL}/locales/${regionID}/locales/${localID}/apoderades`,
 				data: {	region: regionID, comunaCodigo: comunaID, localId: localID }
 				// data: { apoderadeID }
 			})
@@ -304,7 +305,7 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderades/region`,
+				url: `${cuentaBack.backURL}/apoderades/region`,
 				params: { region, roles }
 			})
 			if (!r || !r.ok) throw r
@@ -320,7 +321,7 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderades/comuna/${comunaID}`
+				url: `${cuentaBack.backURL}/apoderades/comuna/${comunaID}`
 			})
 			if (!r || !r.ok) throw r
 			return r
@@ -335,7 +336,7 @@ const cuentaBack = {
 			// Primero obtener autorización del back
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/autorizaredicion`
+				url: `${cuentaBack.backURL}/autorizaredicion`
 			})
 			// consolo.log(fx, 'back/autorizaredicion', r)
 			if (!r || !r.ok) throw ['fail autorizando creación de usuario (back)', r]
@@ -347,7 +348,7 @@ const cuentaBack = {
 
 			const s = await solicitar({
 				method: 'post',
-				url: `${backURL}/apoderade/datos`,
+				url: `${cuentaBack.backURL}/apoderade/datos`,
 				data: { territorioPreferencia }
 			})
 			if (!s || !s.ok) throw ['fail editando autovalidando datos', s]
@@ -370,7 +371,7 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/locales/:region`,
+				url: `${cuentaBack.backURL}/locales/:region`,
 				params: { region }
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar locales de la región', r]
@@ -389,7 +390,7 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/locales/:region/locales/:localId`,
+				url: `${cuentaBack.backURL}/locales/:region/locales/:localId`,
 				params: { region:regionID, localId:localID  }
 			})
 			if (!r || !r.ok) throw [`No se pudo cargar local con id ${localID}`, r]
@@ -409,7 +410,7 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/locales/${region}/comunas/${comunaCodigo}/`
+				url: `${cuentaBack.backURL}/locales/${region}/comunas/${comunaCodigo}/`
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar locales de comuna', r]
 			cuentaBack.vm.$message.success('Locales cargados')
@@ -428,7 +429,7 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/locales/${region}/locales/${localId}`
+				url: `${cuentaBack.backURL}/locales/${region}/locales/${localId}`
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar local', r]
 			cuentaBack.vm.$message.success('Local cargados')
