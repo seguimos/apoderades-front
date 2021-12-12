@@ -115,7 +115,7 @@ export default {
 		regionesYSusComunas () { return regionesYSusComunas },
 		regionesAsignables () {
 			if (this.$apoderade.tieneAccesoNacional) return regionesYSusComunas
-			const regionesAlcanzadas = this.$apoderade.territorios.map(t => t.region)
+			const regionesAlcanzadas = this.$apoderade.territorios && this.$apoderade.territorios.map(t => t.region)
 			return this._.pickBy(regionesYSusComunas, (r, regionID) => regionesAlcanzadas.includes(regionID))
 		},
 		comunasXRegionAsignables () {
