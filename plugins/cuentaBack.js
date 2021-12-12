@@ -134,7 +134,7 @@ const cuentaBack = {
 		return true
 	},
 
-	async crearApoderade ({ nombre, apellido, email, telefono, rut, region, comunaCodigo, localAsignado }) {
+	async crearApoderade ({ nombre, apellido, email, telefono, rut }) {
 		const fx = 'cuentaBack>crearApoderade'
 		try {
 			// Primero obtener autorización del back
@@ -158,8 +158,7 @@ const cuentaBack = {
 				data: {
 					usuarioID,
 					url: `${new URL(window.location.href).origin}/ingresoConToken?token=`,
-					tokenIngresoEncriptado,
-					territorio: { region, comunaCodigo, localAsignado }
+					tokenIngresoEncriptado
 				}
 			})
 			if (!registroEnBack || !registroEnBack.ok) throw ['fail creando usuario en microcuentas', registroEnBack]

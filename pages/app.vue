@@ -23,7 +23,7 @@
 
 	// Conectado, datos del back listos
 	.conectado(v-else)
-		.permisos
+		//.permisos
 			div
 				b Puedes:
 			div Acceso a nivel nacional: {{$apoderade.tieneAccesoNacional ? '✅' : '☑️'}}
@@ -65,4 +65,5 @@ export default {
 		flex: auto 1 1
 		padding: 2em
 
+	
 </style>
