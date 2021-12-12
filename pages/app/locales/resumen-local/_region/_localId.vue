@@ -97,29 +97,17 @@ export default {
 		habilitarApoderado (apoderadoId) {
 			console.warn('habilitarApoderado' + apoderadoId)
 		},
-		// TODO: Obtener Apoderados Local
-		getLocal () {
+		async getLocal () {
 			const region = this.$route.params.region
 			const localId = this.$route.params.localId
-			this.$cuentaBack.obtenerLocal({ region, localId })
-				.then(response => {
-					console.warn('Implementar datos de local en ResumenLocal')
-					this.local.nombre = response.local.nombre
-					this.local.apoderadoGeneral = 'Gabriel Boric'
-					this.local.mesas = Object.values(response.local.mesas)
-					this.local.apoderados = [
-						{ id: 1, nombre: 'Gabriel Boric', habilitado: false },
-						{ id: 2, nombre: 'Juan Perez', habilitado: true }
-					]
-					const comunaCodigo = response.local.ubicacion.comunaCodigo
-					this.getApoderadosComuna(comunaCodigo)
-				})
-		},
-		getApoderadosComuna (comunaCodigo) {
-			this.$back.apoderadosXcomuna(comunaCodigo, 'COM')
-				.then(response => {
-					console.log(response)
-				})
+			const response = await this.$cuentaBack.obtenerLocal({ region, localId })
+			this.local.nombre = response.local.nombre
+			this.local.apoderadoGeneral = 'Gabriel Boric'
+			this.local.mesas = Object.values(response.local.mesas)
+			this.local.apoderados = response.local.apoderades.map(apo => ({
+				...apo,
+				nombre: `usuarioID: ${apo.usuarioID}`
+			}))
 		}
 	}
 }
