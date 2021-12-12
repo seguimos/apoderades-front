@@ -17,7 +17,7 @@
 			a-input.input(v-model="personalesForm.telefono" type="tel" placeholder="+56 x xxxx xxxx")
 
 		a-form-model-item
-			a-button.w100.bpStyle.verde(type="primary" @click="guardarDatosPersonales") Guardar datos personales
+			a-button.w100.bpStyle.verde(type="primary" @click="guardarDatosPersonales" :loading="guardandoDatos") Guardar datos personales
 </template>
 <script>
 import { Validado } from "@lib/validador"
@@ -37,16 +37,17 @@ export default {
 				email: undefined,
 				telefono: undefined
 			},
+			guardandoDatos: undefined
 		}
 	},
 	computed: {
 
 		reglasFormDatosPersonales () {
 			const telefonoValidador = (rule, value, callback) => {
-				if (!value) return callback(new Error("Ingresa el telefono"));
-				if (value.length < 8) return callback(new Error("Ingresa un telefono valido"));
+				if (!value) return callback(new Error("Ingresa el teléfono"));
+				if (value.length < 8) return callback(new Error("Ingresa un teléfono valido"));
 				const validado = Validado.telefono(value)
-				if (!validado) return callback(new Error("Ingresa un rut valido"));
+				if (!validado) return callback(new Error("Ingresa un teléfono valido"));
 				return callback();
 			};
 			return {
@@ -59,8 +60,20 @@ export default {
 		},
 	},
 	methods: {
+		guardarDatosPersonales () {
+			this.guardandoDatos = true
+			this.$refs.asignacionTerritorialForm.validate(async valid => {
+				if (!valid) {
+					console.error('Formulario no pasó validación')
+					return
+				}
+				const { nombre, apellido, email, telefono, rut } = this.personalesForm
+				const r = await this.$cuentaBack.soloCrearApoderade({ nombre, apellido, email, telefono, rut })
 
-		guardarDatosPersonales () {},
+				this.guardandoDatos = false
+				console.log('guardarDatosPersonales', r)
+			})
+		},	
 	}
 }
 </script>

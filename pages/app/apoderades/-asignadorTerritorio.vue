@@ -190,6 +190,7 @@ export default {
 			const modoAsignacion = this.modoAsignacion
 			this.$refs.asignacionTerritorialForm.validate(async valid => {
 				if (!valid) {
+					console.error('Formulario no pasó validación')
 					return
 				}
 				const { region: regionID, comuna: comunaID, local: localID } = this.asignacionTerritorialForm

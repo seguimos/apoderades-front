@@ -171,6 +171,42 @@ const cuentaBack = {
 		}
 	},
 
+	async soloCrearApoderade ({ nombre, apellido, email, telefono, rut }) {
+		const fx = 'cuentaBack>soloCrearApoderade'
+		try {
+			// Primero obtener autorización del back
+			const r = await solicitar({
+				method: 'get',
+				url: `${backURL}/autorizarCreacion`
+			})
+			if (!r || !r.ok) throw ['fail autorizando creación de usuario (back)', r]
+			const { autorizacion } = r
+
+			// Crear usuario en microservicio de cuentas
+			const c = await cuentaBack.cuenta.crearCuenta(autorizacion, { nombre, apellido, email, telefono, rut })
+			if (!c || !c.ok) throw ['fail creando usuario en microcuentas', c]
+			// consolo.log(fx, 'microcuentas/crearCuenta', c)
+			const { usuarioID, tokenIngresoEncriptado } = c
+
+			// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.
+			const registroEnBack = await solicitar({
+				method: 'post',
+				url: `${backURL}/apoderades`,
+				data: {
+					usuarioID,
+					url: `${new URL(window.location.href).origin}/ingresoConToken?token=`,
+					tokenIngresoEncriptado
+				}
+			})
+			if (!registroEnBack || !registroEnBack.ok) throw ['fail creando usuario en microcuentas', registroEnBack]
+			cuentaBack.vm.$message.success('Registro realizado, se enviará correo al inscrito')
+		} catch (e) {
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
+		}
+	},
+
 	// OTROS APODERADOS
 
 	async obtenerApoderade (apoderadeID) {
@@ -221,9 +257,8 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'post',
-				url: `${backURL}/apoderades/:apoderadeID/territorio`,
-				body: { territorio: {	region: regionID, comunaCodigo:comunaID } },
-				params: { apoderadeID }
+				url: `${backURL}/apoderades/${apoderadeID}/territorio`,
+				data: { territorio: {	region: regionID, comunaCodigo:comunaID } }
 			})
 			if (!r || !r.ok) throw ['No se pudo asignar territorio', r]
 			cuentaBack.vm.$message.success('Se asignó territorio')
@@ -241,9 +276,8 @@ const cuentaBack = {
 		try {
 			const r = await solicitar({
 				method: 'post',
-				url: `${backURL}/locales/:region/locales/:localId/apoderades`,
-				body: { usuarioID },
-				params: { region: regionID, localId: localID }
+				url: `${backURL}/locales/${regionID}/locales/${localID}/apoderades`,
+				data: { usuarioID }
 			})
 			if (!r || !r.ok) throw ['No se pudo asignar local', r]
 			cuentaBack.vm.$message.success('Se asignó local')
@@ -275,14 +309,13 @@ const cuentaBack = {
 		}
 	},
 
-	async apoderadosXcomuna (comunaCodigo, roles) {
+	async apoderadosXcomuna (comunaID) {
 		const fx = 'cuentaBack>apoderadosXcomuna'
 		try {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderades/comuna/:comunaCodigo`,
-				params: { comunaCodigo, roles }
+				url: `${backURL}/apoderades/comuna/${comunaID}`
 			})
 			if (!r || !r.ok) throw r
 			return r
