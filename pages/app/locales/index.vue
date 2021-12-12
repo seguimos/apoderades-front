@@ -3,7 +3,10 @@
 	h1 Resumen Territorial
 	.resumenterritorial(v-if="territorioActual")
 		a(@click="subirUnNivel()")
-			locales-resumenTerritorial(:titulo="territorioActual.nombre", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
+			locales-resumenTerritorial(:titulo="`Territorio actual: ${territorioActual.nombre}`", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
+		a-button(class="button-red" block size="large" @click="toAsignarApoderadoGeneral")
+			| Asignar Coordinador a esta zona
+		h2 Territorios internos
 		mapa(:marcadores="marcadoresLocales", v-if="mapa")
 		div(v-else)
 			a(
@@ -120,7 +123,8 @@ export default {
 				currentRoute[tipo] = territorio
 				this.$router.push({ path: this.$route.path, query: currentRoute })
 			} else {
-				// TODO ir al local
+				console.log(`local ${territorio} y region ${this.region}`)
+				this.$router.push({ path: `locales/resumen-local/${this.region}/${territorio}` })
 			}
 		},
 		subirUnNivel () {
@@ -152,5 +156,9 @@ export default {
 	color: $petroleo1
 	font-size: larger
 	height: 40px
+
+.button-red
+	background-color: #FF9999
+	color: white
 </style>
 
