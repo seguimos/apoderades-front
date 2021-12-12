@@ -32,8 +32,7 @@ export default {
 			territorios: null,
 			mapa: this.$route.query.mapa,
 			region: this.$route.query.region,
-			comuna: this.$route.query.comuna,
-			local: this.$route.query.local
+			comuna: this.$route.query.comuna
 		}
 	},
 
@@ -65,14 +64,15 @@ export default {
 					territorioActual = territorioActual.hijos.find(hijo => {
 						return hijo.id === this.comuna
 					})
-					if (territorioActual && this.local) {
-						territorioActual = territorioActual.hijos.find(hijo => {
-							return hijo.id === this.local
-						})
-					}
 				}
 			}
 			return territorioActual
+		}
+	},
+	watch: {
+		'$route' ($to, $from) {
+			this.region = $to.query.region
+			this.comuna = $to.query.comuna
 		}
 	},
 	mounted () {
@@ -129,10 +129,7 @@ export default {
 		},
 		subirUnNivel () {
 			const currentRoute = this.$route.query
-			if (this.local) {
-				this.local = undefined
-				this.$router.push({ path: this.$route.path, query: { region: currentRoute.region, comuna: currentRoute.comuna } })
-			} else if (this.comuna) {
+			if (this.comuna) {
 				this.local = undefined
 				this.comuna = undefined
 				this.$router.push({ path: this.$route.path, query: { region: currentRoute.region } })
