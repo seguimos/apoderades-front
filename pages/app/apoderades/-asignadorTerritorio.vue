@@ -6,24 +6,24 @@
 			a-select.input(v-model="asignacionTerritorialForm.region" @change="elegirRegion" placeholder="Región")
 				a-select-option(v-for="(region, regionID) in regionesAsignables" :key="`region-${regionID}`" :value="regionID") {{ region.nombre }}
 
-		a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='input here' option-label-prop='value')
+		a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre de la comuna' @search="filtrarSugerenciasComunas" @select="elegirComuna")
 			template(slot='dataSource')
-				a-select-opt-group(v-for='group in dataSource' :key='group.title')
+				a-select-opt-group(v-for='(region, regionID) in comunasSugeridasPorBusqueda' :key='`reg-${regionID}`')
 					span(slot='label')
-						| {{ group.title }}
-						a(style='float: right' href='https://www.google.com/search?q=antd' target='_blank' rel='noopener noreferrer') more
-					a-select-option(v-for='opt in group.children' :key='opt.title' :value='opt.title')
-						| {{ opt.title }}
-						span.certain-search-item-count {{ opt.count }} people
-				a-select-option.show-all(key='all' disabled='')
+						| {{ region.nombre }}
+						//- a(style='float: right' href='https://www.google.com/search?q=antd' target='_blank' rel='noopener noreferrer') more
+					a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='(comuna, comunaID) in region.comunas' :key='`comuna-${comunaID}`' :value='comunaID')
+						| {{ comuna.nombre }}
+						//- span.certain-search-item-count {{ comuna.count }} people
+				//- a-select-option.show-all(key='all' disabled='')
 					a(href='https://www.google.com/search?q=ant-design-vue' target='_blank' rel='noopener noreferrer') View all results
 			a-input
 				a-icon.certain-category-icon(slot='suffix' type='search')
 				
-		a-form-model-item
-			div {{comunasAsignables}}
+		//a-form-model-item
+			div {{comunasSugeridasPorBusqueda}}
 
-		a-form-model-item(has-feedback prop="comuna" label="Comuna")
+		//a-form-model-item(has-feedback prop="comuna" label="Comuna")
 			a-select.input(v-model="asignacionTerritorialForm.comuna" placeholder="Comuna" @change="elegirComuna")
 				a-select-option(v-for="(comuna, comunaID) in comunasAsignables" :key="`comuna-${comunaID}`" :value="comunaID") {{ comuna.nombre }}
 
@@ -31,7 +31,7 @@
 			a-select.input(show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="elegirLocal")
 				a-select-option(v-for="(local, localID) in localesAsignables" :key="localID" :value="local.nombre") {{ local.nombre }}
 
-		a-form-model-item
+		//a-form-model-item
 			div {{localesAsignables}}
 
 
@@ -40,6 +40,7 @@
 </template>
 <script>
 import { regionesYSusComunas, comunasEnUnaRegion, regionIDDeComuna } from '@lib/regioneschile'
+import parameterize from '@lib/parameterize'
 export default {
 	props: {
 		usuarioID: {
@@ -55,7 +56,8 @@ export default {
 				comuna: undefined,
 				local: undefined,
 			},
-			localesPorComuna: {}
+			localesPorComuna: {},
+			busquedaComuna: ''
 		}
 	},
 	computed: {
@@ -110,9 +112,23 @@ export default {
 			const comunaElegida = this.asignacionTerritorialForm.comuna
 			if (comunaElegida) return locales[comunaElegida]
 			return Object.assign({}, ...Object.values(locales))
+		},
+		comunasSugeridasPorBusqueda () {
+			const _ = this._
+			const buscado = parameterize(this.busquedaComuna)
+			if (_.isEmpty(buscado)) return this.comunasXRegionAsignables
+			let comunasFiltradas = Object.assign({}, this.comunasXRegionAsignables)
+			_.forEach(comunasFiltradas, (region, regionID) => {
+				comunasFiltradas[regionID].comunas = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(buscado))
+			})
+			comunasFiltradas = _.filter(comunasFiltradas, region => !_.isEmpty(region.comunas))
+			return comunasFiltradas
 		}
 	},
 	methods: {
+		filtrarSugerenciasComunas (buscado) {
+			this.busquedaComuna = buscado
+		},
 		// Asignación de territorio
 		elegirRegion (regionID) {
 			console.log('elegirRegion', regionID)

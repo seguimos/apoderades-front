@@ -9,23 +9,18 @@
 		:label-col="{ span: 4 }",
 		:wrapper-col="{ span: 16 }"
 	)
-		a-form-model-item(has-feedback, prop="rut", label="RUT")
-			a-input.input(
-				v-model="formulario.rut",
-				type="rut",
-				placeholder="10.000.000-0"
-			)
+
+		a-form-model-item(has-feedback, label="Rut")
+			a-input.input(:value="$usuario.rut" placeholder="Rut" disabled)
 
 		a-form-model-item(has-feedback, prop="nombre", label="Nombres")
 			a-input.input(
 				v-model="formulario.nombre",
-				type="nombre",
 				placeholder="Gabriel"
 			)
 		a-form-model-item(has-feedback, prop="apellido", label="Apellidos")
 			a-input.input(
 				v-model="formulario.apellido",
-				type="apellido",
 				placeholder="Boric Font"
 			)
 
@@ -117,7 +112,6 @@
 <script>
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
-import { validate, format, clean } from 'rut.js'
 import {regionesYSusComunas} from '@lib/regioneschile'
 
 export default {
@@ -169,47 +163,17 @@ export default {
 				callback()
 			}
 		}
-		const validaRut = (rule, value, callback) => {
-			if (!value) {
-				callback(new Error('Ingresa tu rut'))
-			}
-			if (value.length < 8) {
-				callback(new Error('Ingresa un rut valido'))
-			}
-
-			if (value) {
-				const limpio = clean(value)
-				const rutformateado = format(limpio)
-				const validado = validate(rutformateado)
-				console.log(validado)
-				if (validado) {
-					callback()
-				}
-				if (!validado) {
-					callback(new Error('Ingresa un rut valido'))
-				}
-			} else {
-				callback(new Error('ingresa un rut valido'))
-			}
-		}
-		const { nombre, apellido, rut, email, telefono } = this.$usuario
+		const { nombre, apellido, email, telefono } = this.$usuario
 		return {
 			formulario: {
 				nombre,
 				apellido,
-				rut,
 				email,
 				telefono,
 
 				// datos desde back
-				comunaCodigo: this._.get(this.$apoderade, [
-					'territorioPreferencia',
-					'comunaCodigo'
-				]),
-				region: this._.get(this.$apoderade, [
-					'territorioPreferencia',
-					'region'
-				]),
+				// comunaCodigo: this._.get(this.$apoderade, [ 'territorioPreferencia', 'comunaCodigo' ]),
+				region: this._.get(this.$apoderade, [ 'territorioPreferencia', 'region' ]),
 				disponibleParaOtrosLocales: false,
 				localID: this._.get(this.$apoderade, [
 					'territorioPreferencia',
@@ -222,8 +186,7 @@ export default {
 				email: [{ validator: validaEmail, trigger: 'change' }],
 				telefono: [{ validator: validaTelefono, trigger: 'change' }],
 				region: [{ validator: validaRegion }],
-				comuna: [{ validator: validaComuna, trigger: 'change' }],
-				rut: [{ validator: validaRut, trigger: 'change' }]
+				comuna: [{ validator: validaComuna, trigger: 'change' }]
 			},
 			layout: {
 				labelCol: { span: 4 },

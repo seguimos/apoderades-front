@@ -1,5 +1,6 @@
 <template lang="pug">
 .checkPorRut
+
 	a-form-model(ref="rutForm" :model="rutForm" :rules="reglasFormRut")
 		a-form-model-item(has-feedback prop="rut" label="Ingresa RUT del apoderado")
 			a-input.input(ref="inputRut" v-model="rutForm.rut" type="rut" allow-clear)
@@ -58,6 +59,11 @@
 							div(v-if="!territorioPreferencia") No hay registro de preferencia 
 
 
+				.acciones
+					a-button.w100.bpStyle.verde(type="primary" @click="$emit('quiereAsignar', usuarioID)"
+						v-if="puedeAsignarTerritorio") Asignar territorio
+
+
 		div(v-else) 
 			a-divider Rut no registrado
 			a-button.w100.bpStyle.verde(@click="$emit('quiereIncribir', rutBuscado)") Inscribir nuevo apoderado
@@ -91,6 +97,14 @@ export default {
 				rut: [{ required: true, message: '*', whitespace: false }, { validator: rutValidador, trigger: "change" }] 
 			}
 		},
+		// Permisos
+		puedeAsignarTerritorio () {
+			const _ = this._
+			return this.$apoderade.tieneAccesoNacional || !_.isEmpty(this.$apoderade.territoriosAsignados)
+		},
+
+
+		// Datos obtenidos de búsqueda
 		territorioPreferencia () {
 			const _ = this._
 			const ad = this.apoderadeDatos

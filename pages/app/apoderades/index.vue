@@ -16,7 +16,7 @@
 	.etapas
 
 		.rutForm(v-if="!etapa")
-			checkPorRut(ref="checkPorRut" @quiereIncribir="iniciarInscripcion")
+			checkPorRut(ref="checkPorRut" @quiereIncribir="iniciarInscripcion" @quiereAsignar="iniciarAsignacion")
 
 		.datosPersonalesForm(v-if="rut && etapa === 'datosPersonales'")
 			creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @quiereAsignar="iniciarAsignacion")
@@ -34,9 +34,9 @@ export default {
 	components: { checkPorRut, creadorApoderade, asignadorTerritorio },
 	data() {
 		return {
-			etapa: undefined,
+			etapa: 'asignacionTerritorial',
 			rut: undefined,
-			usuarioID: undefined
+			usuarioID: 'mCFZrWduMw'
 		}
 	},
 	computed: {

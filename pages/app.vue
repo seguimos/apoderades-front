@@ -22,10 +22,18 @@
 			p Conectando back
 
 	// Conectado, datos del back listos
-	.conectado(v-else-if="_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
+	.conectado(v-else)
+		.permisos
+			div
+				b Puedes:
+			div Acceso a nivel nacional: {{$apoderade.tieneAccesoNacional ? '✅' : '☑️'}}
+			div Acceso a nivel territorial: {{$apoderade.territorioAsignado ? '✅' : '☑️'}}
 		.contenido
 			n-child
-	apoderades-validar(v-else)
+	//- .conectado(v-else-if="_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
+	//- 	.contenido
+	//- 		n-child
+	//- validaTusDatos(v-else)
 </template>
 <script>
 import validaTusDatos from './app/-validaTusDatos.vue'
