@@ -257,10 +257,12 @@ const cuentaBack = {
 		const fx = 'cuentaBack>asignarTerritorio'
 		try {
 			consolo.log(fx)
+			const data = { region: regionID }
+			if (comunaID) data.comunaCodigo = comunaID
 			const r = await solicitar({
 				method: 'post',
 				url: `${backURL}/apoderades/${apoderadeID}/territorio`,
-				data: { territorio: {	region: regionID, comunaCodigo:comunaID } }
+				data
 			})
 			if (!r || !r.ok) throw ['No se pudo asignar territorio', r]
 			cuentaBack.vm.$message.success('Se asignó territorio')
@@ -273,13 +275,15 @@ const cuentaBack = {
 		}
 	},
 
-	async asignarLocal ({ regionID, localID, usuarioID }) {
+	async asignarLocal ({ regionID, comunaID, localID, apoderadeID }) {
 		const fx = 'cuentaBack>asignarLocal'
 		try {
 			const r = await solicitar({
 				method: 'post',
-				url: `${backURL}/locales/${regionID}/locales/${localID}/apoderades`,
-				data: { usuarioID }
+				url: `${backURL}/apoderades/${apoderadeID}/territorio`,
+				// url: `${backURL}/locales/${regionID}/locales/${localID}/apoderades`,
+				data: {	region: regionID, comunaCodigo: comunaID, localId: localID }
+				// data: { apoderadeID }
 			})
 			if (!r || !r.ok) throw ['No se pudo asignar local', r]
 			cuentaBack.vm.$message.success('Se asignó local')

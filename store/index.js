@@ -2,15 +2,15 @@
 
 export const state = () => {
 	return {
-		apoderade: null
+		locales: {}
 	}
 }
 
 export const mutations = {
-	usuarioLogeado (state, value) {
-		state.apoderade = value.apoderade
+	locales (s, locales) {
+		s.locales = Object.assign({}, s.locales, locales)
 	},
-	usuarioNoValidado (state, value) {
-		state.apoderade = value.apoderade
+	local (s, {localID, local}) {
+		s.locales = Object.assign({}, s.locales, {[localID]: local})
 	}
 }
