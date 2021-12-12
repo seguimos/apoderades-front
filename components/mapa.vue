@@ -8,15 +8,22 @@ div.wrapper-mapa
 	.mapa
 		VMap(v-if='montado && centroActivo' :zoom='zoom' :center='centroActivo' ref='mapa' @ready='mapReady')
 			VTilelayer(:url='tileConfig.url' :tileSize="tileConfig.tileSize" :options="tileConfig.options")
-			VMarkerCluster
-				VCircle(v-for="marcador in marcadores" :key="`marcador-${marcador.id}`"
-					:latLng="marcador.latlon"
-					:icon="crearPointerMarcador(false)"
-					@click="marcadorClickado(marcador)"
-					:radius="50"
-					:color='color(marcador.mesas)'
-					:draggable='marcadorMovible'
-					@update:latLng='alMoverMarcador')
+			VMarkerCluster(
+				:options="clusterOptions"
+			)
+				VCircleMarker(v-for="(marcador, i) in marcadores" :key="`marcador-${i}`"
+					:latLng="[marcador.ubicacion.latitud,marcador.ubicacion.longitud]"
+					:radius="10"
+					:fillColor='getColor(marcador.estadisticas)',
+					:color='getColor(marcador.estadisticas)',
+					:options={local: marcador},
+					:className="`${i}`"
+				)
+					VPopup
+						h3 {{marcador.nombre}}
+						i {{marcador.ubicacion.direccion}}
+						p
+							b {{marcador.estadisticas.numeroApoderados}}/{{marcador.estadisticas.numeroMesas}} mesas
 
 </template>
 
@@ -35,10 +42,33 @@ export default {
 		marcadores: { type: Array, default () { return [] } }
 	},
 	data () {
+		const that = this
 		return {
 			zoom: 6,
 			centroActivo: null,
-			montado: false
+			montado: false,
+			clusterOptions: {
+				iconCreateFunction (cluster) {
+					const markers = cluster.getAllChildMarkers()
+					let mesas = 0
+					let apoderados = 0
+					for (let i = 0; i < markers.length; i++) {
+						const metadata = that.marcadores[parseInt(markers[i].options.className)]
+						mesas += metadata.estadisticas.numeroMesas
+						apoderados += metadata.estadisticas.numeroApoderados
+					}
+					const proporcion = apoderados / mesas * 100
+					let c = ' marker-cluster-'
+					if (proporcion < 25) {
+						c += 'large'
+					} else if (proporcion < 75) {
+						c += 'medium'
+					} else {
+						c += 'small'
+					}
+					return new L.DivIcon({ html: '<div><span>' + `${apoderados}/${mesas}` + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) })
+				}
+			}
 		}
 	},
 	computed: {
@@ -88,10 +118,17 @@ export default {
 		})
 	},
 	methods: {
-		color (mesas) {
-			if (mesas > 20) return '#FF00FF'
-			else if (mesas > 10) return '#FED976'
-			return '#00FF80'
+		getColor (resumen) {
+			const porcentaje = resumen.numeroApoderados / resumen.numeroMesas * 100
+			if (porcentaje < 25) {
+				return 'rgba(200,0,0,0.5)'
+			} else if (porcentaje < 50) {
+				return 'rgba(200,100,0,0.5)'
+			} else if (porcentaje < 75) {
+				return 'rgba(200,200,0,0.5)'
+			} else {
+				return 'rgba(0,200,0,0.5)'
+			}
 		},
 		mapReady () {
 			console.log('mapReady')

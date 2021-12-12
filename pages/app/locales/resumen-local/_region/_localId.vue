@@ -111,6 +111,14 @@ export default {
 						{ id: 1, nombre: 'Gabriel Boric', habilitado: false },
 						{ id: 2, nombre: 'Juan Perez', habilitado: true }
 					]
+					const comunaCodigo = response.local.ubicacion.comunaCodigo
+					this.getApoderadosComuna(comunaCodigo)
+				})
+		},
+		getApoderadosComuna (comunaCodigo) {
+			this.$back.apoderadosXcomuna(comunaCodigo, 'COM')
+				.then(response => {
+					console.log(response)
 				})
 		}
 	}

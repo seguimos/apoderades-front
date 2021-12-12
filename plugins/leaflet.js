@@ -1,6 +1,6 @@
 // import {Map, TileLayer, Marker} from 'vue2-leaflet'
 import Vue from 'vue'
-import { LMap, LTileLayer, LMarker, LCircle } from 'vue2-leaflet'
+import { LMap, LTileLayer, LMarker, LCircleMarker, LPopup } from 'vue2-leaflet'
 import leaflet from 'leaflet'
 import Vue2LeafletMarkerCluster from 'vue2-leaflet-markercluster'
 
@@ -8,7 +8,8 @@ require('leaflet/dist/leaflet.css')
 Vue.component('VMap', LMap)
 Vue.component('VTilelayer', LTileLayer)
 Vue.component('VMarker', LMarker)
-Vue.component('VCircle', LCircle)
+Vue.component('VCircleMarker', LCircleMarker)
+Vue.component('VPopup', LPopup)
 Vue.component('VMarkerCluster', Vue2LeafletMarkerCluster)
 
 // eslint-disable-next-line

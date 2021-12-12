@@ -3,7 +3,10 @@
 	h1 Resumen Territorial
 	.resumenterritorial(v-if="territorioActual")
 		a(@click="subirUnNivel()")
-			locales-resumenTerritorial(:titulo="territorioActual.nombre", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
+			locales-resumenTerritorial(:titulo="`Territorio actual: ${territorioActual.nombre}`", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
+		a-button(class="button-red" block size="large")
+			| Asignar Coordinador a esta zona
+		h2 Territorios internos
 		mapa(:marcadores="marcadoresLocales", v-if="mapa")
 		div(v-else)
 			a(
@@ -29,8 +32,7 @@ export default {
 			territorios: null,
 			mapa: this.$route.query.mapa,
 			region: this.$route.query.region,
-			comuna: this.$route.query.comuna,
-			local: this.$route.query.local
+			comuna: this.$route.query.comuna
 		}
 	},
 
@@ -40,12 +42,7 @@ export default {
 			this.territorios.hijos.forEach(region => { // todo: mostrar solo actuales
 				region.hijos.forEach(comuna => {
 					comuna.hijos.forEach(local => {
-						locales.push({
-							latlon: [local.ubicacion.latitud, local.ubicacion.longitud],
-							id: local.id,
-							nombre: local.nombre,
-							mesas: local.estadisticas.numeroMesas
-						})
+						locales.push(local)
 					})
 				})
 			})
@@ -62,14 +59,15 @@ export default {
 					territorioActual = territorioActual.hijos.find(hijo => {
 						return hijo.id === this.comuna
 					})
-					if (territorioActual && this.local) {
-						territorioActual = territorioActual.hijos.find(hijo => {
-							return hijo.id === this.local
-						})
-					}
 				}
 			}
 			return territorioActual
+		}
+	},
+	watch: {
+		'$route' ($to, $from) {
+			this.region = $to.query.region
+			this.comuna = $to.query.comuna
 		}
 	},
 	mounted () {
@@ -120,15 +118,13 @@ export default {
 				currentRoute[tipo] = territorio
 				this.$router.push({ path: this.$route.path, query: currentRoute })
 			} else {
-				// TODO ir al local
+				console.log(`local ${territorio} y region ${this.region}`)
+				this.$router.push({ path: `locales/resumen-local/${this.region}/${territorio}` })
 			}
 		},
 		subirUnNivel () {
 			const currentRoute = this.$route.query
-			if (this.local) {
-				this.local = undefined
-				this.$router.push({ path: this.$route.path, query: { region: currentRoute.region, comuna: currentRoute.comuna } })
-			} else if (this.comuna) {
+			if (this.comuna) {
 				this.local = undefined
 				this.comuna = undefined
 				this.$router.push({ path: this.$route.path, query: { region: currentRoute.region } })
@@ -152,5 +148,9 @@ export default {
 	color: $petroleo1
 	font-size: larger
 	height: 40px
+
+.button-red
+	background-color: #FF9999
+	color: white
 </style>
 
