@@ -148,7 +148,7 @@ const cuentaBack = {
 			// Crear usuario en microservicio de cuentas
 			const c = await cuentaBack.cuenta.crearCuenta(autorizacion, { nombre, apellido, email, telefono, rut })
 			if (!c || !c.ok) throw ['fail creando usuario en microcuentas', c]
-			// consolo.log(fx, 'microcuentas/crearCuenta', c)
+			consolo.log(fx, 'microcuentas/crearCuenta', c)
 			const { usuarioID, tokenIngresoEncriptado } = c
 
 			// Ya se tiene el usuarioID, ahora a hacer lo que se tenga q hacer con eso y los demas datos en el back.

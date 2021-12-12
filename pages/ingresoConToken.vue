@@ -1,5 +1,10 @@
 <template lang="pug">
 .paginaIngresoConToken
+	div
+		b Token
+	pre {{token}}
+	.cargando(v-if="")
+		a-icon(type="loading")
 </template>
 <script>
 export default {
@@ -13,13 +18,23 @@ export default {
 	},
 	mounted () {
 		// Verificar si está ingresando
-		// if (this.token)
+		this.detectarToken()
 	},
 	methods: {
+		async detectarToken () {
+			if (!this.token) this.$router.replace('/')
+			await new Promise(resolve => { this.$nextTick(() => { resolve() }) })
+			this.ingresarConToken()
+		},
 		async ingresarConToken () {
-			if (!this.token) return
+			if (!this.token) {
+				console.log('No hay token')
+				return
+			}
 			console.log('ingresando con token')
-			const ingresoConToken = await this.$cuentaBack.ingresarConToken(this.token)
+			await this.$cuenta.salir()
+			await new Promise(resolve => { this.$nextTick(() => { resolve() }) })
+			const ingresoConToken = await this.$cuenta.ingresarConToken(this.token)
 			if (ingresoConToken.ok) this.$router.replace('/app')
 		}
 	}
