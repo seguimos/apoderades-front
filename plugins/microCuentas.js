@@ -532,7 +532,7 @@ async function solicitar (request, errorHandler) {
 
 	const data = await axios(ops).then(r => {
 		// console.log('r', r)
-		if (this.sinConexion === undefined || this.sinConexion) this.sinConexion = false
+		if (cuenta.sinConexion === undefined || cuenta.sinConexion) cuenta.sinConexion = false
 		return r.data
 	}).catch(errorHandler || capturadorErrorSolicitud)
 
@@ -558,6 +558,7 @@ function capturadorErrorSolicitud (error) {
 		console.log('Status fuera del rango 2XX', { status, data })
 	} else if (error.request) {
 		console.log('Sin respuesta (capturadorErrorSolicitud)')
+		cuenta.sinConexion = true
 		// consolo.log(error.request)
 		cuenta.ping()
 	} else {

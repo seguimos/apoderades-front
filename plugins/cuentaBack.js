@@ -75,6 +75,8 @@ const cuentaBack = {
 		this._apoderade = v
 	},
 
+	// Info de apoderado conectado
+
 	leyendoDatos: null,
 	async leerMisDatos () {
 		if (this.leyendoDatos) return
@@ -100,6 +102,29 @@ const cuentaBack = {
 			console.error(fx, e)
 			this.apoderade = false
 			this.leyendoDatos = false
+		}
+	},
+
+
+	// Info de territorios que maneja apoderado conectado
+
+	territorios: null,
+	async misTerritorios () {
+		const fx = 'cuentaBack>misTerritorios'
+		try {
+			console.log(fx)
+			const r = await solicitar({
+				method: 'get',
+				url: `${backURL}/apoderade/territorios`
+			})
+			if (!r || !r.ok) throw ['No se pudo cargar territorios del usuario', r]
+			// cuentaBack.vm.$message.success('Locales cargados')
+			console.log(fx, 'r', r)
+			return r
+		} catch (e) {
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
 
@@ -250,26 +275,6 @@ const cuentaBack = {
 		}
 	},
 
-	territorios: null,
-	async misTerritorios () {
-		const fx = 'cuentaBack>misTerritorios'
-		try {
-			console.log(fx)
-			const r = await solicitar({
-				method: 'get',
-				url: `${backURL}/apoderade/territorios`
-			})
-			if (!r || !r.ok) throw ['No se pudo cargar territorios del usuario', r]
-			// cuentaBack.vm.$message.success('Locales cargados')
-			console.log(fx, 'r', r)
-			return r
-		} catch (e) {
-			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
-			else console.error(fx, e)
-			cuentaBack.vm.$message.error('Algo falló')
-		}
-	},
-
 	async obtenerLocal ({ region, localId }) {
 		const fx = 'cuentaBack>obtenerLocal'
 		try {
@@ -397,6 +402,7 @@ function capturadorErrorSolicitud (error) {
 		console.log('Status fuera del rango 2XX', { status, data })
 	} else if (error.request) {
 		console.log('Sin respuesta (capturadorErrorSolicitud)')
+		cuentaBack.sinConexion = true
 		// consolo.log(error.request)
 	} else {
 		console.log('Error inesperado (capturadorErrorSolicitud)', error.message)
@@ -405,10 +411,23 @@ function capturadorErrorSolicitud (error) {
 }
 
 Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.apoderade)
+Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
+Vue.util.defineReactive(cuentaBack, 'territorios', cuentaBack.territorios)
 // Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
 
 export default function ({ app }, inject) {
-	inject('cuentaBack', cuentaBack)
+	// Con esto se puede llamar cuentaBack desde cualquier componente usando $cuentaBack
+	// Con esto se puede llamar cuentaBack desde cualquier componente usando $apoderade
+
+	if (!Vue.__cuentasBack__) {
+		Vue.__cuentasBack__ = true
+		Object.defineProperty(Vue.prototype, '$cuentaBack', {
+			get () { return cuentaBack }
+		})
+		Object.defineProperty(Vue.prototype, '$apoderade', {
+			get () { return cuentaBack.apoderade }
+		})
+	}
 
 	if (!app.mixins) app.mixins = []
 	app.mixins.push({

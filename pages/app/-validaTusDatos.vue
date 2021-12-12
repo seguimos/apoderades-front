@@ -118,7 +118,7 @@
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../regiones/regioneschile'
+import {regionesYSusComunas} from '@lib/regioneschile'
 
 export default {
 	components: {
@@ -202,16 +202,16 @@ export default {
 				telefono,
 
 				// datos desde back
-				comunaCodigo: this._.get(this.$cuentaBack.apoderade, [
+				comunaCodigo: this._.get(this.$apoderade, [
 					'territorioPreferencia',
 					'comunaCodigo'
 				]),
-				region: this._.get(this.$cuentaBack.apoderade, [
+				region: this._.get(this.$apoderade, [
 					'territorioPreferencia',
 					'region'
 				]),
 				disponibleParaOtrosLocales: false,
-				localID: this._.get(this.$cuentaBack.apoderade, [
+				localID: this._.get(this.$apoderade, [
 					'territorioPreferencia',
 					'localId'
 				])
@@ -242,7 +242,7 @@ export default {
 	},
 	computed: {
 		regiones () {
-			const re = regionesComunas.regionesComunas
+			const re = regionesYSusComunas
 			// const arrayregiones = this._.map(re, 'label')
 			return re
 		},
@@ -259,13 +259,13 @@ export default {
 		}
 	},
 	// mounted () {
-	// 	if (this.$cuentaBack.apoderade.fechaValidacionDatos) {
+	// 	if (this.$apoderade.fechaValidacionDatos) {
 	// 		this.$router.replace('/app/locales/resumenterritorial')
 	// 	}
 	// },
 	methods: {
 		rechazalos () {
-			if (this.$cuentaBack.apoderade.territorioPreferencia) {
+			if (this.$apoderade.territorioPreferencia) {
 				this.$router.replace('/app/locales/resumenterritorial')
 			}
 		},

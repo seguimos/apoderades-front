@@ -107,7 +107,7 @@
 import isEmail from 'validator/lib/isEmail'
 import { phone } from 'phone'
 import { validate, format, clean } from 'rut.js'
-import regionesComunas from '../../../regiones/regioneschile'
+import {regionesYSusComunas} from '@lib/regioneschile'
 
 export default {
 	data () {
@@ -214,7 +214,7 @@ export default {
 	},
 	computed: {
 		regiones () {
-			const re = regionesComunas.regionesComunas
+			const re = regionesYSusComunas
 			// const arrayregiones = this._.map(re, 'label')
 			return re
 		},
@@ -231,15 +231,6 @@ export default {
 		}
 	},
 	methods: {
-		async buscarLocales (value) {
-			console.log('this.formulario', this.formulario)
-			const locales = await this.$cuentaBack.localesXComuna({
-				region: this.formulario.region,
-				comunaCodigo: value
-			})
-			console.log('buscarLocales', locales)
-			this.locales = locales.locales
-		},
 		submitForm (formName) {
 			// console.log(this.formulario)
 			this.$refs[formName].validate(valid => {

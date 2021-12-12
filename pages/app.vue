@@ -5,34 +5,32 @@
 			cuenta
 
 	// Conectado, pero no se obtuvo datos del back
-	.conectadoPeroSinBack(v-else-if="$cuentaBack.apoderade === false")
+	.conectadoPeroSinBack(v-else-if="$apoderade === false")
 		.tac
 			b Error
 			p No se pudo conectar con el back
 
 	// No se pudo contarcar con back
-	.cargando(v-else-if="$cuentaBack.apoderade === false")
+	.cargando(v-else-if="$apoderade === false")
 		.tac
 			a-alert(type="error" message="No se pudo conectar con back")
 
 	// Conectado, obteniendo datos del back
-	.cargando(v-else-if="!$cuentaBack.apoderade")
+	.cargando(v-else-if="!$apoderade")
 		.tac
 			a-icon(type="loading")
 			p Conectando back
 
 	// Conectado, datos del back listos
 	.conectado(v-else-if="_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
-		//- navbar
 		.contenido
 			n-child
 	apoderades-validar(v-else)
 </template>
 <script>
-import navbar from './app/-navbar.vue'
 import validaTusDatos from './app/-validaTusDatos.vue'
 export default {
-	components: { navbar, validaTusDatos }
+	components: { validaTusDatos }
 	// layout: 'app'
 }
 </script>
