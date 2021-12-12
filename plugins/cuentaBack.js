@@ -121,14 +121,13 @@ const cuentaBack = {
 		}
 	},
 
-	async apoderadosXcomuna (comunaCodigo, roles) {
+	async apoderadosXcomuna (comunaCodigo) {
 		const fx = 'cuentaBack>apoderadosXcomuna'
 		try {
 			console.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${backURL}/apoderades/comuna/:comunaCodigo`,
-				params: { comunaCodigo, roles }
+				url: `${backURL}/apoderades/comuna/${comunaCodigo}`
 			})
 			if (!r || !r.ok) throw r
 			return r
@@ -172,18 +171,17 @@ const cuentaBack = {
 		}
 	},
 
-	async asignarTerritorio ({ apoderadeID, region, comunaCodigo }) {
-		const fx = 'cuentaBack>asignarTerritorio'
+	async desasignarTerritorio ({ usuarioID, region, comunaCodigo, localId }) {
+		const fx = 'cuentaBack>desasignarTerritorio'
 		try {
 			console.log(fx)
 			const r = await solicitar({
-				method: 'post',
-				url: `${backURL}/apoderades/:apoderadeID/territorio`,
-				body: { territorio: {	region, comunaCodigo } },
-				params: { apoderadeID }
+				method: 'delete',
+				url: `${backURL}/apoderades/${usuarioID}/territorio`,
+				data: { region, comunaCodigo, localId }
 			})
-			if (!r || !r.ok) throw ['No se pudo asignar territorio', r]
-			cuentaBack.vm.$message.success('Se asignó territorio')
+			if (!r || !r.ok) throw ['No se pudo desasignar territorio', r]
+			cuentaBack.vm.$message.success('Se desasignó territorio')
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
@@ -193,17 +191,17 @@ const cuentaBack = {
 		}
 	},
 
-	async asignarLocal ({ region, localId, idCriptocuentas }) {
-		const fx = 'cuentaBack>asignarLocal'
+	async asignarTerritorio ({ usuarioID, region, comunaCodigo, localId }) {
+		const fx = 'cuentaBack>asignarTerritorio'
 		try {
+			console.log(fx)
 			const r = await solicitar({
 				method: 'post',
-				url: `${backURL}/locales/:region/locales/:localId/apoderades`,
-				body: { idCriptocuentas },
-				params: { region, localId }
+				url: `${backURL}/apoderades/${usuarioID}/territorio`,
+				data: { region, comunaCodigo, localId }
 			})
-			if (!r || !r.ok) throw ['No se pudo asignar local', r]
-			cuentaBack.vm.$message.success('Se asignó local')
+			if (!r || !r.ok) throw ['No se pudo asignar territorio', r]
+			cuentaBack.vm.$message.success('Se asignó territorio')
 			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
