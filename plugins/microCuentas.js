@@ -136,12 +136,11 @@ const cuenta = {
 			token = token || cuenta.token
 			if (!token) {
 				this.autofirmando = false
-				console.log(`%c ${fx} detenido`, 'color: #666;')
+				console.log(`%c ${fx} Sin token, detenido`, 'color: #666;')
+				return
 			}
-			if (!this.autofirmando) {
-				this.autofirmando = true
-				console.log(`%c ${fx} iniciado`, 'color: green;')
-			}
+			if (!this.autofirmando) this.autofirmando = true
+			console.log(`%c ${fx} generado`, 'color: seagreen;')
 			// console.log(`%c ${fx} decodificado`, 'color: coral;', cuenta.decodificado)
 			// console.log(`%c ${fx} jti`, 'color: coral;', cuenta.decodificado.jti)
 			const cuerpoToken = { jtiCuentas: cuenta.decodificado.jti }
@@ -562,7 +561,12 @@ const cuenta = {
 
 async function solicitar (request, errorHandler) {
 	const _ = cuenta.vm._
-	const defaultHeaders = { Accept: 'application/json' }
+	const defaultHeaders = {
+		Accept: 'application/json',
+		'Content-Type': 'application/json',
+	}
+	if (cuenta.token) defaultHeaders.Authorization = `Bearer ${cuenta.token}`
+	if (cuenta.token) defaultHeaders['Token-Autofirmado'] = cuenta.tokenAutofirmado
 	const ops = _.merge({ headers: defaultHeaders }, request)
 
 	const data = await axios(ops).then(r => {
