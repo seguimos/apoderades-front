@@ -26,7 +26,7 @@ const cuentaBack = {
 		const fx = 'cuentaBack>init'
 		this.vm = vm
 
-		this.cuentasURL = process.env.dev ? process.env.backURL : process.env.backURL.replace('HOST', window.location.host)
+		this.backURL = process.env.dev ? process.env.backURL : process.env.backURL.replace('HOST', window.location.host)
 		// Revisar que se esté utilizando microservicio de cuentas
 		if (!vm.$cuenta) {
 			console.error(
