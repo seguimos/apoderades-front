@@ -31,7 +31,7 @@
 
 				a-form-model-item(has-feedback prop="local" label="Local")
 					a-select.input(show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="elegirLocal")
-						a-select-option(v-for="(local, localID) in localesAsignables" :key="localID" :value="local.nombre") {{ local.nombre }}
+						a-select-option(v-for="(local, localID) in localesAsignables" :key="localID" :value="localID") {{ local.nombre }}
 
 				a-form-model-item
 					a-button.w100.bpStyle.verde(type="primary" @click="asignarTerritorio") Asignar a local
@@ -202,7 +202,7 @@ export default {
 						comunaID 
 					})
 				} else {
-					resultado = await this.$cuentaBack.asignarTerritorio({ 
+					resultado = await this.$cuentaBack.asignarLocal({ 
 						apoderadeID: this.usuarioID, 
 						regionID, 
 						comunaID, 
