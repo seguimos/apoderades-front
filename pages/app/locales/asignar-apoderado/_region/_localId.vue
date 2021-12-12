@@ -17,7 +17,7 @@ div
 				a-col(:span="12" class="col-apoderado")
 					| {{ apoderado.nombre }}
 				a-col(:span="12" style="text-align: end"  class="col-apoderado")
-					a-button(type="link" class="button-danger" @click="removerApoderadoLocal(apoderado.id)")
+					a-button(type="link" class="button-danger" @click="removerApoderadoLocal(apoderado.usuarioID)")
 						| Remover de Local
 						a-icon(type="close")
 	a-row(:gutter="[16, 10]" style="padding-top:16px")
@@ -35,7 +35,7 @@ div
 				a-col(:span="12" style="text-align: end"  class="col-apoderado")
 					a-button(type="link" v-if="!!apoderado.localId" class="button-danger")
 						| Asignado a Local
-					a-button(type="link" v-else class="button-success" @click="agregarApoderadoLocal(apoderado.id)")
+					a-button(type="link" v-else class="button-success" @click="agregarApoderadoLocal(apoderado.usuarioID)")
 						| Disponible
 						a-icon(type="plus")
 
@@ -51,12 +51,23 @@ export default {
 			local: {
 				nombre: '',
 				mesas: [],
-				apoderadoGeneral: ''
+				apoderadoGeneral: '',
+				apoderados: [],
+				ubicacion: {}
 			},
 			apoderadosComuna: []
 		}
 	},
 	computed: {
+		region() {
+			return this.$route.params.region
+		},
+		comunaCodigo () {
+			return this.local.ubicacion.comunaCodigo
+		},
+		localId () {
+			return this.$route.params.localId
+		},
 		mesasLen () {
 			return this.local.mesas.length
 		},
@@ -64,8 +75,7 @@ export default {
 			return this.apoderadosLocal.length
 		},
 		apoderadosLocal () {
-			const localId = this.$route.params.localId
-			return this.apoderadosComuna.filter(apoderado => apoderado.localId === localId)
+			return this.local.apoderados
 		},
 		apoderadosLocalFilter () {
 			const buscar = this.buscarLocal
@@ -76,8 +86,13 @@ export default {
 		},
 		apoderadosComunaFilter () {
 			const buscar = this.buscarComuna
-			if (!buscar) return this.apoderadosComuna
-			return this.apoderadosComuna.filter(apoderado => {
+			const noAsignados = this.apoderadosComuna.filter(apoderado =>
+				!this.apoderadosLocal.some(apoderadoLocal =>
+					apoderadoLocal.usuarioID === apoderado.usuarioID
+				)
+			)
+			if (!buscar) return noAsignados
+			return noAsignados.filter(apoderado => {
 				return (apoderado.nombre.toLocaleLowerCase().search(buscar.toLocaleLowerCase()) > -1)
 			})
 		}
@@ -86,33 +101,58 @@ export default {
 		this.getLocal()
 	},
 	methods: {
-		// TODO: metodo de remover apoderados
-		removerApoderadoLocal (apoderadoId) {
-			console.warn('removerApoderadoLocal ' + apoderadoId)
+		async removerApoderadoLocal (usuarioID) {
+			const regionID = this.region
+			const comunaID = this.comunaCodigo
+			const localID = this.localId
+			const payload = {
+				usuarioID,
+				regionID,
+				comunaID,
+				localID
+			}
+			const response = await this.$cuentaBack.desasignarTerritorio(payload)
+			console.log('removerApoderadoLocal ' + usuarioID, response)
+			await this.getLocal()
 		},
-		// TODO: metodo de asignar apoderados
-		agregarApoderadoLocal (apoderadoId) {
-			console.warn('agregarApoderadoLocal ' + apoderadoId)
+		async agregarApoderadoLocal (usuarioID) {
+			const regionID = this.region
+			const comunaID = this.comunaCodigo
+			const localID = this.localId
+			const payload = {
+				usuarioID,
+				regionID,
+				comunaID,
+				localID
+			}
+			console.log('payload is', payload)
+			const response = await this.$cuentaBack.asignarTerritorio(payload)
+			console.log('agregarApoderadoLocal ' + usuarioID, response)
+			await this.getLocal()
 		},
 		apoderadoInLocal (apoderadoId) {
 			return this.apoderadosLocal.some(apoderado => apoderado.id === apoderadoId)
 		},
-		// TODO: Obtener apoderados comuna local
-		getLocal () {
-			const region = this.$route.params.region
-			const localId = this.$route.params.localId
-			this.$cuentaBack.obtenerLocal({ region, localId })
-				.then(response => {
-					console.warn('Implementar datos de local en ResumenLocal')
-					this.local.nombre = response.local.nombre
-					this.local.apoderadoGeneral = 'Gabriel Boric'
-					this.local.mesas = Object.values(response.local.mesas)
-					this.apoderadosComuna = [
-						{ id: 1, nombre: 'Gabriel Boric', localId: 'aasdasdasdsda3' },
-						{ id: 2, nombre: 'Juan Perez', localId: '61ae43835aa0e9093cb26329' },
-						{ id: 3, nombre: 'Pedro Fernandez', localId: null }
-					]
-				})
+		async getLocal () {
+			const region = this.region
+			const localId = this.localId
+			const response = await this.$cuentaBack.obtenerLocal({ region, localId })
+			this.local._id = response.local._id
+			this.local.nombre = response.local.nombre
+			this.local.apoderadoGeneral = 'Gabriel Boric'
+			this.local.mesas = Object.values(response.local.mesas)
+			this.local.apoderados = response.local.apoderades.map(apo => ({
+				...apo,
+				nombre: `usuarioID: ${apo.usuarioID}`
+			}))
+			this.local.ubicacion = response.local.ubicacion
+			const comunaCodigo = response.local.ubicacion.comunaCodigo
+			const responseComuna = await this.$cuentaBack.apoderadosXcomuna(comunaCodigo)
+			console.log(responseComuna, 'rc')
+			this.apoderadosComuna = responseComuna.apoderadosDisponibles.map(apo => ({
+				...apo,
+				nombre: `usuarioID: ${apo.usuarioID}`
+			}))
 		}
 	}
 }

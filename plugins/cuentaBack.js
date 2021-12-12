@@ -253,15 +253,16 @@ const cuentaBack = {
 		}
 	},
 
-	async asignarTerritorio ({ apoderadeID, regionID, comunaID }) {
+	async asignarTerritorio ({ usuarioID, regionID, comunaID, localID }) {
 		const fx = 'cuentaBack>asignarTerritorio'
 		try {
 			consolo.log(fx)
 			const data = { region: regionID }
 			if (comunaID) data.comunaCodigo = comunaID
+			if (localID) data.localId = localID
 			const r = await solicitar({
 				method: 'post',
-				url: `${cuentaBack.backURL}/apoderades/${apoderadeID}/territorio`,
+				url: `${cuentaBack.backURL}/apoderades/${usuarioID}/territorio`,
 				data
 			})
 			if (!r || !r.ok) throw ['No se pudo asignar territorio', r]
@@ -274,20 +275,19 @@ const cuentaBack = {
 			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
-
-	async asignarLocal ({ regionID, comunaID, localID, apoderadeID }) {
-		const fx = 'cuentaBack>asignarLocal'
+	
+	async desasignarTerritorio ({ usuarioID, regionID, comunaID, localID }) {
+		const fx = 'cuentaBack>desasignarTerritorio'
 		try {
+			console.log(fx)
 			const r = await solicitar({
-				method: 'post',
-				url: `${cuentaBack.backURL}/apoderades/${apoderadeID}/territorio`,
-				// url: `${cuentaBack.backURL}/locales/${regionID}/locales/${localID}/apoderades`,
-				data: {	region: regionID, comunaCodigo: comunaID, localId: localID }
-				// data: { apoderadeID }
+				method: 'delete',
+				url: `${cuentaBack.backURL}/apoderades/${usuarioID}/territorio`,
+				data: { region: regionID, comunaCodigo: comunaID, localId: localID }
 			})
-			if (!r || !r.ok) throw ['No se pudo asignar local', r]
-			cuentaBack.vm.$message.success('Se asignó local')
-			consolo.log(fx, 'r', r)
+			if (!r || !r.ok) throw ['No se pudo desasignar territorio', r]
+			cuentaBack.vm.$message.success('Se desasignó territorio')
+			console.log(fx, 'r', r)
 			return r
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
@@ -295,8 +295,7 @@ const cuentaBack = {
 			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
-
-
+	
 	// TERRITORIOS
 
 	async apoderadosXRegion (region, roles) {
@@ -432,7 +431,7 @@ const cuentaBack = {
 				url: `${cuentaBack.backURL}/locales/${region}/locales/${localId}`
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar local', r]
-			cuentaBack.vm.$message.success('Local cargados')
+			// cuentaBack.vm.$message.success('Local cargado')
 			consolo.log(fx, 'r', r)
 			return r
 		} catch (e) {

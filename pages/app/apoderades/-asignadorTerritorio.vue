@@ -219,12 +219,13 @@ export default {
 				}
 				const { region: regionID, comuna: comunaID, local: localID } = this.asignacionTerritorialForm
 				let resultado
+				const usuarioID = this.usuarioID
 				if (modoAsignacion === 'region') {
-					resultado = await this.$cuentaBack.asignarTerritorio({ apoderadeID: this.usuarioID, regionID })
+					resultado = await this.$cuentaBack.asignarTerritorio({ usuarioID, regionID })
 				} else if (modoAsignacion === 'comuna') {
-					resultado = await this.$cuentaBack.asignarTerritorio({ apoderadeID: this.usuarioID, regionID, comunaID })
+					resultado = await this.$cuentaBack.asignarTerritorio({ usuarioID, regionID, comunaID })
 				} else if (modoAsignacion === 'local') {
-					resultado = await this.$cuentaBack.asignarLocal({ apoderadeID: this.usuarioID, regionID, comunaID, localID })
+					resultado = await this.$cuentaBack.asignarTerritorio({ usuarioID, regionID, comunaID, localID })
 				} else resultado = 'No funciona así'
 				console.log('asignarTerritorio', resultado)
 				return resultado
