@@ -116,7 +116,7 @@ export default {
 		regionesAsignables () {
 			if (this.$apoderade.tieneAccesoNacional) return regionesYSusComunas
 			const regionesAlcanzadas = this.$apoderade.territorios && this.$apoderade.territorios.map(t => t.region)
-			return this._.pickBy(regionesYSusComunas, (r, regionID) => regionesAlcanzadas.includes(regionID))
+			return regionesAlcanzadas && this._.pickBy(regionesYSusComunas, (r, regionID) => regionesAlcanzadas.includes(regionID))
 		},
 		comunasXRegionAsignables () {
 			const _ = this._
@@ -186,7 +186,32 @@ export default {
 		elegirLocal (e) {
 			console.log('elegirLocal', e)
 		},
-		asignarTerritorio () {},
+		asignarTerritorio () {
+			const modoAsignacion = this.modoAsignacion
+			this.$refs.asignacionTerritorialForm.validate(async valid => {
+				if (!valid) {
+					return
+				}
+				const { region: regionID, comuna: comunaID, local: localID } = this.asignacionTerritorialForm
+				let resultado
+				if (['comuna', 'region'].includes(modoAsignacion)) {
+					resultado = await this.$cuentaBack.asignarTerritorio({ 
+						apoderadeID: this.usuarioID, 
+						regionID, 
+						comunaID 
+					})
+				} else {
+					resultado = await this.$cuentaBack.asignarTerritorio({ 
+						apoderadeID: this.usuarioID, 
+						regionID, 
+						comunaID, 
+						localID 
+					})
+				}
+				
+				console.log('asignarTerritorio', resultado)
+			})
+		},
 
 		async buscarLocales (regionID, comunaID) {
 			const r = await this.$cuentaBack.localesXComuna({
