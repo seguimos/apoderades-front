@@ -4,7 +4,7 @@
 	.resumenterritorial(v-if="territorioActual")
 		a(@click="subirUnNivel()")
 			locales-resumenTerritorial(:titulo="`Territorio actual: ${territorioActual.nombre}`", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
-		a-button(class="button-red" block size="large" @click="toAsignarApoderadoGeneral")
+		a-button(class="button-red" block size="large")
 			| Asignar Coordinador a esta zona
 		h2 Territorios internos
 		mapa(:marcadores="marcadoresLocales", v-if="mapa")
@@ -42,12 +42,7 @@ export default {
 			this.territorios.hijos.forEach(region => { // todo: mostrar solo actuales
 				region.hijos.forEach(comuna => {
 					comuna.hijos.forEach(local => {
-						locales.push({
-							latlon: [local.ubicacion.latitud, local.ubicacion.longitud],
-							id: local.id,
-							nombre: local.nombre,
-							mesas: local.estadisticas.numeroMesas
-						})
+						locales.push(local)
 					})
 				})
 			})
