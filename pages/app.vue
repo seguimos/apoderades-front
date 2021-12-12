@@ -22,23 +22,31 @@
 			p Conectando back
 
 	// Conectado, datos del back listos
-	.conectado(v-else)
-		//.permisos
-			div
-				b Puedes:
-			div Acceso a nivel nacional: {{$apoderade.tieneAccesoNacional ? '✅' : '☑️'}}
-			div Acceso a nivel territorial: {{$apoderade.territorioAsignado ? '✅' : '☑️'}}
+	//.conectado(v-else)
 		.contenido
 			n-child
-	//- .conectado(v-else-if="_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
-	//- 	.contenido
-	//- 		n-child
-	//- validaTusDatos(v-else)
+		.pieUsuario
+
+	validaTusDatos(v-else-if="!$usuario.datosAutovalidados")
+	//- territorioPreferencia(v-else-if="!_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
+	.conectado(v-else)
+		.permisos
+			div
+				b Puedes:
+			div Acceso a nivel nacional: {{$apoderade.tieneAccesoNacional ? '✅' : '⛔️'}}
+			div Acceso a nivel territorial: {{$apoderade.territorioAsignado ? '✅' : '⛔️'}}
+		b Usuario
+		div {{$usuario}}
+
+		.contenido
+			n-child
+		.pieUsuario
 </template>
 <script>
 import validaTusDatos from './app/-validaTusDatos.vue'
+import territorioPreferencia from './app/-territorioPreferencia.vue'
 export default {
-	components: { validaTusDatos }
+	components: { validaTusDatos, territorioPreferencia }
 	// layout: 'app'
 }
 </script>

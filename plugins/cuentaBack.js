@@ -329,7 +329,7 @@ const cuentaBack = {
 		}
 	},
 
-	async autoValidarDatos ({ territorioPreferencia, nombre, apellido, rut, email, telefono, rol }) {
+	async autoValidarDatos ({ nombre, apellido, rut, email, telefono, rol }) {
 		const fx = 'cuentaBack>autoValidarDatos'
 		try {
 			// Primero obtener autorización del back
@@ -342,7 +342,7 @@ const cuentaBack = {
 			const { autorizacion } = r
 
 			// Crear usuario en microservicio de cuentas
-			const c = await cuentaBack.cuenta.editarCuenta(autorizacion, { nombre, apellido, email, telefono, rut, rol })
+			const c = await cuentaBack.cuenta.editarPorOtro(autorizacion, { nombre, apellido, email, telefono, rut, rol })
 			if (!c || !c.ok) throw ['fail editando usuario en microcuentas', c]
 
 			const s = await solicitar({

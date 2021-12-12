@@ -32,11 +32,11 @@ async function procesarInfoUsuario (r) {
 		const datosPrivados = JSON.parse(desencriptado)
 		const decodificado = tokenDecoder(r.token)
 		miLlavero.renombrar(decodificado.sub)
-		cuenta.usuario = {
-			id: decodificado.sub,
-			nombre: decodificado.nombre,
-			...datosPrivados
-		}
+		const usuario = Object.assign({}, decodificado, datosPrivados)
+		usuario.id = decodificado.sub
+		delete usuario.llaves
+		delete usuario.sub
+		cuenta.usuario = usuario
 		cuenta.decodificado = decodificado
 		cuenta.datosPrivados = r.datosPrivados
 		cuenta.token = r.token
@@ -136,12 +136,11 @@ const cuenta = {
 			token = token || cuenta.token
 			if (!token) {
 				this.autofirmando = false
-				console.log(`%c ${fx} detenido`, 'color: #666;')
+				console.log(`%c ${fx} Sin token, detenido`, 'color: #666;')
+				return
 			}
-			if (!this.autofirmando) {
-				this.autofirmando = true
-				console.log(`%c ${fx} iniciado`, 'color: green;')
-			}
+			if (!this.autofirmando) this.autofirmando = true
+			console.log(`%c ${fx} generado`, 'color: seagreen;')
 			// console.log(`%c ${fx} decodificado`, 'color: coral;', cuenta.decodificado)
 			// console.log(`%c ${fx} jti`, 'color: coral;', cuenta.decodificado.jti)
 			const cuerpoToken = { jtiCuentas: cuenta.decodificado.jti }
@@ -404,7 +403,7 @@ const cuenta = {
 
 	// Inscripciones y ediciones por usuarios con autorización del back
 
-	async crearCuenta (autorizacion, { nombre, apellido, email, telefono, rut, rol }) {
+	async crearCuenta (autorizacion, { nombre, apellido, email, telefono, rut }) {
 		const fx = 'microCuentas>crearCuenta'
 		const _ = cuenta.vm._
 		try {
@@ -421,7 +420,7 @@ const cuenta = {
 			const tokenDecodificado = tokenDecoder(autorizacion)
 			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
 
-			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono, rut, rol }, v => v && !_.isEmpty(v)))
+			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono, rut }, v => v && !_.isEmpty(v)))
 			consolo.log(fx, 'serializado', serializado)
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
 			if (!encriptado || _.isEmpty(encriptado)) {
@@ -446,8 +445,43 @@ const cuenta = {
 		}
 	},
 
-	async editarCuenta (autorizacion, { nombre, apellido, email, telefono, rol }) {
+	async editar ({ nombre, apellido, email, telefono }) {
 		const fx = 'microCuentas>editarCuenta'
+		const _ = cuenta.vm._
+		try {
+			const token = cuenta.token
+			if (!token) {
+				if (cuenta.usuario !== null) cuenta.usuario = null
+				console.log(fx, 'abortado por no haber token')
+				return
+			}
+
+			if (!miLlavero) throw 'Falta miLlavero'
+			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
+
+			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono }, v => v && !_.isEmpty(v)))
+			consolo.log(fx, 'serializado', serializado)
+			// Encriptar datos usuario
+			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
+			if (!encriptado || _.isEmpty(encriptado)) {
+				console.error('Encriptado vacío', encriptado)
+				return
+			}
+			const r = await solicitar.call(this, {
+				url: `${cuenta.cuentasURL}/editar`,
+				data: { encriptado },
+				headers: { Authorization: `Bearer ${token}` },
+				method: 'post'
+			})
+			consolo.log(`${fx} r`, r)
+			return r
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async editarPorOtro (autorizacion, { nombre, apellido, email, telefono }) {
+		const fx = 'microCuentas>editarCuentaPorOtroUsuario'
 		const _ = cuenta.vm._
 		try {
 			const token = cuenta.token
@@ -464,7 +498,7 @@ const cuenta = {
 			const tokenDecodificado = tokenDecoder(autorizacion)
 			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
 
-			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono, rol }, v => v && !_.isEmpty(v)))
+			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono }, v => v && !_.isEmpty(v)))
 			consolo.log(fx, 'serializado', serializado)
 			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
@@ -527,7 +561,12 @@ const cuenta = {
 
 async function solicitar (request, errorHandler) {
 	const _ = cuenta.vm._
-	const defaultHeaders = { Accept: 'application/json' }
+	const defaultHeaders = {
+		Accept: 'application/json',
+		'Content-Type': 'application/json',
+	}
+	if (cuenta.token) defaultHeaders.Authorization = `Bearer ${cuenta.token}`
+	if (cuenta.token) defaultHeaders['Token-Autofirmado'] = cuenta.tokenAutofirmado
 	const ops = _.merge({ headers: defaultHeaders }, request)
 
 	const data = await axios(ops).then(r => {
