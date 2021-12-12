@@ -193,6 +193,8 @@ const cuentaBack = {
 				method: 'post',
 				url: `${backURL}/apoderades`,
 				data: {
+					nombre,
+					email,
 					usuarioID,
 					url: `${new URL(window.location.href).origin}/ingresoConToken?token=`,
 					tokenIngresoEncriptado
