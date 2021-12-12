@@ -17,7 +17,7 @@
 
 		.rutForm(v-if="!etapa")
 			a-form-model(ref="rutForm" :model="rutForm" :rules="reglasFormRut")
-				a-form-model-item( has-feedback prop="rut" label="Ingresa RUT del apoderado" )
+				a-form-model-item(has-feedback prop="rut" label="Ingresa RUT del apoderado")
 					a-input.input(v-model="rutForm.rut" type="rut" allow-clear)
 				a-form-model-item
 					a-button.w100.bpStyle.verde(type="primary" @click="checkRut") BUSCAR
@@ -25,16 +25,16 @@
 		.datosPersonalesForm(v-if="rutNoInscrito && etapa === 'datosPersonales'")
 			a-form-model(ref="personalesForm" :model="personalesForm" :rules="reglasFormDatosPersonales")
 				a-form-model-item(has-feedback prop="nombre" label="Nombres")
-					a-input.input(v-model="personalesForm.nombre" type="nombre" placeholder="Gabriel" )
+					a-input.input(v-model="personalesForm.nombre" type="nombre" placeholder="Gabriel")
 
 				a-form-model-item(has-feedback prop="apellido" label="Apellidos")
-					a-input.input(v-model="personalesForm.apellido" type="apellido" placeholder="Boric Font" )
+					a-input.input(v-model="personalesForm.apellido" type="apellido" placeholder="Boric Font")
 
 				a-form-model-item(has-feedback prop="email" label="Correo")
-					a-input.input(v-model="personalesForm.email" type="email" placeholder="gabriel@lesapoderades.cl" )
+					a-input.input(v-model="personalesForm.email" type="email" placeholder="gabriel@lesapoderades.cl")
 
 				a-form-model-item(has-feedback prop="telefono" label="Teléfono")
-					a-input.input(v-model="personalesForm.telefono" type="tel" placeholder="+56 x xxxx xxxx" )
+					a-input.input(v-model="personalesForm.telefono" type="tel" placeholder="+56 x xxxx xxxx")
 
 				a-form-model-item
 					a-button.w100.bpStyle.verde(type="primary" @click="guardarDatosPersonales") Guardar datos personales
@@ -42,17 +42,17 @@
 		.asignacionTerritorial(v-if="usuarioID && etapa === 'asignacionTerritorial'")
 			a-form-model(ref="asignacionTerritorialForm" :model="asignacionTerritorialForm" :rules="reglasFormAsignacionTerritorial")
 
-				a-form-model-item(has-feedback prop="region" label="Región" )
-					a-select.input(v-model="asignacionTerritorialForm.region" @change="elegirRegion" placeholder="Región" )
-						a-select-option(v-for="(region, regionID) in regionesAsignables" :key="`region-${regionID}`" :value="regionID" ) {{ region.nombre }}
+				a-form-model-item(has-feedback prop="region" label="Región")
+					a-select.input(v-model="asignacionTerritorialForm.region" @change="elegirRegion" placeholder="Región")
+						a-select-option(v-for="(region, regionID) in regionesAsignables" :key="`region-${regionID}`" :value="regionID") {{ region.nombre }}
 
-				a-form-model-item(has-feedback prop="comuna" label="Comuna" )
-					a-select.input(v-model="asignacionTerritorialForm.comuna" placeholder="Comuna" @change="elegirComuna" :notdisabled="!asignacionTerritorialForm.region")
-						a-select-option(v-for="(comuna, comunaID) in comunasAsignables" :key="comuna.nombre" :value="comunaID" ) {{ comuna.nombre }}
+				a-form-model-item(has-feedback prop="comuna" label="Comuna")
+					a-select.input(v-model="asignacionTerritorialForm.comuna" placeholder="Comuna" @change="elegirComuna")
+						a-select-option(v-for="(comuna, comunaID) in comunasAsignables" :key="`comuna-${comunaID}`" :value="comunaID") {{ comuna.nombre }}
 
 				a-form-model-item(has-feedback prop="local" label="Local")
-					a-select.input( show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="elegirLocal" )
-						a-select-option(v-for="(local, localID) in localesAsignables" :key="localID" :value="local.nombre" ) {{ local.nombre }}
+					a-select.input(show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="elegirLocal")
+						a-select-option(v-for="(local, localID) in localesAsignables" :key="localID" :value="local.nombre") {{ local.nombre }}
 
 				a-form-model-item
 					a-button.w100.bpStyle.verde(type="primary" @click="asignarTerritorio") Asignar territorio
@@ -177,7 +177,7 @@ export default {
 			this.$refs.rutForm.validate(async valid => {
 				if (!valid) return false;
 				const rut = this.rutForm.rut
-				const r = await this.$cuentaBack.buscarXRut( Rut.format(rut) );
+				const r = await this.$cuentaBack.buscarXRut(Rut.format(rut) );
 				if (r.usuarioID) {
 					// TODO Mostrar info usuario
 					this.usuarioID = r.usuarioID
@@ -206,12 +206,16 @@ export default {
 		asignarTerritorio () {},
 
 		async buscarLocales (regionID, comunaID) {
-			console.log('this.formulario', this.formulario)
 			const r = await this.$cuentaBack.localesXComuna({
 				region: regionID,
 				comunaCodigo: comunaID
 			})
-			const {locales} = r
+			if (!r) return
+			const locales = this._.reduce(r.locales, (locs, local) => {
+				locs[local._id] = local
+				delete locs[local._id]._id
+				return locs
+			}, {})
 			console.log('buscarLocales', locales)
 			const localesPorComuna = Object.assign({}, this.localesPorComuna)
 			localesPorComuna[comunaID] = locales
