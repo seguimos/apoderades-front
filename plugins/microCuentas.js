@@ -58,6 +58,7 @@ async function procesarInfoUsuario (r) {
 }
 
 const cuenta = {
+	inicializado: null,
 	cuentasURL: null,
 	// Proporciona metodos on, off, emit, para emisión y escucha de eventos
 	...emisorEventos,
@@ -93,8 +94,12 @@ const cuenta = {
 			consolo.log(fx, 'Llavero creado', miLlavero)
 			if (usarStores) await llaveroStore.setItem('miLlavero', miLlavero)
 		}
-
 		consolo.log(fx, { token: this._token })
+
+		// Emitir evento y marcar inicializado para otros procesos
+		this.emit('initListo')
+		this.inicializado = true
+
 		this.leer()
 	},
 
@@ -257,12 +262,12 @@ const cuenta = {
 		await cuentaStore.clear()
 		cuenta.ping()
 		// Renovar llavero
-		if (miLlavero) {
-			consolo.log('Recreando llavero')
-			miLlavero = new Llavero()
-			await miLlavero.init({ crearKeys: 1 })
-			if (usarStores) await llaveroStore.setItem('miLlavero', miLlavero)
-		}
+		// if (miLlavero) {
+		// 	consolo.log('Recreando llavero')
+		// 	miLlavero = new Llavero()
+		// 	await miLlavero.init({ crearKeys: 1 })
+		// 	if (usarStores) await llaveroStore.setItem('miLlavero', miLlavero)
+		// }
 		return true
 	},
 
@@ -270,9 +275,11 @@ const cuenta = {
 		const fx = 'microCuentas>ingresarConToken'
 		try {
 			consolo.log(fx, { token })
+			await cuenta.salir()
+			const llaves = await miLlavero.exportarLlavesPublicas()
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/ingresarConToken`,
-				data: { token },
+				data: { token, llaves },
 				method: 'post'
 			})
 			return await procesarInfoUsuario(r)

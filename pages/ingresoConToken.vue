@@ -18,7 +18,10 @@ export default {
 	},
 	mounted () {
 		// Verificar si está ingresando
-		this.detectarToken()
+		if (this.$cuenta.inicializado) this.detectarToken()
+		this.$cuenta.on('initListo', () => {
+			this.detectarToken()
+		})
 	},
 	methods: {
 		async detectarToken () {
