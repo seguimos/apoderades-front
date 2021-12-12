@@ -21,7 +21,7 @@
 		//- navbar
 		.contenido
 			n-child
-	apoderades-validar(v-else)
+	valida-tus-datos(v-else)
 </template>
 <script>
 import navbar from './app/-navbar.vue'
