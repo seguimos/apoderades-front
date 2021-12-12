@@ -2,9 +2,26 @@
 .asignadorTerritorio
 	a-form-model(ref="asignacionTerritorialForm" :model="asignacionTerritorialForm" :rules="reglasFormAsignacionTerritorial")
 
-		a-form-model-item(has-feedback prop="region" label="Región")
+		//a-form-model-item(has-feedback prop="region" label="Región")
 			a-select.input(v-model="asignacionTerritorialForm.region" @change="elegirRegion" placeholder="Región")
 				a-select-option(v-for="(region, regionID) in regionesAsignables" :key="`region-${regionID}`" :value="regionID") {{ region.nombre }}
+
+		a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='input here' option-label-prop='value')
+			template(slot='dataSource')
+				a-select-opt-group(v-for='group in dataSource' :key='group.title')
+					span(slot='label')
+						| {{ group.title }}
+						a(style='float: right' href='https://www.google.com/search?q=antd' target='_blank' rel='noopener noreferrer') more
+					a-select-option(v-for='opt in group.children' :key='opt.title' :value='opt.title')
+						| {{ opt.title }}
+						span.certain-search-item-count {{ opt.count }} people
+				a-select-option.show-all(key='all' disabled='')
+					a(href='https://www.google.com/search?q=ant-design-vue' target='_blank' rel='noopener noreferrer') View all results
+			a-input
+				a-icon.certain-category-icon(slot='suffix' type='search')
+				
+		a-form-model-item
+			div {{comunasAsignables}}
 
 		a-form-model-item(has-feedback prop="comuna" label="Comuna")
 			a-select.input(v-model="asignacionTerritorialForm.comuna" placeholder="Comuna" @change="elegirComuna")
@@ -57,13 +74,19 @@ export default {
 			const regionesAlcanzadas = this.$apoderade.territorios.map(t => t.region)
 			return this._.pickBy(regionesYSusComunas, (r, regionID) => regionesAlcanzadas.includes(regionID))
 		},
+		comunasXRegionAsignables () {
+			const _ = this._
+			const regionesAsignables = Object.assign({}, this.regionesAsignables)
+			_.forEach(regionesAsignables, (region, regionID) => {
+				if (this.$apoderade.tieneAccesoNacional) return
+				const territoriosAsignables = _.pickBy(this.$apoderade.territorios, t => t.region === regionID)
+				const comunaIDs = _.map(territoriosAsignables, t=> t.comunaCodigo)
+				regionesAsignables[regionID].comunas = _.pick(region.comunas, comunaIDs)
+			})
+			return regionesAsignables
+		},
 		comunasAsignables () {
 			const _ = this._
-			// region?: string;
-			// comunaCodigo?: string;
-			// llavePublicaAsignador?: string;
-			// localId?: string;
-			// esApoderadoGeneral?: boolean;
 			const regionesAsignables = this.regionesAsignables
 			let comunasAsignables = Object.assign({}, ...(_.map(regionesAsignables, r => r.comunas)))
 			const idRegionElegida = this.asignacionTerritorialForm.region

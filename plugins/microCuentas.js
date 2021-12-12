@@ -80,7 +80,7 @@ const cuenta = {
 
 		this.vm = vm
 		this.token = (usarStores && await cuentaStore.getItem('token')) || null
-		this.cuentasURL = process.env.dev ? process.env.cuentasURL : process.env.cuentasURL.replace('HOST', `capi.${window.location.host}`)
+		this.cuentasURL = process.env.dev ? process.env.cuentasURL : process.env.cuentasURL.replace('HOST', window.location.host)
 
 		const llaveroMio = (usarStores && await llaveroStore.getItem('miLlavero')) || null
 		if (llaveroMio) {

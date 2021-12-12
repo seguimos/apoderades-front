@@ -1,7 +1,7 @@
 <template lang="pug">
 .appApoderadesIndex
 
-	.misTerritorios
+	//.misTerritorios
 		pre apoderade
 		div {{$apoderade}}
 		pre misTerritorios
@@ -34,9 +34,9 @@ export default {
 	components: { checkPorRut, creadorApoderade, asignadorTerritorio },
 	data() {
 		return {
-			etapa: 'asignacionTerritorial',
+			etapa: undefined,
 			rut: undefined,
-			usuarioID: 'fdsdffsdfsdf'
+			usuarioID: undefined
 		}
 	},
 	computed: {
@@ -62,6 +62,9 @@ export default {
 <style lang="sass" scoped>
 @import '@style/utils'
 .appApoderadesIndex
+	margin: 0 auto
+	max-width: 100%
+	width: 400px
 	// display: flex
 	// flex-flow: column nowrap
 	// min-height: 80vh
@@ -72,7 +75,7 @@ export default {
 
 .miniNavbar
 	display: flex
-	margin-bottom: 1em
+	margin-bottom: 3em
 	.cambioEtapa
 		display: block
 		+ .cambioEtapa
