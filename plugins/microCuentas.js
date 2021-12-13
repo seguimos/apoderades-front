@@ -151,7 +151,7 @@ const cuenta = {
 			this.tokenAutofirmado = await miLlavero.firmarToken(cuerpoToken)
 			const proxMinuto = moment().seconds(0).add(1, 'minute')
 			setTimeout(function () { cuenta.mantenerTokenAutorizado() }, proxMinuto.diff(moment()))
-			return true
+			return this.tokenAutofirmado
 		} catch (e) {
 			console.error(fx, e)
 		}

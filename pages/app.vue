@@ -30,13 +30,13 @@
 	validaTusDatos(v-else-if="!$usuario.datosAutovalidados")
 	//- territorioPreferencia(v-else-if="!_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
 	.conectado(v-else)
-		.permisos
+		//.permisos
 			div
 				b Puedes:
 			div Acceso a nivel nacional: {{$apoderade.tieneAccesoNacional ? '✅' : '⛔️'}}
 			div Acceso a nivel territorial: {{$apoderade.territorioAsignado ? '✅' : '⛔️'}}
-		b Usuario
-		div {{$usuario}}
+		//b Usuario
+		//div {{$usuario}}
 
 		.contenido
 			n-child

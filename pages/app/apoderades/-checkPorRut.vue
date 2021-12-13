@@ -190,12 +190,16 @@ export default {
 				const rut = this.rutForm.rut
 				this.revisandoRut = true
 				const r = await this.$cuentaBack.buscarXRut(Validado.rut(rut) );
+				console.log("checkRut r", r);
+
 				this.revisandoRut = false
 				this.rutBuscado = rut
 				this.apoderadeNombre = `${r.nombre} ${r.apellido}`
 				this.usuarioID = r.usuarioID || null
-				if (r.usuarioID) await this.obtenerApoderade(r.usuarioID)
-				console.log("checkRut r", r);
+				if (r.usuarioID) {
+					const c = await this.obtenerApoderade(r.usuarioID)
+					console.log("carga apoderade c", c);
+				}
 			});
 		},
 		checkRutOBuscarOtro () {

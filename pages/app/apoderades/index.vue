@@ -1,7 +1,7 @@
 <template lang="pug">
 .appApoderadesIndex
 
-	.miniNavbar
+	//.miniNavbar
 		.cambioEtapa(:class="{activa: !etapa}" @click="pasarAEtapa()") Buscar
 		//- .cambioEtapa(:class="{activa: etapa === 'datosPersonales'}" @click="pasarAEtapa('datosPersonales')") Inscribir
 		.cambioEtapa(:class="{activa: etapa === 'asignacionTerritorial'}" @click="pasarAEtapa('asignacionTerritorial')") Asignar territorio
@@ -13,7 +13,7 @@
 	.etapas
 
 		.rutForm(v-if="!etapa")
-			checkPorRut(ref="checkPorRut" @quiereIncribir="iniciarInscripcion" @quiereAsignar="iniciarAsignacion" @encontrade="")
+			checkPorRut(ref="checkPorRut" @quiereIncribir="iniciarInscripcion" @quiereAsignar="iniciarAsignacion" @encontrade="establecerApoderade")
 
 		.datosPersonalesForm(v-if="rut && etapa === 'datosPersonales'")
 			creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @quiereAsignar="iniciarAsignacion")
@@ -31,9 +31,11 @@ export default {
 	components: { checkPorRut, creadorApoderade, asignadorTerritorio },
 	data() {
 		return {
-			etapa: 'asignacionTerritorial',
+			etapa: undefined,
 			rut: undefined,
-			usuarioID: 'mCFZrWduMw'
+			usuarioID: undefined,
+
+			apoderadeVisto: undefined
 		}
 	},
 	computed: {
@@ -52,6 +54,9 @@ export default {
 			this.usuarioID = usuarioID
 			const vm = this
 			this.$nextTick(() => { vm.pasarAEtapa('asignacionTerritorial') })
+		},
+		establecerApoderade (apoderade) {
+			this.apoderadeVisto = apoderade
 		}
 	},
 };

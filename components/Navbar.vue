@@ -10,16 +10,16 @@
 				.iconoAprueboDignidad
 
 	a-menu(mode="horizontal")
-		a-sub-menu
-			span.submenu-title-wrapper(slot="title")
+
+		a-sub-menu(v-if="$usuario")
+			n-link.submenu-title-wrapper(slot="title" to="/app/miPerfil")
 				a-icon(type="user")
-				| Cuentas
-			a-menu-item(v-if="$usuario" key="mi-cuenta")
-				n-link.link(to="/app") Mi cuenta
-			a-menu-item(v-else key="mi-cuenta")
-				n-link.link(to="/app") Iniciar Sesion
-			a-menu-item(v-if="$usuario" key="mis-datos")
-				.link(@click="$cuenta.salir") Salir
+				| Mi perfil
+		a-sub-menu(v-else)
+			n-link.submenu-title-wrapper(slot="title" to="/app")
+				a-icon(type="team")
+				| Iniciar Sesion
+
 
 		a-sub-menu(v-if="$usuario")
 			n-link.submenu-title-wrapper(slot="title" to="/app/apoderades/")
