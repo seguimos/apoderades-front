@@ -1,13 +1,10 @@
 <template lang="pug">
-.navbar
-	nuxt-link.logo-container(
-		to="/",
-		alt="Inicio",
-		title="Inicio"
-	)
-		.logo
-			.logo-after
-				.iconoAprueboDignidad
+.navbar(:class="{ esHeader, esFooter }")
+	.zonaLogo
+		nuxt-link.logo-container(to="/", alt="Inicio", title="Inicio" )
+			.logo
+				.logo-after
+					.iconoAprueboDignidad
 
 	a-menu.menuPrincipal(mode="horizontal")
 
@@ -25,13 +22,6 @@
 			n-link.submenu-title-wrapper(slot="title" to="/app/apoderades/")
 				a-icon(type="team")
 				span.texto Apoderados
-			//span.submenu-title-wrapper(slot="title")
-				a-icon(type="team")
-				| Apoderados
-			//a-menu-item(key="buscar-apoderades")
-				n-link.link(to="/app/apoderades/buscar") Buscar apoderados
-			//a-menu-item(key="inscribir-apoderades")
-				n-link.link(to="/app/apoderades/inscribir") Inscribir apoderados
 
 		a-sub-menu(v-if="$usuario")
 			span.submenu-title-wrapper(slot="title")
@@ -46,10 +36,16 @@
 
 <script>
 export default {
-	data () {
-		return {}
-	},
-	methods: {}
+	props: {
+		esHeader: {
+			type: Boolean,
+			default: false
+		},
+		esFooter: {
+			type: Boolean,
+			default: false
+		}
+	}
 }
 </script>
 <style lang="sass" scoped>
@@ -58,16 +54,9 @@ export default {
 
 $alturaMenu: 5em
 .navbar
-	position: sticky
-	top: 0
-	width: 100%
-	z-index: 1000
 	align-items: center
 	color: $colorHeader
 	background-color: $fondoHeader
-	box-shadow: 0 -3em 0 $fondoHeader
-	// padding: 0.5em 1.5em
-	// height: 100px
 	display: flex
 	flex-flow: column nowrap
 	justify-content: center
@@ -92,22 +81,23 @@ $alturaMenu: 5em
 				flex-flow: column nowrap
 				padding: 0.5em 0
 				i
-					margin: 0 0 .5rem
+					margin: 0 0 .3rem
 					line-height: 0
 					svg
 						$lado: 1.4em
 						width: $lado
 						height: $lado
 				.texto
-					line-height: 1.4
+					line-height: 1
 					+fwl
 					font-size: .7rem
 
-				
-
+	.zonaLogo
+		padding: .5em 0
+		display: flex
+		justify-content: center
 
 	.logo-container
-		padding: .5em 0
 		.logo
 			color: #ffffff
 			background-color: currentColor
@@ -115,6 +105,7 @@ $alturaMenu: 5em
 			mask-size: contain
 			mask-repeat: no-repeat
 			mask-position: center
+			width: 1em
 			height: 0.3965em
 			font-size: 8em
 
@@ -134,6 +125,7 @@ $alturaMenu: 5em
 					left: 50%
 					transform: translateX(-50%, -50%)
 					animation: rotar 30s linear infinite
+					pointer-events: none
 					@keyframes rotar
 						0%
 							transform: translate(-50%, -50%) rotateZ(0deg)
@@ -154,4 +146,16 @@ $alturaMenu: 5em
 
 	.ant-menu-item-disabled, .ant-menu-submenu-disabled
 		color: #dddddd
+
+
+.navbar
+	&.esHeader
+		+movil
+			.menuPrincipal
+				display: none
+	&.esFooter
+		.zonaLogo
+			display: none
+		+compu
+			display: none
 </style>

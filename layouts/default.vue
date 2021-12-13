@@ -1,11 +1,12 @@
 <template lang="pug">
 a-config-provider(:locale="esEs")
 	.main
-		Navbar
+		Navbar.barraSuperior(esHeader)
 		//div
 			a-row
 				a-col( :xs="{ span: 24, offset: 0}", :sm="{span: 18, offset: 3}", :md="{span: 16, offset: 4}", :lg="{span: 10, offset: 7}")
-		Nuxt
+		Nuxt.ElContenido
+		Navbar.barraInferior(esFooter)
 </template>
 
 <script>
@@ -23,24 +24,32 @@ export default {
 </script>
 
 <style lang="sass">
+@import '@style/utils'
 @import '@style/colores'
 @import '@style/paleta'
 
 .main
 	min-height: 100vh
-	// overflow-y: auto
 	position: relative
-	// border: 3px solid green
 	display: flex
 	flex-flow: column nowrap
-	.header
+	.barraSuperior
 		flex: auto 0 0
-	.cuerpo
+		position: sticky
+		top: 0
+		width: 100%
+		z-index: 1000
+	.ElContenido
+		position: relative
+		z-index: 1
 		flex: auto 1 0
-		overflow-x: hidden
-	.footer
+	.barraInferior
 		flex: auto 0 0
+		position: sticky
+		bottom: 0
+		width: 100%
+		z-index: 999
+		+compu
+			display: none
 
-a-col
-	margin: 20px
 </style>
