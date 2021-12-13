@@ -9,7 +9,7 @@
 	//- pre etapa: {{etapa}}
 	//- pre rut: {{rut}}
 
-	
+
 	a-steps(progress-dot :current='paso' direction='vertical')
 
 		a-step(title="Búsqueda")
@@ -25,7 +25,7 @@
 		a-step(:title="!rut? 'Inscripción' : !usuarioID? 'Inscribir' : 'Inscripción realizada'")
 			div(slot="description")
 				div(v-if="!usuarioID && etapa !== 'datosPersonales'")
-					div Si la persona no ha sido inscrita, podrás incribirle aquí
+					div Si a quien corresponde al rut no se le ha inscrito, podrás incribirle aquí
 				div(v-else-if="!usuarioID")
 					div Todo listo aquí
 					creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @inscrite="cargarApoderade")
