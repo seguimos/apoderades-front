@@ -9,22 +9,22 @@
 			.logo-after
 				.iconoAprueboDignidad
 
-	a-menu(mode="horizontal")
+	a-menu.menuPrincipal(mode="horizontal")
 
 		a-sub-menu(v-if="$usuario")
 			n-link.submenu-title-wrapper(slot="title" to="/app/miPerfil")
 				a-icon(type="user")
-				| Mi perfil
+				span.texto Mi perfil
 		a-sub-menu(v-else)
 			n-link.submenu-title-wrapper(slot="title" to="/app")
 				a-icon(type="team")
-				| Iniciar Sesion
+				span.texto Iniciar Sesion
 
 
 		a-sub-menu(v-if="$usuario")
 			n-link.submenu-title-wrapper(slot="title" to="/app/apoderades/")
 				a-icon(type="team")
-				| Apoderados
+				span.texto Apoderados
 			//span.submenu-title-wrapper(slot="title")
 				a-icon(type="team")
 				| Apoderados
@@ -36,7 +36,7 @@
 		a-sub-menu(v-if="$usuario")
 			span.submenu-title-wrapper(slot="title")
 				a-icon(type="compass")
-				| Locales
+				span.texto Locales
 			a-menu-item(key="resumen-territorial")
 				n-link.link(to="/app/locales") Resumen Territorial
 			a-menu-item(key="asignar-apoderades")
@@ -45,7 +45,7 @@
 		a-sub-menu
 			span.submenu-title-wrapper(slot="title")
 				a-icon(type="link")
-				| Enlaces útiles
+				span.texto Enlaces útiles
 			a-menu-item-group(title="Servel")
 				a-menu-item(key="datos-votacion")
 					a(href="https://consulta.servel.cl") Datos Votación
@@ -81,10 +81,48 @@ $alturaMenu: 5em
 	color: $colorHeader
 	background-color: $fondoHeader
 	box-shadow: 0 -3em 0 $fondoHeader
-	padding: 0.5em 1.5em
-	height: 100px
+	// padding: 0.5em 1.5em
+	// height: 100px
+	display: flex
+	flex-flow: column nowrap
+	justify-content: center
+	align-items: center
+	//> *
+		border: 1px solid black
+		> *
+			border: 1px solid yellow
+			> *
+				border: 1px solid red
+
+	.menuPrincipal
+		a
+			color: white
+			// opacity: .6
+			&.nuxt-link-active
+				color: white
+				// opacity: 1
+		+movil
+			.submenu-title-wrapper::v-deep
+				display: flex
+				flex-flow: column nowrap
+				padding: 0.5em 0
+				i
+					margin: 0 0 .5rem
+					line-height: 0
+					svg
+						$lado: 1.4em
+						width: $lado
+						height: $lado
+				.texto
+					line-height: 1.4
+					+fwl
+					font-size: .7rem
+
+				
+
 
 	.logo-container
+		padding: .5em 0
 		.logo
 			color: #ffffff
 			background-color: currentColor
@@ -97,7 +135,7 @@ $alturaMenu: 5em
 
 			.logo-after
 				height: 100%
-				opacity: 0
+				opacity: 1
 				transition: opacity .5s ease
 				overflow: hidden
 				.iconoAprueboDignidad
@@ -118,13 +156,12 @@ $alturaMenu: 5em
 							transform: translate(-50%, -50%) rotateZ(180deg)
 						100%
 							transform: translate(-50%, -50%) rotateZ(360deg)
-			&:hover
+			//&:hover
 				.logo-after
 					opacity: 1
 
 .header-menu
-	color: #fff!important
-
+	color: #fff !important
 .ant-menu
 	background: none
 	color: #ffffff
