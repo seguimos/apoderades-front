@@ -71,10 +71,16 @@ export default {
 		}
 	},
 	mounted () {
-		this.buscarResumenComuna()
+		this.getMisTerritorios().then(() => {
+			let curr = this.territorioActual
+			while(curr.hijos.length === 1) {
+				curr = curr.hijos[0]
+				this.irATerritorio(curr.tipo, curr.id)
+			}
+		})
 	},
 	methods: {
-		async buscarResumenComuna () {
+		async getMisTerritorios () {
 			const resp = await this.$cuentaBack.misTerritorios()
 			if (resp.ok === 1) {
 				this.territorios = {
