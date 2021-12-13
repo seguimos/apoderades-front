@@ -1,15 +1,26 @@
 <template lang="pug">
 .paginaIngresoConToken
-	div
-		b Token
-	pre {{token}}
-	.cargando(v-if="")
+	.error(v-if="error")
+		//- a-icon.icono.alverre(type="smile")
+		.icono 🙃
+		h3 {{ error.titulo }}
+		p {{ error.descripcion }}
+
+		p.info Si tienes problemas para ingresar, puedes cambiar tu contraseña en el formulario de ingreso a tu cuenta.
+
+		.acciones
+			a-button.casiBpStyle.verde(@click="$router.replace('/app')") Ir al ingreso
+	.cargando(v-else-if="ingresandoConToken")
 		a-icon(type="loading")
 </template>
 <script>
 export default {
 	data () {
-		return {}
+		return {
+			error: null,
+			tokenInvalido: null,
+			ingresandoConToken: null
+		}
 	},
 	computed: {
 		token () {
@@ -25,20 +36,26 @@ export default {
 	},
 	methods: {
 		async detectarToken () {
+			if (!this.token) return
 			if (!this.token) this.$router.replace('/')
 			await new Promise(resolve => { this.$nextTick(() => { resolve() }) })
 			this.ingresarConToken()
 		},
 		async ingresarConToken () {
-			if (!this.token) {
-				console.log('No hay token')
-				return
-			}
+			if (!this.token) return
+			this.ingresandoConToken = true
 			console.log('ingresando con token')
 			await this.$cuenta.salir()
 			await new Promise(resolve => { this.$nextTick(() => { resolve() }) })
 			const ingresoConToken = await this.$cuenta.ingresarConToken(this.token)
-			if (ingresoConToken.ok) this.$router.replace('/app')
+			if (!ingresoConToken.ok) {
+				this.error = {
+					titulo: 'No se pudo ingresar.',
+					descripcion: 'El token es inválido o ya ha sido utilizado.'
+				}
+				return
+			}
+			this.$router.replace('/app')
 		}
 	}
 }
@@ -46,36 +63,22 @@ export default {
 <style lang="sass" scoped>
 @import "@style/vars"
 
-.carpetaCuenta
+.paginaIngresoConToken
 	height: 100%
 	display: flex
 	flex-flow: column nowrap
-
-	.noconectado,
-	.conectado
-		flex: auto 1 0
-	.noconectado
-		display: flex
-		justify-content: center
-		align-items: center
-		text-align: center
-		.ant-btn
-			margin-top: 2em
-
-	.conectado
-		display: flex
-		padding: 2em
-		width: 900px
+	justify-content: center
+	align-items: center
+	text-align: center
+	> div
+		width: 400px
 		max-width: 100%
 		margin: 0 auto
-		.menuLateral
-			flex: auto 0 0
-			margin-right: 5em
-		.contenido
-			flex: auto 1 1
+	.error
+		.icono
+			font-size: 6em
+		.info
+			opacity: .7
+			margin: 2em 0
 
-		.menuLateral
-			.link
-				display: block
-				padding: .5em 0
 </style>
