@@ -61,9 +61,6 @@ const cuentaBack = {
 	},
 	get cuenta () { return this.vm.$cuenta },
 	get usuario () { return this.vm.$cuenta.usuario },
-	get miLlavero () {
-		return this.vm.$cuenta.miLlavero
-	},
 
 	get apoderade () {
 		return this._apoderade
@@ -119,6 +116,7 @@ const cuentaBack = {
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar territorios del usuario', r]
 			// cuentaBack.vm.$message.success('Locales cargados')
+			this.territorios = r.territorio // ?? TODO: por revisar
 			consolo.log(fx, 'r', r)
 			return r
 		} catch (e) {
@@ -253,13 +251,16 @@ const cuentaBack = {
 		}
 	},
 
-	async asignarTerritorio ({ usuarioID, regionID, comunaID, localID }) {
+	async asignarTerritorio ({ usuarioID, regionID, comunaID, localID, esApoGeneral}) {
 		const fx = 'cuentaBack>asignarTerritorio'
 		try {
 			consolo.log(fx)
 			const data = { region: regionID }
 			if (comunaID) data.comunaCodigo = comunaID
-			if (localID) data.localId = localID
+			if (localID) {
+				data.localId = localID
+				data.esApoderadoGeneral = esApoGeneral
+			}
 			const r = await solicitar({
 				method: 'post',
 				url: `${cuentaBack.backURL}/apoderades/${usuarioID}/territorio`,
@@ -329,34 +330,17 @@ const cuentaBack = {
 		}
 	},
 
-	async autoValidarDatos ({ nombre, apellido, rut, email, telefono, rol }) {
-		const fx = 'cuentaBack>autoValidarDatos'
+	async guardarTerritorioPreferencia ({ regionID, comunaID, localID }) {
+		const fx = 'cuentaBack>guardarTerritorioPreferencia'
 		try {
-			// Primero obtener autorización del back
-			const r = await solicitar({
-				method: 'get',
-				url: `${cuentaBack.backURL}/autorizaredicion`
-			})
-			// consolo.log(fx, 'back/autorizaredicion', r)
-			if (!r || !r.ok) throw ['fail autorizando creación de usuario (back)', r]
-			const { autorizacion } = r
-
-			// Crear usuario en microservicio de cuentas
-			const c = await cuentaBack.cuenta.editarPorOtro(autorizacion, { nombre, apellido, email, telefono, rut, rol })
-			if (!c || !c.ok) throw ['fail editando usuario en microcuentas', c]
-
 			const s = await solicitar({
 				method: 'post',
 				url: `${cuentaBack.backURL}/apoderade/datos`,
-				data: { territorioPreferencia }
+				data: { territorioPreferencia: { region: regionID, comunaCodigo: comunaID, localId: localID } }
 			})
 			if (!s || !s.ok) throw ['fail editando autovalidando datos', s]
-
-			// Recargar info que indica si el usuario ha confirmado sus datos
 			await cuentaBack.leerMisDatos()
-
-			// TODO Marcar datos validados
-			cuentaBack.vm.$message.success('Has confirmado tus datos')
+			return s
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
@@ -445,9 +429,6 @@ const cuentaBack = {
 
 
 async function solicitar (request, errorHandler) {
-	// const fx = 'cuentaBack.js solicitar'
-	// consolo.log(fx, 'token', cuentaBack.cuenta.token)
-	// consolo.log(fx, 'tokenAutofirmado', cuentaBack.cuenta.tokenAutofirmado)
 	const tokenAutofirmado = await cuentaBack.cuenta.mantenerTokenAutorizado()
 	const defaultHeaders = {
 		Accept: 'application/json',

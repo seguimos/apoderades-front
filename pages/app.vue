@@ -28,7 +28,7 @@
 		.pieUsuario
 
 	validaTusDatos(v-else-if="!$usuario.datosAutovalidados")
-	//- territorioPreferencia(v-else-if="!_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
+	territorioPreferencia(v-else-if="!_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
 	.conectado(v-else)
 		//.permisos
 			div

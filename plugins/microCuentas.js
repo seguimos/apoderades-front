@@ -23,7 +23,8 @@ let miLlavero
 let llaveroMicroCuentas
 
 async function procesarInfoUsuario (r) {
-	// consolo.log(`${fx} r`, r)
+	// Paja sacar el async
+	await new Promise(resolve => resolve())
 	try {
 		if (!r || !r.ok) throw r
 		if (r.datosPrivados) {
@@ -41,7 +42,7 @@ async function procesarInfoUsuario (r) {
 			delete shallowDecodificado.llaves
 			delete shallowDecodificado.sub
 			cuenta.usuario = Object.assign({}, cuenta.usuario, shallowDecodificado)
-			await cuenta.mantenerTokenAutorizado(r.token)
+			
 			cuenta.vm.$nextTick(() => { cuenta.emit('cambioToken', r.token) })
 		}
 		// cuenta.vm.$nextTick(() => { cuenta.mantenerTokenAutorizado() })
@@ -124,7 +125,7 @@ const cuenta = {
 			}
 			if (!this.autofirmando) this.autofirmando = true
 			console.log(`%c ${fx} generado`, 'color: seagreen;')
-			const cuerpoToken = { jtiCuentas: cuenta.decodificado.jti }
+			const cuerpoToken = { jtiCuentas: tokenDecoder(token).jti }
 			const moment = cuenta.vm.$moment
 			cuerpoToken.exp = moment().add(2, 'm').unix()
 			this.tokenAutofirmado = await miLlavero.firmarToken(cuerpoToken)
@@ -244,9 +245,10 @@ const cuenta = {
 	async salir () {
 		cuenta.usuario = null
 		cuenta.token = null
-		if (cuenta.vm.$cuentaBack) cuenta.vm.$cuentaBack.salir()
 		await cuentaStore.clear()
 		cuenta.ping()
+
+		if (cuenta.vm.$cuentaBack) cuenta.vm.$cuentaBack.salir()
 		// Renovar llavero
 		// if (miLlavero) {
 		// 	consolo.log('Recreando llavero')
@@ -559,8 +561,10 @@ async function solicitar (request, errorHandler) {
 		Accept: 'application/json',
 		'Content-Type': 'application/json',
 	}
-	if (cuenta.token) defaultHeaders.Authorization = `Bearer ${cuenta.token}`
-	if (cuenta.token) defaultHeaders['Token-Autofirmado'] = cuenta.tokenAutofirmado
+	if (cuenta.token) {
+		defaultHeaders.Authorization = `Bearer ${cuenta.token}`
+		defaultHeaders['Token-Autofirmado'] = await cuenta.mantenerTokenAutorizado()
+	}
 	const ops = _.merge({ headers: defaultHeaders }, request)
 
 	const data = await axios(ops).then(r => {

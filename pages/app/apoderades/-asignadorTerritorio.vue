@@ -38,19 +38,16 @@
 				a-form-model-item(has-feedback prop="local" label="Local")
 					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre del local' @search="filtrarSugerenciasLocales" @select="elegirLocal" allow-clear)
 						template(slot='dataSource')
-
 							a-select-option(v-if="!_.isEmpty(localesSugeridosPorBusqueda)" v-for='(local, localID) in localesSugeridosPorBusqueda' :key='`local-${localID}`' :value='localID')
 								| {{ local.nombre }}
 								//- span.certain-search-item-count {{ comuna.count }} people
-
 						a-input
 							//a-icon.certain-category-icon(slot='suffix' type='search')
 
-
-
-				//a-form-model-item(has-feedback prop="local" label="Local")
-					a-select.input(show-search="" v-model="asignacionTerritorialForm.local" type="local" placeholder="Local de Votación" @change="elegirLocal")
-						a-select-option(v-for="(local, localID) in localesAsignables" :key="localID" :value="localID") {{ local.nombre }}
+				a-form-model-item(has-feedback prop="esApoGeneral" label="esApoGeneral")
+					a-radio-group(v-model="asignacionTerritorialForm.esApoGeneral")
+						a-radio(:value="false") Apoderado de mesa
+						a-radio(:value="true") Apoderado General
 
 				a-form-model-item
 					a-button.w100.bpStyle.verde(type="primary" @click="asignarTerritorio") Asignar a local
@@ -94,7 +91,7 @@ export default {
 				region: undefined,
 				comuna: undefined,
 				local: undefined,
-				apoderadoGeneral: undefined,
+				esApoGeneral: false,
 			},
 			localesPorComuna: {},
 			busquedaComuna: '',
@@ -119,14 +116,12 @@ export default {
 				local: [{ required: true, message: '*', whitespace: false, trigger: 'blur' }],
 			}
 		},
-		asignableNacional () { return this.$apoderade.tieneAccesoNacional },
-		regionesYSusComunas () { return regionesYSusComunas },
 		regionesAsignables () {
 			if (this.$apoderade.tieneAccesoNacional) return regionesYSusComunas
 			const regionesAlcanzadas = this.$apoderade.territorios && this.$apoderade.territorios.map(t => t.region)
 			return regionesAlcanzadas && this._.pickBy(regionesYSusComunas, (r, regionID) => regionesAlcanzadas.includes(regionID))
 		},
-		comunasXRegionAsignables () {
+		comunasEnRegionesAsignables () {
 			const _ = this._
 			const regionesAsignables = Object.assign({}, this.regionesAsignables)
 			_.forEach(regionesAsignables, (region, regionID) => {
@@ -167,8 +162,8 @@ export default {
 			const _ = this._
 			const buscado = parameterize(this.busquedaComuna)
 			console.log('buscado', buscado)
-			if (_.isEmpty(buscado)) return this.comunasXRegionAsignables
-			let comunasFiltradas = Object.assign({}, this.comunasXRegionAsignables)
+			if (_.isEmpty(buscado)) return this.comunasEnRegionesAsignables
+			let comunasFiltradas = Object.assign({}, this.comunasEnRegionesAsignables)
 			_.forEach(comunasFiltradas, (region, regionID) => {
 				comunasFiltradas[regionID].comunas = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(buscado))
 			})
@@ -192,7 +187,6 @@ export default {
 		filtrarSugerenciasLocales (buscado) {
 			this.busquedaLocal = buscado
 		},
-		// Asignación de territorio
 		elegirRegion (regionID) {
 			console.log('elegirRegion', regionID)
 			this.asignacionTerritorialForm.region = regionID
@@ -217,7 +211,7 @@ export default {
 					console.error('Formulario no pasó validación')
 					return
 				}
-				const { region: regionID, comuna: comunaID, local: localID } = this.asignacionTerritorialForm
+				const { region: regionID, comuna: comunaID, local: localID, esApoGeneral } = this.asignacionTerritorialForm
 				let resultado
 				const usuarioID = this.usuarioID
 				if (modoAsignacion === 'region') {
@@ -225,7 +219,7 @@ export default {
 				} else if (modoAsignacion === 'comuna') {
 					resultado = await this.$cuentaBack.asignarTerritorio({ usuarioID, regionID, comunaID })
 				} else if (modoAsignacion === 'local') {
-					resultado = await this.$cuentaBack.asignarTerritorio({ usuarioID, regionID, comunaID, localID })
+					resultado = await this.$cuentaBack.asignarTerritorio({ usuarioID, regionID, comunaID, localID, esApoGeneral })
 				} else resultado = 'No funciona así'
 				console.log('asignarTerritorio', resultado)
 				return resultado

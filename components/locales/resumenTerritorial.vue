@@ -19,10 +19,16 @@
 
 <script>
 export default {
-	props: [
-		'titulo',
-		'resumen'
-	],
+	props: {
+		titulo: {
+			type: String,
+			default: 'false'
+		},
+		resumen: {
+			type: Object,
+			default() { return {}}
+		}
+	},
 	methods: {
 		getColor (resumen) {
 			const porcentaje = resumen.numeroApoderados / resumen.numeroMesas * 100
