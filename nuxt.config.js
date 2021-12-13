@@ -86,6 +86,7 @@ export default {
 	// Build Configuration: https://go.nuxtjs.dev/config-build
 	build: {
 		extend (config, ctx) {
+			config.resolve.alias['@'] = path.join(__dirname, '')
 			config.resolve.alias['@style'] = path.join(__dirname, 'style')
 			config.resolve.alias['@lib'] = path.join(__dirname, 'lib')
 		},
