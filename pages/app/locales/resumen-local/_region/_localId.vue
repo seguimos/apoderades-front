@@ -5,18 +5,20 @@ div
 			h1(class="nombre-local") {{ local.nombre }}
 			.detalle-local {{ mesasLen }} mesas
 			.detalle-local {{ localApoderadosLen }} apoderados
-			.detalle-local Apoderado General: {{ local.apoderadoGeneral }}
-			.status-icon.green
+			.detalle-local(v-if="apoderadosGenerales.length") Apoderados Generales
+				div(v-for="(apoderado, index) in apoderadosGenerales" :key="index")
+					| {{ apoderado.nombre }}
+			.status-icon(:class="apoderadosFaltantes < mesasLen / 2 ? 'green' : 'red'")
 			.detalle-local(style="display: inline") Faltan {{ apoderadosFaltantes }} apoderados
 	a-row(:gutter="[16, 16]")
 		a-col(:span="24")
-			a-button(class="button-red" block size="large" @click="toAsignarApoderadoGeneral")
+			a-button(class="button-red" block size="large" @click="toAsignarApoderadoGeneral" v-if="puedeAsignarApoderadoGeneral")
 				| Asignar Apoderado G
 		a-col(:span="24")
 			a-button(class="button-red" block size="large" @click="toReportes")
 				| Reportes
 		a-col(:span="24")
-			a-button(class="button-border-blue" block size="large" @click="toAsingarApoderados")
+			a-button(class="button-border-blue" block size="large" @click="toAsingarApoderados" v-if="puedeAsignarApoderados")
 				| Asignar Apoderados
 	a-row(:gutter="[16, 10]")
 		a-col(:span="24")
@@ -30,10 +32,10 @@ div
 			a-row(v-for="(apoderado, index) in apoderadosFilter" :key="index" class="row-apoderado" type="flex" align="middle")
 				a-col(:span="12" class="col-apoderado")
 					| {{ apoderado.nombre }}
-				a-col(:span="12" style="text-align: end"  class="col-apoderado")
-					a-button(type="link" v-if="!apoderado.habilitado" class="button-success" @click="habilitarApoderado(apoderado.id)")
+				a-col(:span="12" style="text-align: end"  class="col-apoderado" v-if="puedeAsignarApoderados")
+					a-button(type="link" v-if="!apoderado.habilitado" class="button-success" @click="habilitarApoderado(apoderado.usuarioID)")
 						| Habilitar
-					a-button(type="link" v-else class="button-danger" @click="bloquearApoderado(apoderado.id)")
+					a-button(type="link" v-else class="button-danger" @click="bloquearApoderado(apoderado.usuarioID)")
 						| Bloquear
 
 </template>
@@ -53,6 +55,15 @@ export default {
 		}
 	},
 	computed: {
+		region() {
+			return this.$route.params.region
+		},
+		comunaCodigo () {
+			return this.local?.ubicacion?.comunaCodigo
+		},
+		localId () {
+			return this.$route.params.localId
+		},
 		mesasLen () {
 			return this.local.mesas.length
 		},
@@ -70,6 +81,22 @@ export default {
 			return this.local.apoderados.filter(apoderado => {
 				return (apoderado.nombre.toLocaleLowerCase().search(buscar.toLocaleLowerCase()) > -1)
 			})
+		},
+		apoderadosGenerales() {
+			return this.local.apoderados.filter(apoderado => {
+				return apoderado.esApoderadoGeneral
+			})
+		},
+		puedeAsignarApoderados() {
+			return this.$apoderade.tieneAccesoNacional ||
+				this.$apoderade.regionesAdministradas.includes(this.region) ||
+				this.$apoderade.comunasAdministradas.includes(this.comunaCodigo) ||
+				this.$apoderade.localesAdministrados.includes(this.localId)
+		},
+		puedeAsignarApoderadoGeneral() {
+			return this.$apoderade.tieneAccesoNacional ||
+				this.$apoderade.regionesAdministradas.includes(this.region) ||
+				this.$apoderade.comunasAdministradas.includes(this.comunaCodigo)
 		}
 	},
 	mounted () {
