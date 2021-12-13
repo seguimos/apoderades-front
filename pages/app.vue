@@ -34,7 +34,7 @@
 			div
 				b Puedes:
 			div Acceso a nivel nacional: {{$apoderade.tieneAccesoNacional ? '✅' : '⛔️'}}
-			div Acceso a nivel territorial: {{$apoderade.territorioAsignado ? '✅' : '⛔️'}}
+			div Acceso a nivel territorial: {{$apoderade.territoriosAsignados && $apoderade.territoriosAsignados.length ? '✅' : '⛔️'}}
 		//b Usuario
 		//div {{$usuario}}
 
