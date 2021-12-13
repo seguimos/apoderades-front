@@ -4,7 +4,7 @@
 	.resumenterritorial(v-if="territorioActual")
 		a(@click="subirUnNivel()")
 			locales-resumenTerritorial(:titulo="`Territorio actual: ${territorioActual.nombre}`", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
-		a-button(class="button-red" block size="large")
+		a-button(class="button-red" block size="large" v-if="puedeAsignarCoordinador")
 			| Asignar Coordinador a esta zona
 		h2 Territorios internos
 		mapa(:marcadores="marcadoresLocales", v-if="mapa")
@@ -48,6 +48,12 @@ export default {
 			})
 			return locales
 		},
+		puedeAsignarCoordinador() {
+			let response = false
+			if(this.region) response = this.$apoderade.tieneAccesoNacional
+			if(this.comuna) response = response || this.$apoderade.regionesAdministradas.includes(this.region)
+			return response
+		},
 		territorioActual () {
 			let territorioActual = this.territorios
 			if (territorioActual && this.region) {
@@ -71,10 +77,16 @@ export default {
 		}
 	},
 	mounted () {
-		this.buscarResumenComuna()
+		this.getMisTerritorios().then(() => {
+			let curr = this.territorioActual
+			while(curr.hijos.length === 1) {
+				curr = curr.hijos[0]
+				this.irATerritorio(curr.tipo, curr.id)
+			}
+		})
 	},
 	methods: {
-		async buscarResumenComuna () {
+		async getMisTerritorios () {
 			const resp = await this.$cuentaBack.misTerritorios()
 			if (resp.ok === 1) {
 				this.territorios = {
