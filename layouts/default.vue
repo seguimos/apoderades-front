@@ -1,7 +1,9 @@
 <template lang="pug">
-a-config-provider(:locale="esEs")
+a-config-provider(:locale='esEs')
 	.main
 		Navbar.barraSuperior(esHeader)
+		.conexiones(v-if='$cuenta.sinConexion') Servicio de cuentas sin conexion ⚠️
+		.conexiones(v-if='$cuentaBack.sinConexion') Backend sin conexion ⚠️
 		//div
 			a-row
 				a-col( :xs="{ span: 24, offset: 0}", :sm="{span: 18, offset: 3}", :md="{span: 16, offset: 4}", :lg="{span: 10, offset: 7}")
@@ -39,6 +41,11 @@ export default {
 		top: 0
 		width: 100%
 		z-index: 1000
+	.conexiones
+		position: fixed
+		font-size: 1.4rem
+		top: 5em
+		color: rgba(255, 0, 0, 1)
 	.ElContenido
 		position: relative
 		z-index: 1
@@ -51,5 +58,4 @@ export default {
 		z-index: 999
 		+compu
 			display: none
-
 </style>
