@@ -1,8 +1,9 @@
 <template lang="pug">
-.asignadorTerritorio
+.asignadorTerritorio.anchoMovil
+	.cabecera
+		b Antes de continuar, por favor
+		h1 Selecciona tu local de votación 
 
-	//- pre asignacionTerritorialForm
-	//- div {{asignacionTerritorialForm}}
 	.modosAsignacion
 
 	.asignadores
@@ -26,12 +27,8 @@
 							//a-icon.certain-category-icon(slot='suffix' type='search')
 
 			.asignadorLocal
-
-				p.descripcionAsignacion Al asignar a un apoderado a un local de votación, si se marca como apoderado general, podrá validar a los demás apoderados para utilizar la plataforma y cargar información de mesas.
-
 				+selectorComuna
-
-				a-form-model-item(has-feedback prop="localID" label="Local")
+				a-form-model-item(has-feedback prop="localID" label="Local de votación")
 					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre del local' @search="filtrarSugerenciasLocales" @select="elegirLocal" allow-clear)
 						template(slot='dataSource')
 							a-select-option(v-if="!_.isEmpty(localesSugeridosPorBusqueda)" v-for='(local, localID) in localesSugeridosPorBusqueda' :key='`local-${localID}`' :value='localID')
@@ -40,8 +37,9 @@
 						a-input
 							//a-icon.certain-category-icon(slot='suffix' type='search')
 
-				a-form-model-item
-					a-button.w100.bpStyle.verde(type="primary" @click="elegirTerritorio") {{'Elegir este local'}}
+				a-form-model-item.acciones
+					a-button.w100.bpStyle.verde(type="primary" @click="elegirTerritorio") Guardar
+				a-button.w100.casiBpStyle(type="dashed" @click='$cuentaBack.preferenciaSaltada = true') Saltar
 
 </template>
 <script>

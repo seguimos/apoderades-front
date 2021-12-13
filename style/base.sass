@@ -42,6 +42,40 @@ a
 .black
 	+fwbb
 
+=flexCombinaciones
+	&.ffrn
+		flex-flow: row nowrap
+	&.ffcn
+		flex-flow: column nowrap
+	&.aic
+		align-items: center
+	&.jcc
+		justify-content: center
+	&.jcsb
+		justify-content: space-between
+	&.jcsa
+		justify-content: space-around
+	&.jcfs
+		justify-content: flex-start
+	&.jcfe
+		justify-content: flex-end
+.df,
+.flex
+	display: flex
+	+flexCombinaciones
+.dif,
+.iflex
+	display: inline-flex
+	+flexCombinaciones
+
+.f11
+	flex: auto 1 1
+.f00
+	flex: auto 0 0
+
+.wf
+	width: 100%
+
 .boton
 	display: block
 	margin: 0 auto
@@ -77,6 +111,16 @@ h1, h2, h3, h4, h5
 		&.verde
 			color: $petroleo1
 			background-color: $verde3
+
+.ant-form
+	.ant-form-item
+		margin-bottom: 0.65rem
+		.ant-form-item-label
+			padding-bottom: 0
+	.acciones
+		margin-top: 2rem
+		.ant-btn
+			margin-top: 1rem
 
 .anchoMovil
 	width: 400px

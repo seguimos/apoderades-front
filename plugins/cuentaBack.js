@@ -332,6 +332,7 @@ const cuentaBack = {
 		}
 	},
 
+	preferenciaSaltada: null,
 	async guardarTerritorioPreferencia ({ regionID, comunaID, localID }) {
 		const fx = 'cuentaBack>guardarTerritorioPreferencia'
 		try {
@@ -477,6 +478,7 @@ function capturadorErrorSolicitud (error) {
 Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.apoderade)
 Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
 Vue.util.defineReactive(cuentaBack, 'territorios', cuentaBack.territorios)
+Vue.util.defineReactive(cuentaBack, 'preferenciaSaltada', cuentaBack.preferenciaSaltada)
 // Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
 
 export default function ({ app }, inject) {

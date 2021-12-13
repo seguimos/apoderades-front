@@ -1,8 +1,8 @@
 <template lang="pug">
 .autovalidadorDatosPersonales.anchoMovil
 	.cabecera
-		b Antes de comenzar
-		h1 Valida tus datos de inscripcion
+		b Antes de comenzar, por favor
+		h1 Valida tus datos
 	.formulario
 		a-form-model( ref='personalesForm' :model='personalesForm' :rules='reglasFormDatosPersonales' :disabled="!datosCargados")
 			a-form-model-item(has-feedback label='Rut')
@@ -20,8 +20,9 @@
 			a-form-model-item(has-feedback prop='telefono' label='Teléfono')
 				a-input.input(v-model='personalesForm.telefono' type='tel' placeholder='+56 x xxxx xxxx')
 
-			a-form-model-item
-				a-button.w100.bpStyle.verde(type='primary' @click='guardarDatosPersonales' :loading='guardandoDatos') Confirmar mis datos
+			a-form-model-item.acciones
+				a-button.w100.casiBpStyle.verde(type='primary' @click='guardarDatosPersonales' :loading='guardandoDatos') Confirmar mis datos
+				a-button.w100.casiBpStyle(type="dashed" @click='$cuenta.salir' :loading='guardandoDatos') Salir
 </template>
 <script>
 import { Validado } from "@lib/validador"
@@ -92,4 +93,10 @@ export default {
 	}
 }
 </script>
-<style lang="sass" scoped></style>
+<style lang="sass" scoped>
+.autovalidadorDatosPersonales
+	h1
+		margin: 0 0 1rem	
+	// &::v-deep
+
+</style>

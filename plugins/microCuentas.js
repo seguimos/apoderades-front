@@ -263,7 +263,8 @@ const cuenta = {
 				data: { token, llaves },
 				method: 'post'
 			})
-			return await procesarInfoUsuario(r)
+			procesarInfoUsuario(r)
+			return r
 		} catch (e) {
 			console.error(fx, e)
 		}

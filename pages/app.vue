@@ -21,32 +21,29 @@
 			a-icon(type="loading")
 			p Conectando back
 
-	// Conectado, datos del back listos
-	//.conectado(v-else)
-		.contenido
-			n-child
-		.pieUsuario
+	// Confirmacion de datos personales
+	.pasoPrevio(v-else-if="$usuario.sinPass")
+		EligePass
 
-	validaTusDatos(v-else-if="!$usuario.datosAutovalidados")
-	territorioPreferencia(v-else-if="!_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos'])")
+	// Confirmacion de datos personales
+	.pasoPrevio(v-else-if="!$usuario.datosAutovalidados")
+		ValidaTusDatos
+		
+	// Confirmacion de preferencia de local
+	.pasoPrevio(v-else-if="!_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos']) && !$cuentaBack.preferenciaSaltada")
+		TerritorioPreferencia
+
 	.conectado(v-else)
-		//.permisos
-			div
-				b Puedes:
-			div Acceso a nivel nacional: {{$apoderade.tieneAccesoNacional ? '✅' : '⛔️'}}
-			div Acceso a nivel territorial: {{$apoderade.territoriosAsignados && $apoderade.territoriosAsignados.length ? '✅' : '⛔️'}}
-		//b Usuario
-		//div {{$usuario}}
-
 		.contenido
 			n-child
 		.pieUsuario
 </template>
 <script>
-import validaTusDatos from './app/-validaTusDatos.vue'
-import territorioPreferencia from './app/-territorioPreferencia.vue'
+import EligePass from './app/-eligePass.vue'
+import ValidaTusDatos from './app/-validaTusDatos.vue'
+import TerritorioPreferencia from './app/-territorioPreferencia.vue'
 export default {
-	components: { validaTusDatos, territorioPreferencia }
+	components: { ValidaTusDatos, TerritorioPreferencia, EligePass }
 	// layout: 'app'
 }
 </script>
@@ -64,6 +61,12 @@ export default {
 	text-align: center
 	.ant-btn
 		margin-top: 2em
+		
+.pasoPrevio
+	padding: 2em
+	width: 400px
+	max-width: 100%
+	margin: 0 auto
 
 .conectado
 	width: 900px
@@ -72,6 +75,5 @@ export default {
 	.contenido
 		flex: auto 1 1
 		padding: 2em
-
 	
 </style>

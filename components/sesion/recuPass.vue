@@ -10,7 +10,7 @@
 			:rules="reglasRecuPass")
 
 			a.regresar(@click="$emit('volver')")
-				.oicono.volver
+				a-icon(type="caret-left")
 				span {{$t('volver')}}
 			h1.titulo {{ $t('recuperaTuPass') }}
 
@@ -49,7 +49,7 @@
 			:rules="reglasCambioPassCodigo")
 
 			a.regresar(@click="$emit('volver')")
-				.oicono.volver
+				a-icon(type="caret-left")
 				span {{$t('volver')}}
 			h1.titulo {{ $t('codigoEnviadoAEmail') }}
 			p {{$t('ingresaloParaConfirmar')}}
@@ -156,7 +156,7 @@ export default {
 
 			reglasRecuPass: {
 				email: [{ type: 'email', message: this.$t('emailInvalido') }, { required: true, message: this.$t('ingresaTuEmail') }],
-				password: [{ required: true, message: this.$t('noOlvidesEsto') }, { type: 'string', min: 8, message: this.$t('muyCorto') }]
+				password: [{ required: true, message: this.$t('noOlvidesEsto') }, { type: 'string', min: 6, message: this.$t('muyCorto') }]
 			},
 			reglasCambioPassCodigo: {
 				codigo: [{ required: true, message: this.$t('noOlvidesEsto') }, { type: 'string', min: 4, message: this.$t('muyCorto') }, { type: 'string', max: 4, message: this.$t('muyLargo') }, { validator: vm.validarCodigo }]
@@ -199,15 +199,16 @@ export default {
 				return
 			}
 			try {
-				const { ok, error } = await this.$cuenta.cambiarPass.pedirCodigo(email, passNuevo)
+				const r = await this.$cuenta.cambiarPass.pedirCodigo(email, passNuevo)
 				this.procesando = false
 				this.codigosIntentados = []
 				this.codigoSeparado = ['', '', '', '']
 				this.cuenta = Object.assign({}, this.cuenta, { codigo: '' })
-				if (ok) this.modoActivo = 'cambiarPassCodigo'
-				else {
-					console.warn('solicitarCambioPass!! error', error)
+				if (!r.ok) {
+					if (r.error) this.$message.error(r.error)
+					return
 				}
+				this.modoActivo = 'cambiarPassCodigo'
 			} catch (e) {
 				console.warn('error solicitarCambioPass!!', e)
 				this.procesando = false

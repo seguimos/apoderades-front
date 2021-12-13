@@ -2,9 +2,7 @@
 .rootFormIngreso
 	transition(mode="out-in" :duration="300")
 
-		// RECUPERACION PASSWORD
 		SesionUsuarioConectado.usuarioConectado(v-if="$usuario" key="conectado")
-
 
 		// INGRESO
 		a-form-model.formIngreso(v-else-if="modoActivo === 'ingreso'" key="ingreso"
@@ -50,15 +48,20 @@
 						:loading="conectando"
 						:disabled="passIncorrectos.includes(cuenta.password)"
 						) {{ conectando ? $t('conectando') : $t('ingresar') }}
-				a-form-model-item
+				//a-form-model-item
 					.cambioModo
 						| {{$t('eresNuevo')}}
 						a(@click="modoActivo = 'registro'") {{" "}}{{$t('registrate')}}
 
+					a.passOlvidada(@click="modoActivo = 'recuperarPass'") Olvidada?
+				a-form-model-item
+					.cambioModo
+						a(@click="modoActivo = 'recuperarPass'") No tienes u olvidaste tu contraseña?
+
 
 
 		// REGISTRO
-		a-form-model.formRegistro(v-else-if="modoActivo === 'registro'" key="registro"
+		//a-form-model.formRegistro(v-else-if="modoActivo === 'registro'" key="registro"
 			:model="cuenta"
 			layout="vertical"
 			ref="formRegistro"
@@ -334,7 +337,6 @@ export default {
 				color: #da4a13
 				font-size: inherit
 				display: none
-
 
 	.sinConexion
 		margin-top: 1em
