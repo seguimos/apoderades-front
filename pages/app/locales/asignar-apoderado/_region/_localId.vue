@@ -125,7 +125,6 @@ export default {
 				comunaID,
 				localID
 			}
-			console.log('payload is', payload)
 			const response = await this.$cuentaBack.asignarTerritorio(payload)
 			console.log('agregarApoderadoLocal ' + usuarioID, response)
 			await this.getLocal()
