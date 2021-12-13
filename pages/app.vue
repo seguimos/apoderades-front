@@ -1,49 +1,50 @@
 <template lang="pug">
 .carpetaApp
-	.noconectado(v-if="!$usuario")
-		div
-			cuenta
+	transition-group.transicionesDentro
+		.noconectado(v-if="!$usuario" key="noconectado")
+			div
+				cuenta
 
-	// Conectado, pero no se obtuvo datos del back
-	.conectadoPeroSinBack(v-else-if="$apoderade === false")
-		.tac
-			b Error
-			p No se pudo conectar con el back
+		// Conectado, pero no se obtuvo datos del back
+		.conectadoPeroSinBack(key="conectadoPeroSinBack" v-else-if="$apoderade === false")
+			.tac
+				b Error
+				p No se pudo conectar con el back
 
-	// No se pudo contarcar con back
-	.cargando(v-else-if="$apoderade === false")
-		.tac
-			a-alert(type="error" message="No se pudo conectar con back")
+		// Conectado, obteniendo datos del back
+		.cargando(key="errorBack" v-else-if="$cuentaBack.sinConexion")
+			.tac
+				.icono 🥲
+				p Backend sin conexion
+		.cargando(key="cargandoBack" v-else-if="!$apoderade")
+			.tac
+				.icono 🌱
+				a-icon(type="loading")
+				p Conectando back
 
-	// Conectado, obteniendo datos del back
-	.cargando(v-else-if="!$apoderade")
-		.tac
-			a-icon(type="loading")
-			p Conectando back
+		// Confirmacion de datos personales
+		.pasoPrevio(key="eligePass" v-else-if="$usuario.sinPass")
+			EligePass
 
-	// Confirmacion de datos personales
-	.pasoPrevio(v-else-if="$usuario.sinPass")
-		EligePass
+		// Confirmacion de datos personales
+		.pasoPrevio(key="validate" v-else-if="!$usuario.datosAutovalidados")
+			ValidaTusDatos
+			
+		// Confirmacion de preferencia de local
+		.pasoPrevio(key="localVotacion" v-else-if="!_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos']) && !$cuentaBack.preferenciaSaltada")
+			LocalVotacion
 
-	// Confirmacion de datos personales
-	.pasoPrevio(v-else-if="!$usuario.datosAutovalidados")
-		ValidaTusDatos
-		
-	// Confirmacion de preferencia de local
-	.pasoPrevio(v-else-if="!_.get($cuentaBack, ['apoderade', 'fechaValidacionDatos']) && !$cuentaBack.preferenciaSaltada")
-		TerritorioPreferencia
-
-	.conectado(v-else)
-		.contenido
-			n-child
-		.pieUsuario
+		.conectado(key="app" v-else)
+			.contenido
+				n-child
+			.pieUsuario
 </template>
 <script>
 import EligePass from './app/-eligePass.vue'
 import ValidaTusDatos from './app/-validaTusDatos.vue'
-import TerritorioPreferencia from './app/-territorioPreferencia.vue'
+import LocalVotacion from './app/-localVotacion.vue'
 export default {
-	components: { ValidaTusDatos, TerritorioPreferencia, EligePass }
+	components: { ValidaTusDatos, LocalVotacion, EligePass }
 	// layout: 'app'
 }
 </script>
@@ -68,6 +69,8 @@ export default {
 	max-width: 100%
 	margin: 0 auto
 
+.icono
+	font-size: 4em
 .conectado
 	width: 900px
 	max-width: 100%
@@ -75,5 +78,13 @@ export default {
 	.contenido
 		flex: auto 1 1
 		padding: 2em
-	
+
+.transicionesDentro
+	> div
+		// +saliendo
+			// max-height: 100vh
+			// overflow: hidden
+		+salir
+			// max-height: 0
+			opacity: 0
 </style>
