@@ -107,11 +107,7 @@
 export default {
 	name: 'Ingreso',
 	directives: {
-		enfocar: {
-			inserted (el) {
-				el.focus()
-			}
-		}
+		enfocar: { inserted (el) { el.focus() } }
 	},
 	props: {
 		modo: { type: String, required: false, default: 'ingreso' }
@@ -139,8 +135,8 @@ export default {
 	computed: {
 		reglasIngreso () {
 			return {
-				email: [{ type: 'email', message: this.$t('emailInvalido') }, { required: true, message: this.$t('ingresaTuEmail') }],
-				password: [{ required: true, message: this.$t('noOlvidesEsto') }, { type: 'string', min: 1, message: this.$t('muyCorto') }]
+				email: [{ type: 'email', message: this.$t('emailInvalido'), trigger: 'blur' }, { required: true, message: this.$t('ingresaTuEmail') }],
+				password: [{ required: true, message: this.$t('noOlvidesEsto'), trigger: 'blur' }, { type: 'string', min: 1, message: this.$t('muyCorto'), trigger: 'blur' }]
 			}
 		},
 		reglasRegistro () {
@@ -148,8 +144,8 @@ export default {
 				nombre: [{ required: true, message: '*', whitespace: true }],
 				apellido: [{ required: true, message: '*', whitespace: true }],
 
-				email: [{ type: 'email', message: this.$t('emailInvalido') }, { required: true, message: this.$t('ingresaTuEmail') }],
-				password: [{ required: true, message: this.$t('noOlvidesEsto') }, { type: 'string', min: 1, message: this.$t('muyCorto') }]
+				email: [{ type: 'email', message: this.$t('emailInvalido'), trigger: 'blur' }, { required: true, message: this.$t('ingresaTuEmail') }],
+				password: [{ required: true, message: this.$t('noOlvidesEsto'), trigger: 'blur' }, { type: 'string', min: 1, message: this.$t('muyCorto'), trigger: 'blur' }]
 			}
 		}
 	},

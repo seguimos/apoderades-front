@@ -448,8 +448,7 @@ async function solicitar (request, errorHandler) {
 	// const fx = 'cuentaBack.js solicitar'
 	// consolo.log(fx, 'token', cuentaBack.cuenta.token)
 	// consolo.log(fx, 'tokenAutofirmado', cuentaBack.cuenta.tokenAutofirmado)
-	const tokenAutofirmado = cuentaBack.cuenta.tokenAutofirmado
-	if (!tokenAutofirmado) await cuentaBack.cuenta.mantenerTokenAutorizado()
+	const tokenAutofirmado = await cuentaBack.cuenta.mantenerTokenAutorizado()
 	const defaultHeaders = {
 		Accept: 'application/json',
 		'Content-Type': 'application/json',

@@ -310,13 +310,14 @@ const cuenta = {
 			const fx = 'microCuentas>cambiarPass>conCodigo'
 			try {
 				consolo.log(fx)
+				const llaves = await miLlavero.exportarLlavesPublicas()
 				const r = await solicitar.call(this, {
 					url: `${cuenta.cuentasURL}/pass/codigo`,
 					method: 'put',
-					data: { email, codigo }
+					data: { email, codigo, llaves }
 				})
 				consolo.log(`${fx} r`, r)
-				return r
+				return await procesarInfoUsuario(r)
 			} catch (e) {
 				console.error(fx, e)
 			}

@@ -13,8 +13,7 @@
 			.usuario
 				.avatar(v-if="$usuario.avatar" :style="`background-image: url(${$usuario.avatar})`")
 				.avatar.sin(v-else)
-				.nombre {{$usuario.nombre}} {{$usuario.apellido}}
-				.email {{$usuario.email}}
+				.nombre {{$usuario.nombre}}
 			a.nosoyyo(@click="$cuenta.salir()") No eres tu?
 </template>
 <script>
@@ -25,9 +24,10 @@ export default {
 @import "@style/vars"
 
 .rootLogin
+	width: 400px
+	max-width: 100%
 	height: 80vh
 	// height: $alturaPantallaSinMenu
-	max-width: 100%
 	margin: 0 auto
 	display: flex
 	justify-content: center

@@ -135,6 +135,9 @@
 <script>
 export default {
 	name: 'RecuPass',
+	directives: {
+		enfocar: { inserted (el) { el.focus() } }
+	},
 	props: {
 		email: { type: String, required: false, default: undefined }
 	},
