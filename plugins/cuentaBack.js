@@ -200,10 +200,12 @@ const cuentaBack = {
 			})
 			if (!registroEnBack || !registroEnBack.ok) throw ['fail creando usuario en back', registroEnBack]
 			cuentaBack.vm.$message.success('Registro realizado, se enviará correo al inscrito')
+			return {ok: 1, usuarioID, nombre, apellido}
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
 			else console.error(fx, e)
 			cuentaBack.vm.$message.error('Algo falló')
+			return {ok: 0}
 		}
 	},
 

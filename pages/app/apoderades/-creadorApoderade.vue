@@ -1,14 +1,7 @@
 <template lang="pug">
 .creadorApoderade
-	div(v-if='!rut') 
-		b Primero busca por rut
-		a-button(@click='$emit("buscarRut")')
-	a-form-model(
-		v-else,
-		ref='personalesForm',
-		:model='personalesForm',
-		:rules='reglasFormDatosPersonales'
-	)
+	a-form-model(ref='personalesForm' :model='personalesForm' :rules='reglasFormDatosPersonales' )
+
 		a-form-model-item(has-feedback prop='nombre' label='Nombres')
 			a-input.input(v-model='personalesForm.nombre' type='nombre' placeholder='Gabriel')
 
@@ -22,7 +15,7 @@
 			a-input.input(v-model='personalesForm.telefono' type='tel' placeholder='+56 x xxxx xxxx')
 
 		a-form-model-item
-			a-button.w100.bpStyle.verde(type='primary' @click='guardarDatosPersonales' :loading='guardandoDatos') Guardar datos personales
+			a-button.w100.bpStyle.verde(type='primary' @click='guardarDatosPersonales' :loading='guardandoDatos') Inscribir
 </template>
 <script>
 import { Validado } from "@lib/validador"
@@ -46,7 +39,6 @@ export default {
 		}
 	},
 	computed: {
-
 		reglasFormDatosPersonales () {
 			const telefonoValidador = (rule, value, callback) => {
 				if (!value) return callback(new Error("Ingresa el teléfono"));
@@ -78,6 +70,8 @@ export default {
 
 				this.guardandoDatos = false
 				console.log('guardarDatosPersonales', r)
+				const {usuarioID} = r
+				this.$emit('incripcionRealizada', {...r, usuarioID})
 			})
 		},	
 	}

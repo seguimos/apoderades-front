@@ -112,26 +112,19 @@ const cuenta = {
 		if (usarStores) cuentaStore.setItem('usuario', usr)
 	},
 
-	tokenAutofirmado: null,
-	autofirmando: null,
 	async mantenerTokenAutorizado (token) {
 		const fx = 'microCuentas>mantenerTokenAutorizado'
 		try {
 			token = token || cuenta.token
 			if (!token) {
-				this.autofirmando = false
 				console.log(`%c ${fx} Sin token, detenido`, 'color: #666;')
 				return
 			}
-			if (!this.autofirmando) this.autofirmando = true
 			console.log(`%c ${fx} generado`, 'color: seagreen;')
 			const cuerpoToken = { jtiCuentas: tokenDecoder(token).jti }
 			const moment = cuenta.vm.$moment
-			cuerpoToken.exp = moment().add(2, 'm').unix()
-			this.tokenAutofirmado = await miLlavero.firmarToken(cuerpoToken)
-			const proxMinuto = moment().seconds(0).add(1, 'minute')
-			setTimeout(function () { cuenta.mantenerTokenAutorizado() }, proxMinuto.diff(moment()))
-			return this.tokenAutofirmado
+			cuerpoToken.exp = moment().add(1, 'm').unix()
+			return await miLlavero.firmarToken(cuerpoToken)
 		} catch (e) {
 			console.error(fx, e)
 		}

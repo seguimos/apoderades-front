@@ -6,23 +6,80 @@
 		//- .cambioEtapa(:class="{activa: etapa === 'datosPersonales'}" @click="pasarAEtapa('datosPersonales')") Inscribir
 		.cambioEtapa(:class="{activa: etapa === 'asignacionTerritorial'}" @click="pasarAEtapa('asignacionTerritorial')") Asignar territorio
 
-	.apoderadeEncontrade
-		b.nombre {{}}
+	//- pre etapa: {{etapa}}
+	//- pre rut: {{rut}}
+
+	
+	a-steps(progress-dot :current='paso' direction='vertical')
+
+		a-step(title="Búsqueda")
+			div(slot="description")
+				div(v-if="!rut")
+					//- div Busca al apo
+					checkPorRut(ref="checkPorRut" @noInscrite="iniciarInscripcion" @inscrite="cargarApoderade")
+				.rut(v-else)
+					div {{formatearRut(rut)}}
+					a-button(@click="buscarOtroRut") Buscar otro rut
 
 
-	.etapas
+		a-step(:title="!rut? 'Inscripción' : !usuarioID? 'Inscribir' : 'Inscripción realizada'")
+			div(slot="description")
+				div(v-if="!usuarioID && etapa !== 'datosPersonales'")
+					div Si la persona no ha sido inscrita, podrás incribirle aquí
+				div(v-else-if="!usuarioID")
+					div Todo listo aquí
+					creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @inscrite="cargarApoderade")
+				div(v-else-if="!datosApoderade")
+					a-icon(type="loading")
+				div(v-else)
+					.nombre {{datosApoderade.nombre}} {{datosApoderade.apellido}}.
 
-		.rutForm(v-if="!etapa")
-			checkPorRut(ref="checkPorRut" @quiereIncribir="iniciarInscripcion" @quiereAsignar="iniciarAsignacion" @encontrade="establecerApoderade")
+		a-step(title='Asignación de local/territorio')
+			div(slot="description")
+				div(v-if="etapa !== 'estadoYOpcionesAsignacion'")
+					div Aquí verás los locales/territorios asignados al apoderado inscrito
+				div(v-else-if="!datosApoderade")
+					a-icon(type="loading")
+				div(v-else)
 
-		.datosPersonalesForm(v-if="rut && etapa === 'datosPersonales'")
-			creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @quiereAsignar="iniciarAsignacion")
+					.asignaciones(v-if="!_.isEmpty(datosApoderade.territoriosAsignados)")
+						.asignacion(v-for="asignacion in datosApoderade.territoriosAsignados")
 
-		.asignacionTerritorial(v-if="usuarioID && etapa === 'asignacionTerritorial'")
-			asignadorTerritorio(ref="asignadorTerritorio" :usuarioID="usuarioID")
-						
+							// TODO, mostrar esto más bonito
+							span.region {{asignacion.region}}
+							span.comuna {{asignacion.comunaCodigo}}
+							span.local {{asignacion.localId}}
+							span.general(v-if="asignacion.esApoderadoGeneral")
+
+					a-alert.noAsignade(v-else banner message="Aún no se ha asignado local/territorio") 
+
+					.opcionesAsignacion(v-if="!_.isEmpty(alternativasAsignacion)")
+						.info Puedes asignar los siguientes roles
+
+						.alternativas
+							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('regional')"
+								@click="abrirAsignadorTerritorio('regional')") Coordinación regional
+							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('comunal')"
+								@click="abrirAsignadorTerritorio('comunal')") Coordinación comunal
+							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('general')"
+								@click="abrirAsignadorTerritorio('general')") Apoderado general
+							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('mesa')"
+								@click="abrirAsignadorTerritorio('mesa')") Apoderado de mesa
+
+		a-step(v-if="etapa === 'asignacionTerritorial'")
+			div(slot="title")
+				span(v-if="tipoAsignacion === 'regional'") Asignar como Coordinación regional
+				span(v-else-if="tipoAsignacion === 'comunal'") Asignar como Coordinación comunal
+				span(v-else-if="tipoAsignacion === 'general'") Asignar como Apoderado general
+				span(v-else-if="tipoAsignacion === 'mesa'") Asignar como Apoderado de mesa
+			div(slot="description")
+				asignadorTerritorio(ref="asignadorTerritorio" :usuarioID="usuarioID" :tipoAsignacion="tipoAsignacion" @asignacionRealizada="asignacionRealizada" @cancelar="cerrarAsignadorTerritorio")
+
+
+
 </template>
 <script>
+import Rut from 'rut.js'
 import checkPorRut from './-checkPorRut'
 import creadorApoderade from './-creadorApoderade'
 import asignadorTerritorio from './-asignadorTerritorio'
@@ -32,32 +89,100 @@ export default {
 	data() {
 		return {
 			etapa: undefined,
+			paso: undefined,
 			rut: undefined,
 			usuarioID: undefined,
-
-			apoderadeVisto: undefined
+			datosApoderade: undefined,
+			tipoAsignacion: undefined
 		}
 	},
 	computed: {
-		puedeIngresarDatos () {
-			return this.rutForm.rut && !this.usuarioID
+		alternativasAsignacion () {
+			if (this.$apoderade.tieneAccesoNacional) return ['regional', 'comunal', 'general', 'mesa']
+			const _ = this._
+			if (_.isEmpty(this.$apoderade.territoriosAsignados)) return []
+			let alternativas = []
+			_.forEach(this.$apoderade.territoriosAsignados, asignacion => {
+				const { region, comunaCodigo, localId, esApoderadoGeneral } = asignacion
+				if (localId && !esApoderadoGeneral) return
+				if (localId) alternativas.push('mesa')
+				else if (comunaCodigo) alternativas.push('general')
+				else if (region) alternativas.push('comunal')
+			})
+			alternativas = _.uniq(alternativas)
+			if (alternativas.includes('comunal')) return ['comunal', 'general', 'mesa']
+			if (alternativas.includes('general')) return ['general', 'mesa']
+			if (alternativas.includes('mesa')) return ['mesa']
+			return alternativas
 		},
 	},
 	methods: {
-		pasarAEtapa (etapa) { this.etapa = etapa },
+		pasarAEtapa (etapa) { 
+			this.etapa = etapa
+			const etapasPasos = {
+				datosPersonales: 1,
+				estadoYOpcionesAsignacion: 2,
+				asignacionTerritorial: 3,
+			}
+			this.paso = (etapa && etapasPasos[etapa]) || 0
+		},
+		formatearRut(rut) { return Rut.format(rut)},
+		buscarOtroRut () {
+			this.etapa = null
+			this.rut = null
+			this.usuarioID = null
+			this.datosApoderade = null
+			this.tipoAsignacion = null
+		},
 		iniciarInscripcion (rut) {
+			console.log('iniciarInscripcion', rut)
 			this.rut = rut
 			const vm = this
 			this.$nextTick(() => { vm.pasarAEtapa('datosPersonales') })
 		},
-		iniciarAsignacion (usuarioID) {
+		async cargarApoderade ({rut, usuarioID, nombre, apellido}) {
+			console.log('cargarApoderade', {usuarioID, nombre, apellido})
+			this.pasarAEtapa('estadoYOpcionesAsignacion')
+			const _ = this._
+			this.rut = rut
 			this.usuarioID = usuarioID
-			const vm = this
-			this.$nextTick(() => { vm.pasarAEtapa('asignacionTerritorial') })
+			const r = await this.$cuentaBack.obtenerApoderade(usuarioID)
+			this.datosApoderade = { ...r.apoderade, nombre, apellido }
+
+			// Cargar info de locales 
+			const localesPorCargar = []
+			const territorioPreferencia = _.get(r, ['apoderade', 'territorioPreferencia'])
+			if (territorioPreferencia) {
+				const {localId, region} = territorioPreferencia
+				localesPorCargar.push({regionID: region, localID: localId})
+			}
+
+			const territoriosAsignados = _.get(r, ['apoderade', 'territoriosAsignados'])
+			if (territoriosAsignados && !_.isEmpty(territoriosAsignados)) {
+				_.forEach(territoriosAsignados, territorio => {
+					const {localId, region} = territorio
+					if (localId && region) localesPorCargar.push({regionID: region, localID: localId})
+				})
+			}
+
+			await Promise.all(_.map(localesPorCargar, async local => await this.$cuentaBack.localPorID(local.regionID, local.localID)))
 		},
-		establecerApoderade (apoderade) {
-			this.apoderadeVisto = apoderade
-		}
+		abrirAsignadorTerritorio (tipoAsignacion) {
+			console.log('abrirAsignadorTerritorio', tipoAsignacion)
+			this.pasarAEtapa('asignacionTerritorial')
+			this.tipoAsignacion = tipoAsignacion
+		},
+		cerrarAsignadorTerritorio () {
+			console.log('cerrarAsignadorTerritorio')
+			this.pasarAEtapa('estadoYOpcionesAsignacion')
+			this.tipoAsignacion = null
+		},
+		asignacionRealizada () {
+			console.log('asignacionRealizada')
+			const { usuarioID, nombre, apellido} = this.datosApoderade
+			const rut = this.rut
+			this.cargarApoderade({rut, usuarioID, nombre, apellido})
+		},
 	},
 };
 </script>
@@ -67,21 +192,26 @@ export default {
 	margin: 0 auto
 	max-width: 100%
 	width: 400px
-	// display: flex
-	// flex-flow: column nowrap
-	// min-height: 80vh
-	.tarjeta
-		// flex: 5em 1 1
-		display: block
+
+	&::v-deep
+		.ant-steps-item-title
+			margin-bottom: 0.5rem
+		.ant-steps-item-content
+			width: auto
+
+	.rut
+		display: flex
+		justify-content: space-between
+	.noAsignade
+		margin: 0.5em 0
+	.opcionesAsignacion
+		margin-top: 1em
+		.info
+			font-style: italic
+		.alternativas
+			.alternativa
+				margin-top: 1em
 
 
-.miniNavbar
-	display: flex
-	margin-bottom: 3em
-	.cambioEtapa
-		display: block
-		+ .cambioEtapa
-			margin-left: 1em
-		&.activa
-			+bold
+
 </style>
