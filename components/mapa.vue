@@ -66,7 +66,7 @@ export default {
 					} else {
 						c += 'small'
 					}
-					return new L.DivIcon({ html: '<div><span>' + `${apoderados}/${mesas}` + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) })
+					return new that.$leaflet.DivIcon({ html: '<div><span>' + `${apoderados}/${mesas}` + '</span></div>', className: 'marker-cluster' + c, iconSize: new that.$leaflet.Point(40, 40) })
 				}
 			}
 		}
