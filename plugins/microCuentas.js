@@ -26,28 +26,25 @@ async function procesarInfoUsuario (r) {
 	// consolo.log(`${fx} r`, r)
 	try {
 		if (!r || !r.ok) throw r
-		// Decriptar datos personales
-		const desencriptado = await miLlavero.desencriptar(r.datosPrivados)
+		if (r.datosPrivados) {
+			// Decriptar datos personales
+			const desencriptado = await miLlavero.desencriptar(r.datosPrivados)
+			cuenta.datosPrivados = JSON.parse(desencriptado)
+			cuenta.usuario = Object.assign({}, cuenta.usuario, cuenta.datosPrivados)
+		}
 
-		const datosPrivados = JSON.parse(desencriptado)
-		const decodificado = tokenDecoder(r.token)
-		miLlavero.renombrar(decodificado.sub)
-		const usuario = Object.assign({}, decodificado, datosPrivados)
-		usuario.id = decodificado.sub
-		delete usuario.llaves
-		delete usuario.sub
-		cuenta.usuario = usuario
-		cuenta.decodificado = decodificado
-		cuenta.datosPrivados = r.datosPrivados
-		cuenta.token = r.token
 		if (r.token) {
-			const listo = await cuenta.mantenerTokenAutorizado(r.token)
-			console.log(listo)
+			cuenta.token = r.token
+			const decodificado = tokenDecoder(r.token)
+			cuenta.decodificado = decodificado
+			miLlavero.renombrar(decodificado.sub)
+			const shallowDecodificado = Object.assign({}, decodificado)
+			shallowDecodificado.id = decodificado.sub
+			delete shallowDecodificado.llaves
+			delete shallowDecodificado.sub
+			cuenta.usuario = Object.assign({}, cuenta.usuario, shallowDecodificado)
+			await cuenta.mantenerTokenAutorizado(r.token)
 			cuenta.vm.$nextTick(() => { cuenta.emit('cambioToken', r.token) })
-		} else {
-			const drama = 'No hay token de microservicio de cuentas!'
-			console.error(drama)
-			throw drama
 		}
 		// cuenta.vm.$nextTick(() => { cuenta.mantenerTokenAutorizado() })
 		return r
@@ -481,7 +478,7 @@ const cuenta = {
 				method: 'post'
 			})
 			consolo.log(`${fx} r`, r)
-			return r
+			return await cuenta.leer()
 		} catch (e) {
 			console.error(fx, e)
 		}

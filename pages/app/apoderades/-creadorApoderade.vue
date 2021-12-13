@@ -9,40 +9,20 @@
 		:model='personalesForm',
 		:rules='reglasFormDatosPersonales'
 	)
-		a-form-model-item(has-feedback, prop='nombre', label='Nombres')
-			a-input.input(
-				v-model='personalesForm.nombre',
-				type='nombre',
-				placeholder='Gabriel'
-			)
+		a-form-model-item(has-feedback prop='nombre' label='Nombres')
+			a-input.input(v-model='personalesForm.nombre' type='nombre' placeholder='Gabriel')
 
-		a-form-model-item(has-feedback, prop='apellido', label='Apellidos')
-			a-input.input(
-				v-model='personalesForm.apellido',
-				type='apellido',
-				placeholder='Boric Font'
-			)
+		a-form-model-item(has-feedback prop='apellido' label='Apellidos')
+			a-input.input(v-model='personalesForm.apellido' type='apellido' placeholder='Boric Font')
 
-		a-form-model-item(has-feedback, prop='email', label='Correo')
-			a-input.input(
-				v-model='personalesForm.email',
-				type='email',
-				placeholder='gabriel@lesapoderades.cl'
-			)
+		a-form-model-item(has-feedback prop='email' label='Correo')
+			a-input.input(v-model='personalesForm.email' type='email' placeholder='gabriel@lesapoderades.cl')
 
-		a-form-model-item(has-feedback, prop='telefono', label='Teléfono')
-			a-input.input(
-				v-model='personalesForm.telefono',
-				type='tel',
-				placeholder='+56 x xxxx xxxx'
-			)
+		a-form-model-item(has-feedback prop='telefono' label='Teléfono')
+			a-input.input(v-model='personalesForm.telefono' type='tel' placeholder='+56 x xxxx xxxx')
 
 		a-form-model-item
-			a-button.w100.bpStyle.verde(
-				type='primary',
-				@click='guardarDatosPersonales',
-				:loading='guardandoDatos'
-			) Guardar datos personales
+			a-button.w100.bpStyle.verde(type='primary' @click='guardarDatosPersonales' :loading='guardandoDatos') Guardar datos personales
 </template>
 <script>
 import { Validado } from "@lib/validador"
