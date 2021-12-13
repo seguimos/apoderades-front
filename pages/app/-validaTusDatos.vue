@@ -4,7 +4,7 @@
 		b Antes de comenzar
 		h1 Valida tus datos de inscripcion
 	.formulario
-		a-form-model( ref='personalesForm' :model='personalesForm' :rules='reglasFormDatosPersonales' )
+		a-form-model( ref='personalesForm' :model='personalesForm' :rules='reglasFormDatosPersonales' :disabled="!datosCargados")
 			a-form-model-item(has-feedback label='Rut')
 				a-input.input(:value='$usuario.rut' placeholder='Rut' disabled)
 
@@ -29,6 +29,7 @@ export default {
 	data () {
 		return {
 			// Datos personales
+			datosCargados: undefined,
 			personalesForm: {
 				nombre: undefined,
 				apellido: undefined,
@@ -57,10 +58,16 @@ export default {
 		},
 	},
 	mounted () {
-		const { nombre, apellido, email, telefono } = this.$usuario
-		this.personalesForm = { nombre, apellido, email, telefono }
+		if (this.$cuenta.datosPrivados) this.decriptarDatosPersonales()
+		else this.datosCargados = true
 	},
 	methods: {
+		async decriptarDatosPersonales () {
+			const datosPersonales = await this.$cuenta.decriptarDatosPersonales()
+			const { nombre, apellido, email, telefono } = datosPersonales
+			this.personalesForm = { nombre, apellido, email, telefono }
+			this.datosCargados = true
+		},
 		guardarDatosPersonales () {
 			this.guardandoDatos = true
 			this.$refs.personalesForm.validate(async valid => {

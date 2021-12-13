@@ -27,10 +27,8 @@ async function procesarInfoUsuario (r) {
 	try {
 		if (!r || !r.ok) throw r
 		if (r.datosPrivados) {
-			// Decriptar datos personales
-			const desencriptado = await miLlavero.desencriptar(r.datosPrivados)
-			cuenta.datosPrivados = JSON.parse(desencriptado)
-			cuenta.usuario = Object.assign({}, cuenta.usuario, cuenta.datosPrivados)
+			// Datos personales
+			cuenta.datosPrivados = r.datosPrivados
 		}
 
 		if (r.token) {
@@ -65,12 +63,7 @@ const cuenta = {
 	_expConfianza: undefined,
 	_usuario: undefined,
 	decodificado: undefined,
-
-	_datosPrivados: undefined,
-
-	llaveroPropio: undefined,
-
-
+	datosPrivados: undefined,
 	sinConexion: undefined,
 
 	async init (vm) {
@@ -118,18 +111,6 @@ const cuenta = {
 		if (usarStores) cuentaStore.setItem('usuario', usr)
 	},
 
-	get datosPrivados () {
-		if ((this._expConfianza * 1000) < Number(new Date())) {
-			this._datosPrivados = null
-			return null
-		}
-		return this._datosPrivados
-	},
-
-	set datosPrivados (usr) {
-		this._datosPrivados = usr
-	},
-
 	tokenAutofirmado: null,
 	autofirmando: null,
 	async mantenerTokenAutorizado (token) {
@@ -143,8 +124,6 @@ const cuenta = {
 			}
 			if (!this.autofirmando) this.autofirmando = true
 			console.log(`%c ${fx} generado`, 'color: seagreen;')
-			// console.log(`%c ${fx} decodificado`, 'color: coral;', cuenta.decodificado)
-			// console.log(`%c ${fx} jti`, 'color: coral;', cuenta.decodificado.jti)
 			const cuerpoToken = { jtiCuentas: cuenta.decodificado.jti }
 			const moment = cuenta.vm.$moment
 			cuerpoToken.exp = moment().add(2, 'm').unix()
@@ -198,6 +177,16 @@ const cuenta = {
 				headers: { Authorization: `Bearer ${token}` }
 			})
 			return await procesarInfoUsuario(r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async decriptarDatosPersonales () {
+		const fx = 'microCuentas>decriptarDatosPersonales'
+		try {
+			const desencriptado = cuenta.datosPrivados && await miLlavero.desencriptar(cuenta.datosPrivados)
+			return desencriptado && JSON.parse(desencriptado)
 		} catch (e) {
 			console.error(fx, e)
 		}

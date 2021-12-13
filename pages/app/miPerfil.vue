@@ -1,27 +1,6 @@
 <template lang="pug">
 .paginaMiPerfil.comoMovil
-	.cabecera
-		h2 Mi perfil
 
-	.persona(v-if="$usuario")
-		.miniCabecera
-			h3 Mis datos personales
-		.datosPersonales
-			.item
-				b Nombre:
-				.texto {{$usuario.nombre}} {{$usuario.apellido}}
-			.item
-				b RUT:
-				.texto {{$usuario.rut}}
-			.item
-				b Email:
-				.texto {{$usuario.email}}
-			.item
-				b Teléfono:
-				.texto {{$usuario.telefono}}
-
-	a-divider
-	
 	.apoderade(v-if="$apoderade")
 		.miniCabecera
 			h3 Mi información de apoderado
@@ -54,13 +33,46 @@
 
 	a-divider
 
+	.persona(v-if="$usuario")
+		.miniCabecera
+			h3 Mis datos personales
+
+		.datosPersonales(v-if="!decriptados")
+			a-button(@click="mostrarDatosPersonales") Mostrar datos personales
+		.datosPersonales(v-else)
+			.item
+				b Nombre:
+				.texto {{decriptados.nombre}} {{decriptados.apellido}}
+			.item
+				b RUT:
+				.texto {{decriptados.rut || '-'}}
+			.item
+				b Email:
+				.texto {{decriptados.email || '-'}}
+			.item
+				b Teléfono:
+				.texto {{decriptados.telefono || '-'}}
+
+	a-divider
+
 	.cuenta
 		a-button.w100(@click="$cuenta.salir") Desconectarme
 
 
 </template>
 <script>
-export default {}
+export default {
+	data () {
+		return {
+			decriptados: undefined
+		}
+	},
+	methods: {
+		async mostrarDatosPersonales () {
+			this.decriptados = await this.$cuenta.decriptarDatosPersonales()
+		}
+	}
+}
 </script>
 <style lang="sass" scoped>
 </style>
