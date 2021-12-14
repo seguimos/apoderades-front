@@ -94,51 +94,21 @@ export default {
 				local: [{ required: true, message: '*', whitespace: false, trigger: 'blur' }],
 			}
 		},
-		todasLasRegionesYsusComunas () { return this.$chile.todasLasRegionesYsusComunas() },
 		regionesAsignables () {
 			const _ = this._
-			const todas = this.todasLasRegionesYsusComunas
-			if (this.$apoderade.tieneAccesoNacional) return Object.keys(todas)
-			const regionesAlcanzadas = this.$apoderade.territorios && this.$apoderade.territorios.map(t => t.region)
-			return regionesAlcanzadas && _.compact(_.map(todas, (r, regionID) => (regionID && regionesAlcanzadas.includes(regionID))))
+			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$chile.todasLasRegionesYsusComunas(), r => r.regionID)
+			return _.uniq(_.map(_.filter(this.$apoderade.asignaciones, a => a.regionID && a.capa === 'regional'), aa => aa.regionID))
 		},
 		comunasAsignables () {
 			const _ = this._
-			const todas = this.todasLasComunas
-			if (this.$apoderade.tieneAccesoNacional) return Object.keys(todas)
-			const prefiltradas = _.pick(this.todasLasComunas, c => this.regionesAsignables.includes(c.regionID))
-			// Ver asignaciones del apoderade
-			const asignaciones = _.map(this.$apoderade.territorios, t => this.$cuentaBack.territorioAasignacion(t))
-			const asigUtiles = _.filter(asignaciones, asignacion => asignacion.capa === 'regional')
-			const filtradas = _.pick(prefiltradas, a => _.map(asigUtiles, a => a.region).includes(prefiltradas))
-			return filtradas
-		},
-		comunasAsignablesOld () {
-			const _ = this._
-			const regionesAsignables = this.regionesAsignables
-			let comunasAsignables = Object.assign({}, ...(_.map(regionesAsignables, r => r.comunas)))
-			const idRegionElegida = this.asignacionTerritorialForm.region
-			if (idRegionElegida) {
-				if (regionesAsignables[idRegionElegida]) return []
-				comunasAsignables = this.$chile.comunasEnUnaRegion(idRegionElegida)
-			}
-			// Revisar a qué comunas tiene alcance el inscriptor
-			if (this.$apoderade.tieneAccesoNacional) return comunasAsignables
-			const territoriosAsignables = _.pickBy(this.$apoderade.territorios, t => {
-				if (idRegionElegida && t.region === idRegionElegida) return [false]
-				return true
-			})
-			if (_.some(territoriosAsignables, t => !t.comunaCodigo)) return comunasAsignables
-			const comunaCodigosAsignables = _.map(territoriosAsignables, t => t.comunaCodigo)
-			
-			return this._.pickBy(comunasAsignables, (c, comunaID) => comunaCodigosAsignables.includes(comunaID))
+			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$chile.todasLasComunas(), r => r.comunaID)
+			return _.uniq(_.map(_.filter(this.$apoderade.asignaciones, a => a.comunaID && a.capa === 'comunal'), aa => aa.comunaID))
 		},
 		localesAsignables () {
-			const locales = this.localesPorComuna
-			const comunaElegida = this.asignacionTerritorialForm.comuna
-			if (comunaElegida) return locales[comunaElegida]
-			return Object.assign({}, ...Object.values(locales))
-		}
+			const _ = this._
+			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$store.state.locales, r => r.localID)
+			return _.uniq(_.map(_.filter(this.$apoderade.asignaciones, a => a.localID && a.capa === 'general'), aa => aa.localID))
+		},
 	},
 	methods: {
 		filtrarSugerenciasComunas (buscado) {
@@ -148,32 +118,75 @@ export default {
 			const _ = this._
 			const q = parameterize(buscado)
 			console.log('query:', q)
-			if (_.isEmpty(q)) return this.todasLasRegionesYsusComunas
 
-			const filtrables = Object.assign({x:1}, this.todasLasRegionesYsusComunas)
+			const asignables = this.$apoderade.tieneAccesoNacional? this.$chile.todasLasRegionesYsusComunas : _.filter(this.$chile.todasLasRegionesYsusComunas, r => this.regionesAsignables.includes(r.regionID) || this.comunasAsignables.includes(r.comunaID))
 
-			// const filtradas = _.reduce(filtrables, (resultado, region, regionID) => {
-			this.comunasSugeridasPorBusqueda = _.reduce(filtrables, (resultado, region, regionID) => {
-				const comunasCalzantes = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(q))
-				if (_.isEmpty(comunasCalzantes)) return resultado
-				resultado.push(Object.assign({regionID, nombre: region.nombre}, {comunas: comunasCalzantes}))
-				return resultado
-			}, [])
+			if (_.isEmpty(q)) {
+				this.comunasSugeridasPorBusqueda = asignables
+				return
+			}
+
+			this.comunasSugeridasPorBusqueda = _.filter(asignables, comuna => {
+				const porNombre = parameterize(comuna.nombre).includes(q)
+				return porNombre
+			})
 		},
+
 		filtrarSugerenciasLocales (buscado) {
 			console.log('filtrarSugerenciasLocales', buscado)
 			this.busquedaLocal = buscado
 
 			const _ = this._
 			const q = parameterize(buscado)
-			console.log('query', q)
-			const comunaElegida = this.asignacionTerritorialForm.comunaID
-			if (!comunaElegida) return
-			const todosLosLocales = this.$store.state.locales
-			this.localesSugeridosPorBusqueda = _.reduce(todosLosLocales, (resultado, local, localID) => {
-				if (parameterize(local.nombre).includes(q)) resultado.push({...local, localID})
-				return resultado
-			}, [])
+			console.log('query:', q)
+
+			const asignables = this.$apoderade.tieneAccesoNacional? this.$store.state.locales : _.filter(this.$store.state.locales, r => this.regionesAsignables.includes(r.regionID) || this.comunasAsignables.includes(r.comunaID || this.localesAsignables.includes(r.localID)))
+
+			if (_.isEmpty(q)) {
+				this.localesSugeridosPorBusqueda = asignables
+				return
+			}
+
+			this.localesSugeridosPorBusqueda = _.filter(asignables, local => {
+				const porNombre = parameterize(local.nombre).includes(q)
+				const porDireccion = parameterize(local.direccion).includes(q)
+				return porNombre || porDireccion
+			})
+		},
+
+		calcularSugerenciasLocales () {
+			const _ = this._
+			const todes = this.$store.state.locales
+			const regionID = this.asignacionTerritorialForm.region
+			const comunaID = this.asignacionTerritorialForm.comuna
+			const enLaComuna = _.filter(todes, local => local.comunaID === comunaID)
+
+			// Filtrar por asignacion
+			if (this.$apoderade.tieneAccesoNacional) {
+				this.localesSugeridosPorBusqueda = enLaComuna
+				return
+			}
+			const asigUtiles = _.filter(this.$apoderade.asignaciones, asignacion => {
+				const esCoordinadorRegional = asignacion.capa === 'regional' 
+				const esCoordinadorComunal = asignacion.capa === 'comunal'
+				const mismaRegion = asignacion.regionID === regionID
+				const mismaComuna = asignacion.comunaID === comunaID
+				return (esCoordinadorRegional && mismaRegion) || (esCoordinadorComunal && mismaComuna)
+			})
+			if (!_.isEmpty(asigUtiles)) {
+				this.localesSugeridosPorBusqueda = enLaComuna
+				return
+			}
+
+			const apoGenerls = _.forEach(this.$apoderade.asignaciones, asignacion => {
+				const esApoderadoGeneral = asignacion.capa === 'general' 
+				return esApoderadoGeneral
+			})
+			if (_.isEmpty(apoGenerls)) {
+				this.localesSugeridosPorBusqueda = []
+				return
+			}
+			this.localesSugeridosPorBusqueda = _.filter(enLaComuna, local => _.map(apoGenerls, a => a.regionID).includes(local.localID))
 		},
 		elegirRegion (regionID) {
 			console.log('elegirRegion', regionID)

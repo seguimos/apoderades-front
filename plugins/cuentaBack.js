@@ -95,11 +95,17 @@ const cuentaBack = {
 			}
 			consolo.log(fx, 'r', r)
 			const { apoderade } = r
-			this.apoderade = apoderade
 			if (apoderade.territorioPreferencia) {
 				const t = apoderade.territorioPreferencia
 				if (t.region && t.localId) cuentaBack.localPorID(t.region, t.localId)
 			}
+			if (!_.isEmpty(apoderade.territoriosAsignados)) {
+				_.forEach(apoderade.territoriosAsignados, t => {
+					if (t.region && t.localId) cuentaBack.localPorID(t.region, t.localId)
+				})
+				apoderade.asignaciones = _.map(apoderade.territoriosAsignados, t => cuentaBack.territorioAasignacion(t))
+			}
+			this.apoderade = apoderade
 			return r
 		} catch (e) {
 			console.error(fx, e)
@@ -397,7 +403,7 @@ const cuentaBack = {
 	async localesXComuna ({ region, comunaCodigo }) {
 		const fx = 'cuentaBack>localesXComuna'
 		try {
-			consolo.log(fx)
+			consolo.log(fx, { region, comunaCodigo })
 			const r = await solicitar({
 				method: 'get',
 				url: `${cuentaBack.backURL}/locales/${region}/comunas/${comunaCodigo}/`
@@ -411,7 +417,7 @@ const cuentaBack = {
 				delete locs[local._id]._id
 				return locs
 			}, {})
-			console.log('buscarLocales', locales)
+			console.log(fx, 'locales', locales)
 			cuentaBack.vm.$store.commit('locales', locales)
 			return r
 		} catch (e) {
@@ -444,8 +450,11 @@ const cuentaBack = {
 		const chile = cuentaBack.vm.$chile
 		const asig = {
 			region: territorioAsignado.region && chile.regionPorID(territorioAsignado.region),
+			regionID: territorioAsignado.region,
 			comuna: territorioAsignado.comunaCodigo && chile.comunaPorID(territorioAsignado.comunaCodigo),
+			comunaID: territorioAsignado.comunaCodigo,
 			local: territorioAsignado.localId && chile.localPorID(territorioAsignado.localId),
+			localID: territorioAsignado.localId,
 			general: territorioAsignado.esApoderadoGeneral
 		}
 		asig.capa = asig.general ? 'general' : asig.local?  'mesa' : asig.comuna? 'comunal' : asig.region? 'regional' : '!>!?!??!'

@@ -29,7 +29,7 @@
 			.asignadorLocal
 				+selectorComuna
 				a-form-model-item(has-feedback prop="localID" label="Local de votación")
-					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre del local' @search="filtrarSugerenciasLocales" @select="elegirLocal" allow-clear)
+					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre del local' @focus="filtrarSugerenciasLocales(busquedaLocal)" @search="filtrarSugerenciasLocales" @select="elegirLocal" allow-clear)
 						template(slot='dataSource')
 							a-select-option(v-if="!_.isEmpty(localesSugeridosPorBusqueda)" v-for='local in localesSugeridosPorBusqueda' :key='`local-${local.localID}`' :value='local.localID')
 								| {{ local.nombre }}
@@ -53,7 +53,6 @@ export default {
 				comunaID: undefined,
 				localID: undefined
 			},
-			localesPorComuna: {},
 			busquedaComuna: '',
 			busquedaLocal: '',
 			comunasSugeridasPorBusqueda: [],
@@ -74,17 +73,11 @@ export default {
 			if (!comunaElegida) return locales
 			const filtrados = this._.pickBy(locales, local=> this._.get(local, 'ubicacion.comunaCodigo') === comunaElegida)
 			return filtrados
-		},
-		todasLasRegionesYsusComunas () {return this.$chile.todasLasRegionesYsusComunas()},
-		localesSugeridosPorBusqddddddddddddueda () {
-			const _ = this._
-			const buscado = parameterize(this.busquedaLocal)
-			console.log('buscado', buscado)
-			if (_.isEmpty(buscado)) return this.localesComuna
-			let localesFiltrados = Object.assign({}, this.localesComuna)
-			localesFiltrados = _.pickBy(localesFiltrados, local => parameterize(local.nombre).includes(buscado))
-			return localesFiltrados
 		}
+	},
+	mounted () {
+		this.filtrarSugerenciasComunas()
+		this.filtrarSugerenciasLocales()
 	},
 	methods: {
 		filtrarSugerenciasComunas (buscado) {
@@ -94,14 +87,18 @@ export default {
 			const _ = this._
 			const q = parameterize(buscado)
 			console.log('query:', q)
-			if (_.isEmpty(q)) return this.todasLasRegionesYsusComunas
-
-			const filtrables = Object.assign({x:1}, this.todasLasRegionesYsusComunas)
+			const regiones = Object.values(this.$chile.todasLasRegionesYsusComunas())
+			if (_.isEmpty(q)) {
+				this.comunasSugeridasPorBusqueda = regiones
+				return
+			}
 
 			// const filtradas = _.reduce(filtrables, (resultado, region, regionID) => {
-			this.comunasSugeridasPorBusqueda = _.reduce(filtrables, (resultado, region, regionID) => {
+			this.comunasSugeridasPorBusqueda = _.reduce(regiones, (resultado, region, regionID) => {
 				const comunasCalzantes = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(q))
+
 				if (_.isEmpty(comunasCalzantes)) return resultado
+
 				resultado.push(Object.assign({regionID, nombre: region.nombre}, {comunas: comunasCalzantes}))
 				return resultado
 			}, [])
@@ -109,15 +106,17 @@ export default {
 		filtrarSugerenciasLocales (buscado) {
 			console.log('filtrarSugerenciasLocales', buscado)
 			this.busquedaLocal = buscado
-
 			const _ = this._
-			const q = parameterize(buscado)
-			console.log('query', q)
+			const q = buscado && parameterize(buscado)
 			const comunaElegida = this.asignacionTerritorialForm.comunaID
-			if (!comunaElegida) return
+			if (!comunaElegida) {
+				this.localesSugeridosPorBusqueda = []
+				return
+			} 
 			const todosLosLocales = this.$store.state.locales
 			this.localesSugeridosPorBusqueda = _.reduce(todosLosLocales, (resultado, local, localID) => {
-				if (parameterize(local.nombre).includes(q)) resultado.push({...local, localID})
+				if (comunaElegida !== local.comunaID) return resultado
+				if (_.isEmpty(q) || parameterize(local.nombre).includes(q)) resultado.push({...local, localID})
 				return resultado
 			}, [])
 		},
@@ -132,6 +131,8 @@ export default {
 		elegirLocal (localID) {
 			console.log('elegirLocal', localID)
 			this.asignacionTerritorialForm.localID = localID
+			const comunaID = this._.get(this.$store.state.locales, [localID, 'comunaID'])
+			if (this.asignacionTerritorialForm.comunaID !== comunaID) this.elegirComuna(comunaID)
 			this.$refs.asignacionTerritorialForm.validate()
 		},
 		guardarLocalDeVotacion () {
@@ -148,20 +149,9 @@ export default {
 		},
 
 		async buscarLocales (regionID, comunaID) {
-			const r = await this.$cuentaBack.localesXComuna({
-				region: regionID,
-				comunaCodigo: comunaID
-			})
-			if (!r) return
-			const locales = this._.reduce(r.locales, (locs, local) => {
-				locs[local._id] = local
-				delete locs[local._id]._id
-				return locs
-			}, {})
-			console.log('buscarLocales', locales)
-			const localesPorComuna = Object.assign({}, this.localesPorComuna)
-			localesPorComuna[comunaID] = locales
-			this.localesPorComuna = localesPorComuna
+			await this.$cuentaBack.localesXComuna({ region: regionID, comunaCodigo: comunaID })
+			this.$nextTick(() => { this.filtrarSugerenciasLocales(this.busquedaLocal) })
+			setTimeout(() => { this.filtrarSugerenciasLocales(this.busquedaLocal) }, 500)
 		},
 	}
 }
