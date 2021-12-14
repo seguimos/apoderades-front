@@ -21,56 +21,35 @@
 				.info Nada aún.
 			div(v-else) 
 				div(v-for="terr in $apoderade.territoriosAsignados")
-					.asignacion(v-for="asignacion in [asignacion(terr)]")
-						.coordinadorRegional(v-if="asignacion.capa === 'regional'")
-							strong Coordinador Regional
-							.region {{_.get(asignacion, ['region','nombre'])}}
-						.coordinadorComunal(v-else-if="asignacion.capa === 'comunal'")
-							strong Coordinador Comunal
-							.region {{_.get(asignacion, ['region','nombre'])}}
-							.comuna {{_.get(asignacion, ['comuna','nombre'])}}
-						.apoderadoGeneral(v-else-if="asignacion.capa === 'general'")
-							strong Apoderado General
-							.region {{_.get(asignacion, ['region','nombre'])}}
-							.comuna {{_.get(asignacion, ['comuna','nombre'])}}
-							.local {{_.get(asignacion, ['local','nombre'])}}
-						.apoderadoMesa(v-else-if="asignacion.capa === 'mesa'")
-							strong Apoderado Mesa
-							.region {{_.get(asignacion, ['region','nombre'])}}
-							.comuna {{_.get(asignacion, ['comuna','nombre'])}}
-							.local {{_.get(asignacion, ['local','nombre'])}}
-						.dobleveteefe(v-else) 
+					.asignacion(v-for="asignacion in [$cuentaBack.territorioAasignacion(terr)]")
+						strong(v-if="asignacion.capa === 'regional'") Coordinador Regional
+						strong(v-else-if="asignacion.capa === 'comunal'") Coordinador Comunal
+						strong(v-else-if="asignacion.capa === 'general'") Apoderado General
+						strong(v-else-if="asignacion.capa === 'mesa'") Apoderado Mesa
+						strong(v-else) 
 							.icono(style="font-size: 4em; margin-bottom: 1rem;") 🤨
 							strong '!>!?!??!'
 							.texto Esto parece ser un error
+						miniTarjetaLocal(:local="terr")
 				
-		.territorioPreferencia
+		.localVotacion
 			.microCabecera
 				h4 Mi local de votación
 			.sinTerritorios(v-if="_.isEmpty($apoderade.territorioPreferencia)") 
 				.info No has seleccionado tu local de preferencia
-			.territorios(v-else) 
-				.asignacion(v-for="asignacion in [asignacion($apoderade.territorioPreferencia)]")
-					.territorio
-						span.region {{_.get(asignacion, ['region','nombre'])}}
-						a-divider(type="vertical")
-						span.comuna {{_.get(asignacion, ['comuna','nombre'])}}
-					.local 
-						.nombre {{_.get(asignacion, ['local','nombre'])}}
-						.ubicacion
-							.direccion {{_.get(asignacion, ['local','ubicacion', 'direccion'])}}
-							.acciones
-								.icono(style="font-size: 4em; margin-bottom: 1rem;") 🗺
+			.territorios(v-else)
+				miniTarjetaLocal(:local="$apoderade.territorioPreferencia")
+				
 							
 
-	a-divider
+	//- a-divider
 
 	.persona(v-if="$usuario")
 		.miniCabecera
 			h3 Mis datos personales
 
 		.datosPersonales(v-if="!decriptados")
-			a-button(@click="mostrarDatosPersonales") Mostrar datos personales
+			a-button.w100(type="dashed" @click="mostrarDatosPersonales") Mostrar datos personales
 		.datosPersonales(v-else)
 			.item
 				b Nombre:
@@ -85,7 +64,7 @@
 				b Teléfono:
 				.texto {{decriptados.telefono || '-'}}
 
-	a-divider
+	//- a-divider
 
 	.cuenta
 		a-button.w100(@click="$cuenta.salir") Desconectarme
@@ -117,12 +96,30 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
+
+.miniCabecera
+	margin-bottom: 2em
+	h3
+		margin: 0
+.microCabecera
+	margin-bottom: 1em
+	h4 
+		margin: 0
+
+
+.asignaciones,
+.localVotacion
+	// border: 1px solid red
+	margin-top: 2em
+
+.persona,
+.cuenta
+	// border: 1px solid red
+	margin-top: 4em
+
+
 .persona
-	display: flex
-	flex-flow: column nowrap
-	justify-content: center
-	align-items: center
 	text-align: center
 	h3
-		margin: 0 0 1em
+		margin: 0
 </style>

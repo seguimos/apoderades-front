@@ -1,0 +1,61 @@
+<template lang="pug">
+.miniTarjetaLocal(:class="localDeVotacion.capa")
+	.paraMapa(v-if="['mesa', 'general'].includes(localDeVotacion.capa)")
+		.icono 🗺
+	.info
+		.territorio
+			span.region {{_.get(localDeVotacion, ['region','nombre'])}}
+			a-divider(type="vertical")
+			span.comuna {{_.get(localDeVotacion, ['comuna','nombre'])}}
+		.local 
+			.nombre {{_.get(localDeVotacion, ['local','nombre'])}}
+			.direccion {{_.get(localDeVotacion, ['local','ubicacion', 'direccion'])}}
+</template>
+<script>
+export default {
+	props: {
+		local: {
+			type: Object,
+			default: null
+		}
+	},
+	computed: {
+		localDeVotacion () {
+			return this.local && this.$cuentaBack.territorioAasignacion(this.local)
+		}
+	}
+}
+</script>
+<style lang="sass" scoped>
+@import '@style/vars'
+
+.miniTarjetaLocal
+	display: flex
+	align-items: center
+	line-height: 1
+	.paraMapa
+		flex: auto 0 0
+		.icono
+			font-size: 3em
+			padding: 0.8rem
+			margin-right: 1rem
+	.info
+		flex: auto 1 1
+		line-height: 1.4
+
+	&.mesa,
+	&.general
+		.region,
+		.comuna
+			// +fwb
+			opacity: .65
+		.local
+			.nombre
+				color: black
+				+fwb
+				margin: 0.25rem 0
+			.direccion
+				color: #333
+				font-weight: lighter
+
+</style>

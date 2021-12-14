@@ -439,6 +439,18 @@ const cuentaBack = {
 			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
+
+	territorioAasignacion (territorioAsignado) {
+		const chile = cuentaBack.vm.$chile
+		const asig = {
+			region: territorioAsignado.region && chile.regionPorID(territorioAsignado.region),
+			comuna: territorioAsignado.comunaCodigo && chile.comunaPorID(territorioAsignado.comunaCodigo),
+			local: territorioAsignado.localId && chile.localPorID(territorioAsignado.localId),
+			general: territorioAsignado.esApoderadoGeneral
+		}
+		asig.capa = asig.general ? 'general' : asig.local?  'mesa' : asig.comuna? 'comunal' : asig.region? 'regional' : '!>!?!??!'
+		return asig
+	}
 }
 
 
