@@ -9,20 +9,17 @@ import emisorEventos from '@lib/emisorEventos'
 
 import { _ } from './lodash'
 
-
-
 const cuentaStore = localforage.createInstance({ name: 'criptoCuentaStore' })
 const llaveroStore = localforage.createInstance({ name: 'llaveroStore' })
 
 const usarStores = true
 
-const minutosDeConfianza = process.env.dev ? (7 * 24 * 60) : 5
-
+const minutosDeConfianza = process.env.dev ? 7 * 24 * 60 : 5
 
 let miLlavero
 let llaveroMicroCuentas
 
-async function procesarInfoUsuario (r) {
+async function procesarInfoUsuario(r) {
 	// Paja sacar el async
 	await new Promise(resolve => resolve())
 	try {
@@ -42,8 +39,10 @@ async function procesarInfoUsuario (r) {
 			delete shallowDecodificado.llaves
 			delete shallowDecodificado.sub
 			cuenta.usuario = Object.assign({}, cuenta.usuario, shallowDecodificado)
-			
-			cuenta.vm.$nextTick(() => { cuenta.emit('cambioToken', r.token) })
+
+			cuenta.vm.$nextTick(() => {
+				cuenta.emit('cambioToken', r.token)
+			})
 		}
 		// cuenta.vm.$nextTick(() => { cuenta.mantenerTokenAutorizado() })
 		return r
@@ -67,14 +66,17 @@ const cuenta = {
 	datosPrivados: undefined,
 	sinConexion: undefined,
 
-	async init (vm) {
+	async init(vm) {
 		const fx = 'microCuentas>init'
 
 		this.vm = vm
-		this.token = (usarStores && await cuentaStore.getItem('token')) || null
-		this.cuentasURL = process.env.dev ? process.env.cuentasURL : process.env.cuentasURL.replace('HOST', window.location.host)
+		this.token = (usarStores && (await cuentaStore.getItem('token'))) || null
+		this.cuentasURL = process.env.dev
+			? process.env.cuentasURL
+			: process.env.cuentasURL.replace('HOST', window.location.host)
 
-		const llaveroMio = (usarStores && await llaveroStore.getItem('miLlavero')) || null
+		const llaveroMio =
+			(usarStores && (await llaveroStore.getItem('miLlavero'))) || null
 		if (llaveroMio) {
 			consolo.log(fx, 'Llavero recuperado', llaveroMio)
 			miLlavero = new Llavero()
@@ -94,25 +96,33 @@ const cuenta = {
 		this.leer()
 	},
 
-	get host () { return new URL(cuenta.cuentasURL).host },
+	get host() {
+		return new URL(cuenta.cuentasURL).host
+	},
 
-	get token () { return this._token },
-	get miLlavero () { return miLlavero },
+	get token() {
+		return this._token
+	},
+	get miLlavero() {
+		return miLlavero
+	},
 
-	set token (tkn) {
+	set token(tkn) {
 		this._token = tkn
-		this._expConfianza = tkn && tokenDecoder(tkn).iat + (60 * minutosDeConfianza)
+		this._expConfianza = tkn && tokenDecoder(tkn).iat + 60 * minutosDeConfianza
 		if (usarStores) cuentaStore.setItem('token', tkn)
 	},
 
-	get usuario () { return this._usuario },
+	get usuario() {
+		return this._usuario
+	},
 
-	set usuario (usr) {
+	set usuario(usr) {
 		this._usuario = usr
 		if (usarStores) cuentaStore.setItem('usuario', usr)
 	},
 
-	async mantenerTokenAutorizado (token) {
+	async mantenerTokenAutorizado(token) {
 		const fx = 'microCuentas>mantenerTokenAutorizado'
 		try {
 			token = token || cuenta.token
@@ -127,14 +137,20 @@ const cuenta = {
 		}
 	},
 
-	async ping () {
+	async ping() {
 		const fx = 'microCuentas>ping'
 		try {
 			consolo.log(fx)
-			const r = await solicitar.call(this, {
-				url: `${cuenta.cuentasURL}/llavero`,
-				method: 'get'
-			}, e => { this.sinConexion = true })
+			const r = await solicitar.call(
+				this,
+				{
+					url: `${cuenta.cuentasURL}/llavero`,
+					method: 'get',
+				},
+				e => {
+					this.sinConexion = true
+				}
+			)
 			// consolo.log(fx, 'r', r)
 			this.sinConexion = !(r && r.ok)
 			if (!r) return
@@ -151,8 +167,7 @@ const cuenta = {
 		}
 	},
 
-
-	async leer () {
+	async leer() {
 		const fx = 'microCuentas>leer'
 		try {
 			const token = cuenta.token
@@ -165,7 +180,7 @@ const cuenta = {
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/leer`,
 				method: 'get',
-				headers: { Authorization: `Bearer ${token}` }
+				headers: { Authorization: `Bearer ${token}` },
 			})
 			return await procesarInfoUsuario(r)
 		} catch (e) {
@@ -173,17 +188,19 @@ const cuenta = {
 		}
 	},
 
-	async decriptarDatosPersonales () {
+	async decriptarDatosPersonales() {
 		const fx = 'microCuentas>decriptarDatosPersonales'
 		try {
-			const desencriptado = cuenta.datosPrivados && await miLlavero.desencriptar(cuenta.datosPrivados)
+			const desencriptado =
+				cuenta.datosPrivados &&
+				(await miLlavero.desencriptar(cuenta.datosPrivados))
 			return desencriptado && JSON.parse(desencriptado)
 		} catch (e) {
 			console.error(fx, e)
 		}
 	},
 
-	async ingresar (email, pass) {
+	async ingresar(email, pass) {
 		const fx = 'microCuentas>ingresar'
 		try {
 			consolo.log(fx, { email, pass })
@@ -192,7 +209,9 @@ const cuenta = {
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
 			const llaves = await miLlavero.exportarLlavesPublicas()
-			const encriptado = await llaveroMicroCuentas.encriptar(JSON.stringify({ email, pass }))
+			const encriptado = await llaveroMicroCuentas.encriptar(
+				JSON.stringify({ email, pass })
+			)
 			if (!encriptado || _.isEmpty(encriptado)) {
 				console.error('Encriptado vacío', encriptado)
 				return
@@ -201,9 +220,9 @@ const cuenta = {
 				url: `${cuenta.cuentasURL}/ingresar`,
 				data: {
 					encriptado,
-					llaves
+					llaves,
 				},
-				method: 'post'
+				method: 'post',
 			})
 			return await procesarInfoUsuario(r)
 		} catch (e) {
@@ -211,7 +230,7 @@ const cuenta = {
 		}
 	},
 
-	async reautenticar (pass) {
+	async reautenticar(pass) {
 		const fx = 'microCuentas>reautenticar'
 		try {
 			const token = cuenta.token
@@ -224,7 +243,7 @@ const cuenta = {
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/reautenticar`,
 				data: { pass },
-				method: 'post'
+				method: 'post',
 			})
 			return await procesarInfoUsuario(r)
 		} catch (e) {
@@ -232,7 +251,7 @@ const cuenta = {
 		}
 	},
 
-	async salir () {
+	async salir() {
 		cuenta.usuario = null
 		cuenta.token = null
 		await cuentaStore.clear()
@@ -249,7 +268,7 @@ const cuenta = {
 		return true
 	},
 
-	async ingresarConToken (token) {
+	async ingresarConToken(token) {
 		const fx = 'microCuentas>ingresarConToken'
 		try {
 			consolo.log(fx, { token })
@@ -258,7 +277,7 @@ const cuenta = {
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/ingresarConToken`,
 				data: { token, llaves },
-				method: 'post'
+				method: 'post',
 			})
 			procesarInfoUsuario(r)
 			return r
@@ -268,7 +287,7 @@ const cuenta = {
 	},
 
 	cambiarPass: {
-		async conPass (pass, passNuevo) {
+		async conPass(pass, passNuevo) {
 			const fx = 'microCuentas>cambiarPass>conPass'
 			try {
 				const usuarioID = cuenta.usuario._id
@@ -276,7 +295,7 @@ const cuenta = {
 				const r = await solicitar.call(this, {
 					url: `${cuenta.cuentasURL}/pass`,
 					method: 'post',
-					data: { usuarioID, pass, passNuevo }
+					data: { usuarioID, pass, passNuevo },
 				})
 				consolo.log(`${fx} r`, r)
 				return r
@@ -284,14 +303,14 @@ const cuenta = {
 				console.error(fx, e)
 			}
 		},
-		async pedirCodigo (email, passNuevo) {
+		async pedirCodigo(email, passNuevo) {
 			const fx = 'microCuentas>cambiarPass>pedirCodigo'
 			try {
 				consolo.log(fx)
 				const r = await solicitar.call(this, {
 					url: `${cuenta.cuentasURL}/pass/codigo`,
 					method: 'post',
-					data: { email, passNuevo }
+					data: { email, passNuevo },
 				})
 				consolo.log(`${fx} r`, r)
 				return r
@@ -299,7 +318,7 @@ const cuenta = {
 				console.error(fx, e)
 			}
 		},
-		async conCodigo (email, codigo) {
+		async conCodigo(email, codigo) {
 			const fx = 'microCuentas>cambiarPass>conCodigo'
 			try {
 				consolo.log(fx)
@@ -307,7 +326,7 @@ const cuenta = {
 				const r = await solicitar.call(this, {
 					url: `${cuenta.cuentasURL}/pass/codigo`,
 					method: 'put',
-					data: { email, codigo, llaves }
+					data: { email, codigo, llaves },
 				})
 				consolo.log(`${fx} r`, r)
 				return await procesarInfoUsuario(r)
@@ -315,24 +334,24 @@ const cuenta = {
 				console.error(fx, e)
 			}
 		},
-		async pedirToken (email, passNuevo) {
+		async pedirToken(email, passNuevo) {
 			const fx = 'microCuentas>cambiarPass>pedirToken'
 			try {
 				consolo.log(fx)
 				const r = await solicitar.call(this, {
 					url: `${cuenta.cuentasURL}/pass/token`,
 					method: 'post',
-					data: { email, passNuevo }
+					data: { email, passNuevo },
 				})
 				consolo.log(`${fx} r`, r)
 				return r
 			} catch (e) {
 				console.error(fx, e)
 			}
-		}
+		},
 	},
 
-	async obtenerCargaFirmadaAvatar () {
+	async obtenerCargaFirmadaAvatar() {
 		const fx = 'microCuentas>obtenerCargaFirmadaAvatar'
 		try {
 			consolo.log(fx)
@@ -341,7 +360,7 @@ const cuenta = {
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/avatar/url`,
 				method: 'get',
-				headers: { Authorization: `Bearer ${token}` }
+				headers: { Authorization: `Bearer ${token}` },
 			})
 			consolo.log(`${fx} r`, r)
 			return r.url
@@ -350,7 +369,7 @@ const cuenta = {
 		}
 	},
 
-	async guardarUrlAvatar (url) {
+	async guardarUrlAvatar(url) {
 		const fx = 'microCuentas>guardarUrlAvatar'
 		try {
 			consolo.log(fx, url)
@@ -361,7 +380,7 @@ const cuenta = {
 				url: `${cuenta.cuentasURL}/avatar/url`,
 				method: 'put',
 				data: { url },
-				headers: { Authorization: `Bearer ${token}` }
+				headers: { Authorization: `Bearer ${token}` },
 			})
 			consolo.log(`${fx} r`, r)
 			this.usuario = r.usuario
@@ -373,13 +392,13 @@ const cuenta = {
 
 	// Validacion de correo
 
-	async enviarValidacionEmail () {
+	async enviarValidacionEmail() {
 		const fx = 'microCuentas>enviarValidacionEmail'
 		try {
 			consolo.log(fx)
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/email`,
-				method: 'post'
+				method: 'post',
 			})
 			consolo.log(`${fx} r`, r)
 			return r
@@ -390,7 +409,7 @@ const cuenta = {
 
 	// Inscripciones y ediciones por usuarios con autorización del back
 
-	async crearCuenta (autorizacion, { nombre, apellido, email, telefono, rut }) {
+	async crearCuenta(autorizacion, { nombre, apellido, email, telefono, rut }) {
 		const fx = 'microCuentas>crearCuenta'
 		const _ = cuenta.vm._
 		try {
@@ -405,9 +424,16 @@ const cuenta = {
 
 			// Desencriptar secretoFront
 			const tokenDecodificado = tokenDecoder(autorizacion)
-			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
+			const secretoDecriptado = await miLlavero.desencriptar(
+				tokenDecodificado.secretoFront
+			)
 
-			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono, rut }, v => v && !_.isEmpty(v)))
+			const serializado = JSON.stringify(
+				_.pickBy(
+					{ nombre, apellido, email, telefono, rut },
+					v => v && !_.isEmpty(v)
+				)
+			)
 			consolo.log(fx, 'serializado', serializado)
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
 			if (!encriptado || _.isEmpty(encriptado)) {
@@ -418,7 +444,7 @@ const cuenta = {
 				url: `${cuenta.cuentasURL}/crearPorOtroUsuario`,
 				data: { encriptado, secretoDecriptado, autorizacion },
 				headers: { Authorization: `Bearer ${token}` },
-				method: 'post'
+				method: 'post',
 			})
 			consolo.log(`${fx} r`, r)
 			// const ejemplo = {
@@ -432,7 +458,7 @@ const cuenta = {
 		}
 	},
 
-	async editar ({ nombre, apellido, email, telefono }) {
+	async editar({ nombre, apellido, email, telefono }) {
 		const fx = 'microCuentas>editarCuenta'
 		const _ = cuenta.vm._
 		try {
@@ -446,7 +472,12 @@ const cuenta = {
 			if (!miLlavero) throw 'Falta miLlavero'
 			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
 
-			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono }, v => v && !_.isEmpty(v)))
+			const serializado = JSON.stringify(
+				_.pickBy(
+					{ nombre, apellido, email, telefono },
+					v => v && !_.isEmpty(v)
+				)
+			)
 			consolo.log(fx, 'serializado', serializado)
 			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
@@ -458,7 +489,7 @@ const cuenta = {
 				url: `${cuenta.cuentasURL}/editar`,
 				data: { encriptado },
 				headers: { Authorization: `Bearer ${token}` },
-				method: 'post'
+				method: 'post',
 			})
 			consolo.log(`${fx} r`, r)
 			return await cuenta.leer()
@@ -467,7 +498,7 @@ const cuenta = {
 		}
 	},
 
-	async editarPorOtro (autorizacion, { nombre, apellido, email, telefono }) {
+	async editarPorOtro(autorizacion, { nombre, apellido, email, telefono }) {
 		const fx = 'microCuentas>editarCuentaPorOtroUsuario'
 		const _ = cuenta.vm._
 		try {
@@ -483,9 +514,16 @@ const cuenta = {
 
 			// Desencriptar secretoFront
 			const tokenDecodificado = tokenDecoder(autorizacion)
-			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
+			const secretoDecriptado = await miLlavero.desencriptar(
+				tokenDecodificado.secretoFront
+			)
 
-			const serializado = JSON.stringify(_.pickBy({ nombre, apellido, email, telefono }, v => v && !_.isEmpty(v)))
+			const serializado = JSON.stringify(
+				_.pickBy(
+					{ nombre, apellido, email, telefono },
+					v => v && !_.isEmpty(v)
+				)
+			)
 			consolo.log(fx, 'serializado', serializado)
 			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
@@ -497,7 +535,7 @@ const cuenta = {
 				url: `${cuenta.cuentasURL}/editar`,
 				data: { encriptado, secretoDecriptado, autorizacion },
 				headers: { Authorization: `Bearer ${token}` },
-				method: 'post'
+				method: 'post',
 			})
 			consolo.log(`${fx} r`, r)
 			return r
@@ -506,7 +544,7 @@ const cuenta = {
 		}
 	},
 
-	async buscarRut (autorizacion, rut) {
+	async buscarRut(autorizacion, rut) {
 		const fx = 'microCuentas>buscarRut'
 		const _ = cuenta.vm._
 		try {
@@ -521,9 +559,13 @@ const cuenta = {
 
 			// Desencriptar secretoFront
 			const tokenDecodificado = tokenDecoder(autorizacion)
-			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
+			const secretoDecriptado = await miLlavero.desencriptar(
+				tokenDecodificado.secretoFront
+			)
 
-			const serializado = JSON.stringify(_.pickBy({ rut }, v => v && !_.isEmpty(v)))
+			const serializado = JSON.stringify(
+				_.pickBy({ rut }, v => v && !_.isEmpty(v))
+			)
 			consolo.log(fx, 'serializado', serializado)
 			// Encriptar datos usuario
 			const encriptado = await llaveroMicroCuentas.encriptar(serializado)
@@ -535,18 +577,17 @@ const cuenta = {
 				url: `${cuenta.cuentasURL}/buscarXRut`,
 				data: { encriptado, secretoDecriptado, autorizacion },
 				headers: { Authorization: `Bearer ${cuenta.token}` },
-				method: 'post'
+				method: 'post',
 			})
 			consolo.log(`${fx} r`, r)
 			return r
 		} catch (e) {
 			console.error(fx, e)
 		}
-	}
+	},
 }
 
-
-async function solicitar (request, errorHandler) {
+async function solicitar(request, errorHandler) {
 	const _ = cuenta.vm._
 	const defaultHeaders = {
 		Accept: 'application/json',
@@ -558,11 +599,14 @@ async function solicitar (request, errorHandler) {
 	}
 	const ops = _.merge({ headers: defaultHeaders }, request)
 
-	const data = await axios(ops).then(r => {
-		// console.log('r', r)
-		if (cuenta.sinConexion === undefined || cuenta.sinConexion) cuenta.sinConexion = false
-		return r.data
-	}).catch(errorHandler || capturadorErrorSolicitud)
+	const data = await axios(ops)
+		.then(r => {
+			// console.log('r', r)
+			if (cuenta.sinConexion === undefined || cuenta.sinConexion)
+			{cuenta.sinConexion = false}
+			return r.data
+		})
+		.catch(errorHandler || capturadorErrorSolicitud)
 
 	if (!data) {
 		console.error('Sin respuesta')
@@ -571,15 +615,23 @@ async function solicitar (request, errorHandler) {
 	if (data.desconectar) cuenta.salir()
 	if (!data.ok && _.get(data, 'error.titulo')) {
 		// Mostrar mensaje de error ya preconfigurado
-		cuenta.vm.$notificar(_.get(data, 'error.titulo'), _.get(data, 'error.descripcion'), _.get(data, 'error.tipoNotificacion', 'warning'))
+		cuenta.vm.$notificar(
+			_.get(data, 'error.titulo'),
+			_.get(data, 'error.descripcion'),
+			_.get(data, 'error.tipoNotificacion', 'warning')
+		)
 	}
 	if (_.get(data, 'notificar.titulo')) {
 		// Mostrar mensaje ya preconfigurado
-		cuenta.vm.$notificar(_.get(data, 'notificar.titulo'), _.get(data, 'notificar.descripcion'), _.get(data, 'notificar.tipo', 'warning'))
+		cuenta.vm.$notificar(
+			_.get(data, 'notificar.titulo'),
+			_.get(data, 'notificar.descripcion'),
+			_.get(data, 'notificar.tipo', 'warning')
+		)
 	}
 	return data
 }
-function capturadorErrorSolicitud (error) {
+function capturadorErrorSolicitud(error) {
 	console.error('capturadorErrorSolicitud', error)
 	if (error.response) {
 		const { status, data } = error.response
@@ -595,8 +647,6 @@ function capturadorErrorSolicitud (error) {
 	consolo.log(error.config)
 }
 
-
-
 Vue.util.defineReactive(cuenta, 'token', cuenta.token)
 Vue.util.defineReactive(cuenta, 'usuario', cuenta.usuario)
 Vue.util.defineReactive(cuenta, 'datosPrivados', cuenta.datosPrivados)
@@ -607,15 +657,23 @@ export default function ({ app }, inject) {
 
 	if (!app.mixins) app.mixins = []
 	app.mixins.push({
-		mounted () {
+		mounted() {
 			consolo.log('criptoCuenta MOUNTED')
 			cuenta.init(this)
-		}
+		},
 	})
 
 	if (!Vue.__cuentas__) {
 		Vue.__cuentas__ = true
-		Object.defineProperty(Vue.prototype, '$usuario', { get () { return cuenta.usuario } })
-		Object.defineProperty(Vue.prototype, '$cuentaSinConexion', { get () { return cuenta.sinConexion } })
+		Object.defineProperty(Vue.prototype, '$usuario', {
+			get() {
+				return cuenta.usuario
+			},
+		})
+		Object.defineProperty(Vue.prototype, '$cuentaSinConexion', {
+			get() {
+				return cuenta.sinConexion
+			},
+		})
 	}
 }

@@ -71,7 +71,8 @@ export default {
 			},
 			localesPorComuna: {},
 			busquedaComuna: '',
-			busquedaLocal: ''
+			busquedaLocal: '',
+			comunasSugeridasPorBusqueda: []
 		}
 	},
 	computed: {
@@ -92,10 +93,12 @@ export default {
 				local: [{ required: true, message: '*', whitespace: false, trigger: 'blur' }],
 			}
 		},
+		todasLasRegionesYsusComunas () { return this.$chile.todasLasRegionesYsusComunas() },
 		regionesAsignables () {
-			if (this.$apoderade.tieneAccesoNacional) return this.$chile.regionesYSusComunas
+			const todas = this.todasLasRegionesYsusComunas
+			if (this.$apoderade.tieneAccesoNacional) return todas
 			const regionesAlcanzadas = this.$apoderade.territorios && this.$apoderade.territorios.map(t => t.region)
-			return regionesAlcanzadas && this._.pickBy(this.$chile.regionesYSusComunas, (r, regionID) => regionesAlcanzadas.includes(regionID))
+			return regionesAlcanzadas && this._.pickBy(todas, (r, regionID) => regionesAlcanzadas.includes(regionID))
 		},
 		comunasEnRegionesAsignables () {
 			const _ = this._
@@ -134,18 +137,6 @@ export default {
 			if (comunaElegida) return locales[comunaElegida]
 			return Object.assign({}, ...Object.values(locales))
 		},
-		comunasSugeridasPorBusqueda () {
-			const _ = this._
-			const buscado = parameterize(this.busquedaComuna)
-			console.log('buscado', buscado)
-			if (_.isEmpty(buscado)) return this.comunasEnRegionesAsignables
-			let comunasFiltradas = Object.assign({}, this.comunasEnRegionesAsignables)
-			_.forEach(comunasFiltradas, (region, regionID) => {
-				comunasFiltradas[regionID].comunas = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(buscado))
-			})
-			comunasFiltradas = _.filter(comunasFiltradas, region => !_.isEmpty(region.comunas))
-			return comunasFiltradas
-		},
 		localesSugeridosPorBusqueda () {
 			const _ = this._
 			const buscado = parameterize(this.busquedaLocal)
@@ -158,7 +149,23 @@ export default {
 	},
 	methods: {
 		filtrarSugerenciasComunas (buscado) {
+			console.log('filtrarSugerenciasComunas', buscado)
 			this.busquedaComuna = buscado
+
+			const _ = this._
+			const q = parameterize(buscado)
+			console.log('query:', q)
+			if (_.isEmpty(q)) return this.todasLasRegionesYsusComunas
+
+			const filtrables = Object.assign({x:1}, this.todasLasRegionesYsusComunas)
+
+			// const filtradas = _.reduce(filtrables, (resultado, region, regionID) => {
+			this.comunasSugeridasPorBusqueda = _.reduce(filtrables, (resultado, region, regionID) => {
+				const comunasCalzantes = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(q))
+				if (_.isEmpty(comunasCalzantes)) return resultado
+				resultado.push(Object.assign({regionID, nombre: region.nombre}, {comunas: comunasCalzantes}))
+				return resultado
+			}, [])
 		},
 		filtrarSugerenciasLocales (buscado) {
 			this.busquedaLocal = buscado

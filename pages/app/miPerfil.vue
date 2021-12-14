@@ -4,6 +4,7 @@
 	.apoderade(v-if="$apoderade")
 		.miniCabecera
 			h3 Mi información de apoderado
+			.usuarioID {{'#'}}{{$usuario.id}}
 
 		a-alert(v-if="$apoderade.tieneAccesoNacional"
 			message="Tienes acceso nacional" type="success" show-icon)
@@ -69,7 +70,7 @@
 	//- a-divider
 
 	.cuenta
-		a-button.w100(@click="$cuenta.salir") Desconectarme
+		a-button.w100(type="danger" @click="$cuenta.salir" ghost) Desconectarme
 
 
 </template>
@@ -99,6 +100,9 @@ export default {
 </script>
 <style lang="sass" scoped>
 @import '@style/vars'
+
+.usuarioID
+	opacity: .5
 .miniCabecera
 	margin-bottom: 1.4rem
 	h3

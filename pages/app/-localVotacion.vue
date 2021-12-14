@@ -14,11 +14,11 @@
 
 					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre de la comuna' @search="filtrarSugerenciasComunas" @select="elegirComuna" allow-clear)
 						template(slot='dataSource')
-							a-select-opt-group(v-for='(region, regionID) in comunasSugeridasPorBusqueda' :key='`reg-${regionID}`')
+							a-select-opt-group(v-for='region in comunasSugeridasPorBusqueda' :key='`reg-${region.regionID}`')
 								span(slot='label')
 									| {{ region.nombre }}
 									//- a(style='float: right' href='https://www.google.com/search?q=antd' target='_blank' rel='noopener noreferrer') more
-								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='(comuna, comunaID) in region.comunas' :key='`comuna-${comunaID}`' :value='comunaID')
+								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='(comuna, comunaID) in region.comunas' :key='`reg-${region.regionID}-comuna-${comunaID}`' :value='comunaID')
 									| {{ comuna.nombre }}
 									//- span.certain-search-item-count {{ comuna.count }} people
 							//- a-select-option.show-all(key='all' disabled='')
@@ -31,7 +31,7 @@
 				a-form-model-item(has-feedback prop="localID" label="Local de votación")
 					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre del local' @search="filtrarSugerenciasLocales" @select="elegirLocal" allow-clear)
 						template(slot='dataSource')
-							a-select-option(v-if="!_.isEmpty(localesSugeridosPorBusqueda)" v-for='(local, localID) in localesSugeridosPorBusqueda' :key='`local-${localID}`' :value='localID')
+							a-select-option(v-if="!_.isEmpty(localesSugeridosPorBusqueda)" v-for='local in localesSugeridosPorBusqueda' :key='`local-${local.localID}`' :value='local.localID')
 								| {{ local.nombre }}
 								//- span.certain-search-item-count {{ comuna.count }} people
 						a-input
@@ -55,7 +55,9 @@ export default {
 			},
 			localesPorComuna: {},
 			busquedaComuna: '',
-			busquedaLocal: ''
+			busquedaLocal: '',
+			comunasSugeridasPorBusqueda: [],
+			localesSugeridosPorBusqueda: []
 		}
 	},
 	computed: {
@@ -66,42 +68,58 @@ export default {
 				local: [{ required: true, message: '*', whitespace: false, trigger: 'blur' }],
 			}
 		},
-		localesAsignables () {
-			const locales = this.localesPorComuna
+		localesComuna () {
+			const locales = this.$store.state.locales
 			const comunaElegida = this.asignacionTerritorialForm.comunaID
-			if (comunaElegida) return locales[comunaElegida]
-			return Object.assign({}, ...Object.values(locales))
+			if (!comunaElegida) return locales
+			const filtrados = this._.pickBy(locales, local=> this._.get(local, 'ubicacion.comunaCodigo') === comunaElegida)
+			return filtrados
 		},
-		comunasSugeridasPorBusqueda () {
-			const _ = this._
-			const buscado = parameterize(this.busquedaComuna)
-			console.log('buscado', buscado)
-			if (_.isEmpty(buscado)) return this.$chile.regionesYSusComunas
-
-			let comunasFiltradas = Object.assign({}, this.$chile.regionesYSusComunas)
-			_.forEach(comunasFiltradas, (region, regionID) => {
-				comunasFiltradas[regionID].comunas = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(buscado))
-			})
-			comunasFiltradas = _.filter(comunasFiltradas, region => !_.isEmpty(region.comunas))
-
-			return comunasFiltradas
-		},
-		localesSugeridosPorBusqueda () {
+		todasLasRegionesYsusComunas () {return this.$chile.todasLasRegionesYsusComunas()},
+		localesSugeridosPorBusqddddddddddddueda () {
 			const _ = this._
 			const buscado = parameterize(this.busquedaLocal)
 			console.log('buscado', buscado)
-			if (_.isEmpty(buscado)) return this.localesAsignables
-			let localesFiltrados = Object.assign({}, this.localesAsignables)
+			if (_.isEmpty(buscado)) return this.localesComuna
+			let localesFiltrados = Object.assign({}, this.localesComuna)
 			localesFiltrados = _.pickBy(localesFiltrados, local => parameterize(local.nombre).includes(buscado))
 			return localesFiltrados
 		}
 	},
 	methods: {
 		filtrarSugerenciasComunas (buscado) {
+			console.log('filtrarSugerenciasComunas', buscado)
 			this.busquedaComuna = buscado
+
+			const _ = this._
+			const q = parameterize(buscado)
+			console.log('query:', q)
+			if (_.isEmpty(q)) return this.todasLasRegionesYsusComunas
+
+			const filtrables = Object.assign({x:1}, this.todasLasRegionesYsusComunas)
+
+			// const filtradas = _.reduce(filtrables, (resultado, region, regionID) => {
+			this.comunasSugeridasPorBusqueda = _.reduce(filtrables, (resultado, region, regionID) => {
+				const comunasCalzantes = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(q))
+				if (_.isEmpty(comunasCalzantes)) return resultado
+				resultado.push(Object.assign({regionID, nombre: region.nombre}, {comunas: comunasCalzantes}))
+				return resultado
+			}, [])
 		},
 		filtrarSugerenciasLocales (buscado) {
+			console.log('filtrarSugerenciasLocales', buscado)
 			this.busquedaLocal = buscado
+
+			const _ = this._
+			const q = parameterize(buscado)
+			console.log('query', q)
+			const comunaElegida = this.asignacionTerritorialForm.comunaID
+			if (!comunaElegida) return
+			const todosLosLocales = this.$store.state.locales
+			this.localesSugeridosPorBusqueda = _.reduce(todosLosLocales, (resultado, local, localID) => {
+				if (parameterize(local.nombre).includes(q)) resultado.push({...local, localID})
+				return resultado
+			}, [])
 		},
 		elegirComuna (comunaID) {
 			console.log('elegirComuna', comunaID)
