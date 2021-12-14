@@ -50,7 +50,6 @@
 				a-button.w100.casiBpStyle(@click="asignarTerritorio") Asignar
 </template>
 <script>
-import { regionesYSusComunas, comunasEnUnaRegion, regionIDDeComuna } from '@lib/regioneschile'
 import parameterize from '@lib/parameterize'
 export default {
 	props: {
@@ -94,9 +93,9 @@ export default {
 			}
 		},
 		regionesAsignables () {
-			if (this.$apoderade.tieneAccesoNacional) return regionesYSusComunas
+			if (this.$apoderade.tieneAccesoNacional) return this.$chile.regionesYSusComunas
 			const regionesAlcanzadas = this.$apoderade.territorios && this.$apoderade.territorios.map(t => t.region)
-			return regionesAlcanzadas && this._.pickBy(regionesYSusComunas, (r, regionID) => regionesAlcanzadas.includes(regionID))
+			return regionesAlcanzadas && this._.pickBy(this.$chile.regionesYSusComunas, (r, regionID) => regionesAlcanzadas.includes(regionID))
 		},
 		comunasEnRegionesAsignables () {
 			const _ = this._
@@ -116,7 +115,7 @@ export default {
 			const idRegionElegida = this.asignacionTerritorialForm.region
 			if (idRegionElegida) {
 				if (regionesAsignables[idRegionElegida]) return []
-				comunasAsignables = comunasEnUnaRegion(idRegionElegida)
+				comunasAsignables = this.$chile.comunasEnUnaRegion(idRegionElegida)
 			}
 			// Revisar a qué comunas tiene alcance el inscriptor
 			if (this.$apoderade.tieneAccesoNacional) return comunasAsignables
@@ -171,7 +170,7 @@ export default {
 		elegirComuna (comunaID) {
 			console.log('elegirComuna', comunaID)
 			this.asignacionTerritorialForm.comuna = comunaID
-			const regionID = regionIDDeComuna(comunaID)
+			const regionID = this.$chile.regionIDDeComuna(comunaID)
 			if (this.asignacionTerritorialForm.region !== regionID) this.asignacionTerritorialForm.region = regionID
 			this.$refs.asignacionTerritorialForm.validate()
 			this.buscarLocales(regionID, comunaID)

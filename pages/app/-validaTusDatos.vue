@@ -94,9 +94,12 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
+.cabecera
+	padding-top: 4em
+	h1
+		margin: 0 0 1rem	
 .autovalidadorDatosPersonales
 	h1
 		margin: 0 0 1rem	
-	// &::v-deep
 
 </style>

@@ -50,6 +50,7 @@ export default {
 	plugins: [
 		'@/plugins/antd-ui',
 		'@/plugins/consolo',
+		'@/plugins/chile',
 		'@/plugins/lodash',
 		'@/plugins/i18n',
 		'@/plugins/fechas',

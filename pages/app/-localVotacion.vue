@@ -1,8 +1,8 @@
 <template lang="pug">
 .asignadorTerritorio.anchoMovil
 	.cabecera
-		b Antes de continuar, por favor
-		h1 Selecciona tu local de votación 
+		b Antes de continuar, por favor, indica
+		h1 Tu local de votación 
 
 	.modosAsignacion
 
@@ -43,7 +43,6 @@
 
 </template>
 <script>
-import { regionesYSusComunas, regionIDDeComuna } from '@lib/regioneschile'
 import parameterize from '@lib/parameterize'
 export default {
 	data () {
@@ -77,9 +76,9 @@ export default {
 			const _ = this._
 			const buscado = parameterize(this.busquedaComuna)
 			console.log('buscado', buscado)
-			if (_.isEmpty(buscado)) return regionesYSusComunas
+			if (_.isEmpty(buscado)) return this.$chile.regionesYSusComunas
 
-			let comunasFiltradas = Object.assign({}, regionesYSusComunas)
+			let comunasFiltradas = Object.assign({}, this.$chile.regionesYSusComunas)
 			_.forEach(comunasFiltradas, (region, regionID) => {
 				comunasFiltradas[regionID].comunas = _.pickBy(region.comunas, comuna => parameterize(comuna.nombre).includes(buscado))
 			})
@@ -107,7 +106,7 @@ export default {
 		elegirComuna (comunaID) {
 			console.log('elegirComuna', comunaID)
 			this.asignacionTerritorialForm.comunaID = comunaID
-			const regionID = regionIDDeComuna(comunaID)
+			const regionID = this.$chile.regionIDDeComuna(comunaID)
 			if (this.asignacionTerritorialForm.regionID !== regionID) this.asignacionTerritorialForm.regionID = regionID
 			this.$refs.asignacionTerritorialForm.validate()
 			this.buscarLocales(regionID, comunaID)
@@ -150,6 +149,10 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
+.cabecera
+	padding-top: 4em
+	h1
+		margin: 0 0 1rem	
 .modosAsignacion
 	margin-bottom: 3em
 .descripcionAsignacion

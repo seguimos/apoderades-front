@@ -338,7 +338,7 @@ const cuentaBack = {
 		try {
 			const s = await solicitar({
 				method: 'post',
-				url: `${cuentaBack.backURL}/apoderade/datos`,
+				url: `${cuentaBack.backURL}/apoderade/territoriopreferencia`,
 				data: { territorioPreferencia: { region: regionID, comunaCodigo: comunaID, localId: localID } }
 			})
 			if (!s || !s.ok) throw ['fail editando autovalidando datos', s]
