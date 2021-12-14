@@ -38,7 +38,7 @@ async function procesarInfoUsuario(r) {
 			shallowDecodificado.id = decodificado.sub
 			delete shallowDecodificado.llaves
 			delete shallowDecodificado.sub
-			cuenta.usuario = Object.assign({}, cuenta.usuario, shallowDecodificado)
+			cuenta.usuario = shallowDecodificado
 
 			cuenta.vm.$nextTick(() => {
 				cuenta.emit('cambioToken', r.token)
@@ -224,6 +224,37 @@ const cuenta = {
 				},
 				method: 'post',
 			})
+			return await procesarInfoUsuario(r)
+		} catch (e) {
+			console.error(fx, e)
+		}
+	},
+
+	async crearPass(pass) {
+		const fx = 'microCuentas>crearPass'
+		try {
+			consolo.log(fx, { pass })
+
+			if (!miLlavero) throw 'Falta miLlavero'
+			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
+
+			const llaves = await miLlavero.exportarLlavesPublicas()
+			const encriptado = await llaveroMicroCuentas.encriptar(
+				JSON.stringify({ pass })
+			)
+			if (!encriptado || _.isEmpty(encriptado)) {
+				console.error('Encriptado vacío', encriptado)
+				return
+			}
+			const r = await solicitar.call(this, {
+				url: `${cuenta.cuentasURL}/crearPass`,
+				data: {
+					encriptado,
+					llaves,
+				},
+				method: 'post',
+			})
+			
 			return await procesarInfoUsuario(r)
 		} catch (e) {
 			console.error(fx, e)

@@ -2,35 +2,24 @@
 .recuPass
 	transition(mode="out-in" :duration="300")
 
-		// CAMBIO PASSWORD
+		// Creación pass
 		a-form-model.formulario(key="solicitarCambioPass"
 			:model="cuenta"
 			layout="vertical"
-			ref="formCambioPass"
-			:rules="reglasCambioPass")
+			ref="formCreacionPass"
+			:rules="reglasCreacionPassword")
 
-			h1.titulo {{ $t('cambiaTuPass') }}
 
-			.dn
-				input(type="text" autocomplete="username" :value="$usuario.email" readonly)
-
-			a-form-model-item(prop="pass"
-				:help="_.get(error, 'pass')"
-				:validateStatus="passIncorrectos.includes(cuenta.pass) ? 'error' : ''")
-
-				.flex.f11.jcsb(slot="label")
-					label {{$t('actualPass')}}
-					n-link.passOlvidada(to="/cuenta/recuperar-pass") Olvidada?
-
-				a-input-password(
-					ref="actualpass"
-					v-model="cuenta.pass"
-					:placeholder="$t('contrasena')"
-					autocomplete="current-password"
-					@keyup.enter="pasarA($refs.nuevoPass)"
+			a-form-model-item(prop="email" :label="$t('correo')")
+				a-input(
+					disabled
+					:value="email"
+					:placeholder="$t('correo')"
+					type="email"
+					autocomplete="off"
 				)
-					a-icon(slot="prefix" type="key")
-
+					a-icon(slot="prefix" type="mail")
+					
 			a-form-model-item(prop="nuevoPass" :label="$t('nuevoPass')")
 
 				a-input-password(
@@ -52,18 +41,9 @@
 <script>
 export default {
 	props: {
-		email: { type: String, required: false, default: undefined }
+		email: { type: String, required: true, default: undefined }
 	},
 	data () {
-		const vm = this
-		const validatePass = (rule, value, callback) => {
-			if (vm.passIncorrectos.includes(value)) {
-				callback(new Error('Contraseña incorrecta'))
-			} else {
-				callback()
-			}
-		}
-
 		return {
 			procesando: false,
 			error: null,
@@ -72,12 +52,7 @@ export default {
 
 			cuenta: {},
 
-			reglasCambioPass: {
-				pass: [
-					{ required: true, message: this.$t('noOlvidesEsto') },
-					{ type: 'string', min: 1, message: this.$t('muyCorto') },
-					{ validator: validatePass, trigger: 'change' }
-				],
+			reglasCreacionPassword: {
 				nuevoPass: [
 					{ required: true, message: this.$t('noOlvidesEsto') },
 					{ type: 'string', min: 8, message: this.$t('muyCorto') }
@@ -88,18 +63,18 @@ export default {
 	methods: {
 		procesarSolicitudCambioPass () {
 			console.log('procesarSolicitudCambioPass')
-			this.$refs.formCambioPass.validate(valid => {
+			this.$refs.formCreacionPass.validate(valid => {
 				if (valid) {
 					const c = this.cuenta
-					this.solicitarCambioPass(c.pass, c.nuevoPass)
+					this.solicitarCambioPass(c.nuevoPass)
 				} else {
 					console.warn('error submit!!')
 					return false
 				}
 			})
 		},
-		async solicitarCambioPass (pass, passNuevo) {
-			this.$consolo.log('solicitarCambioPass', { pass, passNuevo })
+		async solicitarCambioPass (passNuevo) {
+			this.$consolo.log('solicitarCambioPass', { passNuevo })
 			this.procesando = true
 			const test = false
 			if (test) {
@@ -107,7 +82,7 @@ export default {
 				return
 			}
 			try {
-				const { ok, error } = await this.$cuenta.cambiarPass.conPass(pass, passNuevo)
+				const { ok, error } = await this.$cuenta.crearPass(passNuevo)
 				this.procesando = false
 				this.codigosIntentados = []
 				this.codigoSeparado = ['', '', '', '']
@@ -119,7 +94,7 @@ export default {
 					if (error.pass === 'incorrecto') {
 						this.$message.error('Contraseña actual incorrecta')
 						this.passIncorrectos.push(this.cuenta.pass)
-						this.$nextTick(() => { this.$refs.formCambioPass.validate() })
+						this.$nextTick(() => { this.$refs.formCreacionPass.validate() })
 					} else {
 						this.$message.error('No se pudo cambiar la contraseña')
 						this.error = error
