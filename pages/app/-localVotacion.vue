@@ -109,18 +109,22 @@ export default {
 				return resultado
 			}, [])
 		},
-		elegirComuna (comunaID) {
+		async elegirComuna (comunaID) {
 			console.log('elegirComuna', comunaID)
 			this.asignacionTerritorialForm.comunaID = comunaID
 			const regionID = this.$chile.regionIDporComunaID(comunaID)
 			if (this.asignacionTerritorialForm.regionID !== regionID) this.asignacionTerritorialForm.regionID = regionID
+			this.asignacionTerritorialForm.localID = null
+			await new Promise(resolve => this.$nextTick(() => resolve()))
 			this.$refs.asignacionTerritorialForm.validate()
+			this.filtrarSugerenciasLocales()
 			this.buscarLocales(regionID, comunaID)
 		},
 		elegirLocal (localID) {
 			console.log('elegirLocal', localID)
 			this.asignacionTerritorialForm.localID = localID
 			const comunaID = this._.get(this.$store.state.locales, [localID, 'comunaID'])
+			console.log('elegirLocal comunaID =', comunaID)
 			if (this.asignacionTerritorialForm.comunaID !== comunaID) this.elegirComuna(comunaID)
 			this.$refs.asignacionTerritorialForm.validate()
 		},

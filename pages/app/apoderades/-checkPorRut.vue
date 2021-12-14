@@ -16,7 +16,7 @@ export default {
 	data () {
 		return {
 			// Rut
-			rutForm: { rut: '111111111' },
+			rutForm: { rut: undefined },
 			usuarioID: undefined,
 			apoderadeNombre: undefined,
 			rutBuscado: undefined,
