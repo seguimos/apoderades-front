@@ -36,7 +36,7 @@
 
 		a-step(title='Asignación de local/territorio')
 			div(slot="description")
-				div(v-if="etapa !== 'estadoYOpcionesAsignacion'")
+				div(v-if="!['estadoYOpcionesAsignacion', 'asignacionTerritorial'].includes(etapa)")
 					div Aquí verás los locales/territorios asignados al apoderado inscrito
 				div(v-else-if="!datosApoderade")
 					a-icon(type="loading")
@@ -49,7 +49,7 @@
 
 					a-alert.noAsignade(v-else banner message="Aún no se ha asignado local/territorio") 
 
-					.opcionesAsignacion(v-if="!_.isEmpty(alternativasAsignacion)")
+					.opcionesAsignacion(v-if="etapa === 'estadoYOpcionesAsignacion' && !_.isEmpty(alternativasAsignacion)")
 						.info Puedes asignarle los siguientes roles
 
 						.alternativas

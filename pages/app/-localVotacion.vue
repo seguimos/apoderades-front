@@ -12,17 +12,13 @@
 			mixin selectorComuna
 				a-form-model-item(has-feedback prop="comunaID" label="Comuna")
 
-					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre de la comuna' @search="filtrarSugerenciasComunas" @select="elegirComuna" allow-clear)
+					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre de la comuna' @focus="filtrarSugerenciasComunas(busquedaComuna)" @search="filtrarSugerenciasComunas" @select="elegirComuna" allow-clear)
 						template(slot='dataSource')
 							a-select-opt-group(v-for='region in comunasSugeridasPorBusqueda' :key='`reg-${region.regionID}`')
 								span(slot='label')
 									| {{ region.nombre }}
-									//- a(style='float: right' href='https://www.google.com/search?q=antd' target='_blank' rel='noopener noreferrer') more
-								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='(comuna, comunaID) in region.comunas' :key='`reg-${region.regionID}-comuna-${comunaID}`' :value='comunaID')
+								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='comuna in region.comunas' :key='`comuna-${comuna.comunaID}`' :value='comuna.comunaID')
 									| {{ comuna.nombre }}
-									//- span.certain-search-item-count {{ comuna.count }} people
-							//- a-select-option.show-all(key='all' disabled='')
-								a(href='https://www.google.com/search?q=ant-design-vue' target='_blank' rel='noopener noreferrer') View all results
 						a-input
 							//a-icon.certain-category-icon(slot='suffix' type='search')
 
@@ -66,13 +62,6 @@ export default {
 				comuna: [{ required: true, message: '*', whitespace: true, trigger: 'blur' }],
 				local: [{ required: true, message: '*', whitespace: false, trigger: 'blur' }],
 			}
-		},
-		localesComuna () {
-			const locales = this.$store.state.locales
-			const comunaElegida = this.asignacionTerritorialForm.comunaID
-			if (!comunaElegida) return locales
-			const filtrados = this._.pickBy(locales, local=> this._.get(local, 'ubicacion.comunaCodigo') === comunaElegida)
-			return filtrados
 		}
 	},
 	mounted () {
