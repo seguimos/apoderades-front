@@ -26,9 +26,9 @@
 			div(slot="description")
 				div(v-if="!usuarioID && etapa !== 'datosPersonales'")
 					div Si a quien corresponde al rut no se le ha inscrito, podrás incribirle aquí
-				div(v-else-if="!usuarioID")
+				div(v-else-if="usuarioID")
 					div Todo listo aquí
-					creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @inscrite="cargarApoderade")
+					creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @incripcionRealizada="cargarApoderade")
 				div(v-else-if="!datosApoderade")
 					a-icon(type="loading")
 				div(v-else)

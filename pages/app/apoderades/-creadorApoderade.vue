@@ -67,6 +67,7 @@ export default {
 				const rut = this.rut
 				const { nombre, apellido, email, telefono } = this.personalesForm
 				const r = await this.$cuentaBack.soloCrearApoderade({ nombre, apellido, email, telefono, rut })
+				
 
 				this.guardandoDatos = false
 				console.log('guardarDatosPersonales', r)
