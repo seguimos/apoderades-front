@@ -616,6 +616,43 @@ const cuenta = {
 			console.error(fx, e)
 		}
 	},
+
+
+	async datosPersonalesTerceros (autorizacion) {
+		const fx = 'microCuentas>datosPersonalesTerceros'
+		try {
+			console.log(fx, JSON.stringify({autorizacion}))
+			if (!cuenta.token) {
+				if (cuenta.usuario !== null) cuenta.usuario = null
+				console.log(fx, 'abortado por no haber token')
+				return
+			}
+
+			if (!miLlavero) throw 'Falta miLlavero'
+			if (!llaveroMicroCuentas) llaveroMicroCuentas = await cuenta.ping()
+
+			// Desencriptar secreto
+			const tokenDecodificado = tokenDecoder(autorizacion)
+			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
+
+			const r = await solicitar.call(this, {
+				url: `${cuenta.cuentasURL}/leerOtros`,
+				data: { secretoDecriptado, autorizacion },
+				headers: { Authorization: `Bearer ${cuenta.token}` },
+				method: 'post',
+			})
+			consolo.log(`${fx} r`, r)
+			if (!r || !r.ok) throw r
+			const decriptado = await miLlavero.desencriptar(r.encriptado)
+			consolo.log(`${fx} decriptado`, decriptado)
+			const usuarios = JSON.parse(decriptado)
+			consolo.log(`${fx} usuarios`, usuarios)
+			return {ok: 1, usuarios}
+		} catch (e) {
+			console.error(fx, e)
+			return e
+		}
+	},
 }
 
 async function solicitar(request, errorHandler) {

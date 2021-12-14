@@ -263,6 +263,31 @@ const cuentaBack = {
 		}
 	},
 
+	async obtenerDatosPersonalesOtrosUsuarios (usuarioIDs, campos) {
+		const fx = 'cuentaBack>obtenerDatosPersonalesOtrosUsuarios'
+		try {
+			console.log(fx, JSON.stringify({usuarioIDs, campos}))
+			// Primero obtener autorización del back
+			const r = await solicitar({
+				method: 'post',
+				// TODO: establecer una URL en el back para obtener autorizacion
+				url: `${cuentaBack.backURL}/autorizarAccesoDatosPersonalesTerceros`,
+				data: {usuarioIDs, campos}
+			})
+			if (!r || !r.ok) throw ['No se pudo autorizar obtenerDatosPersonalesOtrosUsuarios', r]
+
+			const { autorizacion } = r
+			const s = await cuentaBack.cuenta.datosPersonalesTerceros(autorizacion)
+			if (!s || !s.ok) throw ['No se pudo obtenerDatosPersonalesOtrosUsuarios', r]
+			// TODO: hacer cosas con los datos
+			return s
+		} catch (e) {
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
+		}
+	},
+
 	async asignarTerritorio ({ usuarioID, regionID, comunaID, localID, esApoGeneral}) {
 		const fx = 'cuentaBack>asignarTerritorio'
 		try {
