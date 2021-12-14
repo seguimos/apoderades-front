@@ -170,7 +170,7 @@ export default {
 		elegirComuna (comunaID) {
 			console.log('elegirComuna', comunaID)
 			this.asignacionTerritorialForm.comuna = comunaID
-			const regionID = this.$chile.regionIDDeComuna(comunaID)
+			const regionID = this.$chile.regionIDporComunaID(comunaID)
 			if (this.asignacionTerritorialForm.region !== regionID) this.asignacionTerritorialForm.region = regionID
 			this.$refs.asignacionTerritorialForm.validate()
 			this.buscarLocales(regionID, comunaID)

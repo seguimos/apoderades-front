@@ -1,8 +1,17 @@
 import * as regionesChile from '@lib/chile'
 
+const chile = {
+	...regionesChile,
+}
+
 export default (ctx, inject) => {
-	inject('chile', regionesChile)
-	const { app } = ctx
-	ctx.chile = regionesChile
-	app.chile = regionesChile
+	const { app, store } = ctx
+
+	chile.localPorID = localID =>  {
+		return store.state.locales[localID] || {}
+	}
+
+	inject('chile', chile)
+	ctx.chile = chile
+	app.chile = chile
 }

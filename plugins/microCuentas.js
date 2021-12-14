@@ -116,11 +116,8 @@ const cuenta = {
 		const fx = 'microCuentas>mantenerTokenAutorizado'
 		try {
 			token = token || cuenta.token
-			if (!token) {
-				console.log(`%c ${fx} Sin token, detenido`, 'color: #666;')
-				return
-			}
-			console.log(`%c ${fx} generado`, 'color: seagreen;')
+			if (!token) return
+			// console.log(`%c ${fx} generado`, 'color: seagreen;')
 			const cuerpoToken = { jtiCuentas: tokenDecoder(token).jti }
 			const moment = cuenta.vm.$moment
 			cuerpoToken.exp = moment().add(1, 'm').unix()

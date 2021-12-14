@@ -96,6 +96,10 @@ const cuentaBack = {
 			consolo.log(fx, 'r', r)
 			const { apoderade } = r
 			this.apoderade = apoderade
+			if (apoderade.territorioPreferencia) {
+				const t = apoderade.territorioPreferencia
+				if (t.region && t.localId) cuentaBack.localPorID(t.region, t.localId)
+			}
 			return r
 		} catch (e) {
 			console.error(fx, e)
@@ -238,7 +242,7 @@ const cuentaBack = {
 				method: 'get',
 				url: `${cuentaBack.backURL}/autorizarBusquedaPorRut`
 			})
-			if (!r || !r.ok) throw ['No se pudo cargar local', r]
+			if (!r || !r.ok) throw ['No se pudo autorizar Busqueda PorRut', r]
 
 			const { autorizacion } = r
 			const s = await cuentaBack.cuenta.buscarRut(autorizacion, rut)
@@ -376,12 +380,12 @@ const cuentaBack = {
 			consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
-				url: `${cuentaBack.backURL}/locales/:region/locales/:localId`,
-				params: { region:regionID, localId:localID  }
+				url: `${cuentaBack.backURL}/locales/${regionID}/locales/${localID}`
 			})
 			if (!r || !r.ok) throw [`No se pudo cargar local con id ${localID}`, r]
 			if (dev) cuentaBack.vm.$message.success('Local cargado')
 			consolo.log(fx, 'r', r)
+			cuentaBack.vm.$store.commit('local', r.local)
 			return r
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
@@ -401,6 +405,14 @@ const cuentaBack = {
 			if (!r || !r.ok) throw ['No se pudo cargar locales de comuna', r]
 			cuentaBack.vm.$message.success('Locales cargados')
 			consolo.log(fx, 'r', r)
+
+			const locales = _.reduce(r.locales, (locs, local) => {
+				locs[local._id] = local
+				delete locs[local._id]._id
+				return locs
+			}, {})
+			console.log('buscarLocales', locales)
+			cuentaBack.vm.$store.commit('locales', locales)
 			return r
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)

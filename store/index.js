@@ -10,7 +10,9 @@ export const mutations = {
 	locales (s, locales) {
 		s.locales = Object.assign({}, s.locales, locales)
 	},
-	local (s, {localID, local}) {
-		s.locales = Object.assign({}, s.locales, {[localID]: local})
+	local (s, local) {
+		const id = local._id
+		delete local._id
+		s.locales = Object.assign({}, s.locales, {[id]: local})
 	}
 }

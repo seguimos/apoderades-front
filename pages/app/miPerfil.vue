@@ -1,5 +1,5 @@
 <template lang="pug">
-.paginaMiPerfil.comoMovil
+.paginaMiPerfil.anchoMovil
 
 	.apoderade(v-if="$apoderade")
 		.miniCabecera
@@ -14,22 +14,54 @@
 				li Dar nivel de acceso de comuna a cualquier apoderado
 				li Asignar local de votación a un apoderado para que ejerza como apoderado general o de mesa
 				
-		.territoriosAsignados
+		.asignaciones
 			.microCabecera
-				h4 Territorios que se me han asignado
-			.sinTerritorios(v-if="_.isEmpty($apoderade.territoriosAsignados)") 
-				.info No se te ha asignado un territorio/local
-			.territorios(v-else) 
-				.territorio(v-for="terr in $apoderade.territoriosAsignados")
-					p {{terr}}
+				h4 Territorios que se me han encargado
+			div(v-if="_.isEmpty($apoderade.territoriosAsignados)") 
+				.info Nada aún.
+			div(v-else) 
+				div(v-for="terr in $apoderade.territoriosAsignados")
+					.asignacion(v-for="asignacion in [asignacion(terr)]")
+						.coordinadorRegional(v-if="asignacion.capa === 'regional'")
+							strong Coordinador Regional
+							.region {{_.get(asignacion, ['region','nombre'])}}
+						.coordinadorComunal(v-else-if="asignacion.capa === 'comunal'")
+							strong Coordinador Comunal
+							.region {{_.get(asignacion, ['region','nombre'])}}
+							.comuna {{_.get(asignacion, ['comuna','nombre'])}}
+						.apoderadoGeneral(v-else-if="asignacion.capa === 'general'")
+							strong Apoderado General
+							.region {{_.get(asignacion, ['region','nombre'])}}
+							.comuna {{_.get(asignacion, ['comuna','nombre'])}}
+							.local {{_.get(asignacion, ['local','nombre'])}}
+						.apoderadoMesa(v-else-if="asignacion.capa === 'mesa'")
+							strong Apoderado Mesa
+							.region {{_.get(asignacion, ['region','nombre'])}}
+							.comuna {{_.get(asignacion, ['comuna','nombre'])}}
+							.local {{_.get(asignacion, ['local','nombre'])}}
+						.dobleveteefe(v-else) 
+							.icono(style="font-size: 4em; margin-bottom: 1rem;") 🤨
+							strong '!>!?!??!'
+							.texto Esto parece ser un error
 				
 		.territorioPreferencia
 			.microCabecera
-				h4 Territorios de mi preferencia
+				h4 Mi local de votación
 			.sinTerritorios(v-if="_.isEmpty($apoderade.territorioPreferencia)") 
 				.info No has seleccionado tu local de preferencia
 			.territorios(v-else) 
-				div {{$apoderade.territorioPreferencia}}
+				.asignacion(v-for="asignacion in [asignacion($apoderade.territorioPreferencia)]")
+					.territorio
+						span.region {{_.get(asignacion, ['region','nombre'])}}
+						a-divider(type="vertical")
+						span.comuna {{_.get(asignacion, ['comuna','nombre'])}}
+					.local 
+						.nombre {{_.get(asignacion, ['local','nombre'])}}
+						.ubicacion
+							.direccion {{_.get(asignacion, ['local','ubicacion', 'direccion'])}}
+							.acciones
+								.icono(style="font-size: 4em; margin-bottom: 1rem;") 🗺
+							
 
 	a-divider
 
@@ -70,9 +102,27 @@ export default {
 	methods: {
 		async mostrarDatosPersonales () {
 			this.decriptados = await this.$cuenta.decriptarDatosPersonales()
+		},
+		asignacion (territorioAsignado) {
+			const asig = {
+				region: territorioAsignado.region && this.$chile.regionPorID(territorioAsignado.region),
+				comuna: territorioAsignado.comunaCodigo && this.$chile.comunaPorID(territorioAsignado.comunaCodigo),
+				local: territorioAsignado.localId && this.$chile.localPorID(territorioAsignado.localId),
+				general: territorioAsignado.esApoderadoGeneral
+			}
+			asig.capa = asig.general ? 'general' : asig.local?  'mesa' : asig.comuna? 'comunal' : asig.region? 'regional' : '!>!?!??!'
+			return asig
 		}
 	}
 }
 </script>
 <style lang="sass" scoped>
+.persona
+	display: flex
+	flex-flow: column nowrap
+	justify-content: center
+	align-items: center
+	text-align: center
+	h3
+		margin: 0 0 1em
 </style>
