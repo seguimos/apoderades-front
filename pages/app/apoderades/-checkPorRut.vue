@@ -5,7 +5,7 @@
 		a-form-model-item(has-feedback prop="rut" label="Ingresa RUT del apoderado")
 			a-input.input(ref="inputRut" v-model="rutForm.rut" type="rut" allow-clear)
 		a-form-model-item
-			a-button.w100.bpStyle.verde(type="primary" @click="checkRutOBuscarOtro"
+			a-button.w100.casiBpStyle.verde(type="primary" @click="checkRutOBuscarOtro"
 				:loading="revisandoRut") 
 				| {{rutBuscado? 'BUSCAR OTRO' : revisandoRut? 'BUSCANDO' : 'BUSCAR'}}
 

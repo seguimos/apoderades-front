@@ -43,18 +43,14 @@
 				div(v-else)
 
 					.asignaciones(v-if="!_.isEmpty(datosApoderade.territoriosAsignados)")
-						.asignacion(v-for="asignacion in datosApoderade.territoriosAsignados")
+						div(v-for="terr in datosApoderade.territoriosAsignados")
+							miniTarjetaAsignacion(:territorioAsignado="terr")
 
-							// TODO, mostrar esto más bonito
-							span.region {{asignacion.region}}
-							span.comuna {{asignacion.comunaCodigo}}
-							span.local {{asignacion.localId}}
-							span.general(v-if="asignacion.esApoderadoGeneral")
 
 					a-alert.noAsignade(v-else banner message="Aún no se ha asignado local/territorio") 
 
 					.opcionesAsignacion(v-if="!_.isEmpty(alternativasAsignacion)")
-						.info Puedes asignar los siguientes roles
+						.info Puedes asignarle los siguientes roles
 
 						.alternativas
 							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('regional')"
@@ -205,7 +201,7 @@ export default {
 	.noAsignade
 		margin: 0.5em 0
 	.opcionesAsignacion
-		margin-top: 1em
+		margin-top: 3em
 		.info
 			font-style: italic
 		.alternativas

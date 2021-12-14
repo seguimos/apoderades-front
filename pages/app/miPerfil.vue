@@ -22,16 +22,7 @@
 				.info Nada aún.
 			div(v-else) 
 				div(v-for="terr in $apoderade.territoriosAsignados")
-					.asignacion(v-for="asignacion in [$cuentaBack.territorioAasignacion(terr)]")
-						.rol(v-if="asignacion.capa === 'regional'") Coordinador Regional
-						.rol(v-else-if="asignacion.capa === 'comunal'") Coordinador Comunal
-						.rol(v-else-if="asignacion.capa === 'general'") Apoderado General
-						.rol(v-else-if="asignacion.capa === 'mesa'") Apoderado Mesa
-						strong(v-else) 
-							.icono(style="font-size: 4em; margin-bottom: 1rem;") 🤨
-							strong '!>!?!??!'
-							.texto Esto parece ser un error
-						miniTarjetaLocal(:local="terr")
+					miniTarjetaAsignacion(:territorioAsignado="terr")
 				
 		.localVotacion
 			.microCabecera
@@ -111,9 +102,6 @@ export default {
 	margin-bottom: 1rem
 	h4 
 		margin: 0
-.rol
-	color: black
-	+fwb
 
 .asignaciones,
 .localVotacion

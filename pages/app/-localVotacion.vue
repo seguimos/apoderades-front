@@ -38,7 +38,7 @@
 							//a-icon.certain-category-icon(slot='suffix' type='search')
 
 				a-form-model-item.acciones
-					a-button.w100.bpStyle.verde(type="primary" @click="guardarLocalDeVotacion") Guardar
+					a-button.w100.casiBpStyle.verde(type="primary" @click="guardarLocalDeVotacion") Guardar
 				a-button.w100.casiBpStyle(type="dashed" @click='$cuentaBack.preferenciaSaltada = true') Saltar
 
 </template>

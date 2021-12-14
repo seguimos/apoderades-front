@@ -15,7 +15,7 @@
 			a-input.input(v-model='personalesForm.telefono' type='tel' placeholder='+56 x xxxx xxxx')
 
 		a-form-model-item
-			a-button.w100.bpStyle.verde(type='primary' @click='guardarDatosPersonales' :loading='guardandoDatos') Inscribir
+			a-button.w100.casiBpStyle.verde(type='primary' @click='guardarDatosPersonales' :loading='guardandoDatos') Inscribir
 </template>
 <script>
 import { Validado } from "@lib/validador"
