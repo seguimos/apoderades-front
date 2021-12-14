@@ -26,8 +26,10 @@
 			div(slot="description")
 				div(v-if="!usuarioID && etapa !== 'datosPersonales'")
 					div Si a quien corresponde al rut no se le ha inscrito, podrás incribirle aquí
-				div(v-else-if="usuarioID")
-					div Todo listo aquí
+				div(v-else-if="!puedeInscribir")
+					div Si a quien pertenece el rut desea ser apoderado, por favor solicita a tu apoderado general, o coordinador comunal o regional que le inscriba.
+				div(v-else-if="!usuarioID")
+					//- div Todo listo aquí
 					creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @incripcionRealizada="cargarApoderade")
 				div(v-else-if="!datosApoderade")
 					a-icon(type="loading")
@@ -93,6 +95,7 @@ export default {
 		}
 	},
 	computed: {
+		puedeInscribir () { return this.alternativasAsignacion.includes('mesa') },
 		alternativasAsignacion () {
 			if (this.$apoderade.tieneAccesoNacional) return ['regional', 'comunal', 'general', 'mesa']
 			const _ = this._
