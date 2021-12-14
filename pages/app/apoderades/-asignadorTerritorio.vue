@@ -72,7 +72,8 @@ export default {
 			localesPorComuna: {},
 			busquedaComuna: '',
 			busquedaLocal: '',
-			comunasSugeridasPorBusqueda: []
+			comunasSugeridasPorBusqueda: [],
+			localesSugeridosPorBusqueda: []
 		}
 	},
 	computed: {
@@ -95,23 +96,24 @@ export default {
 		},
 		todasLasRegionesYsusComunas () { return this.$chile.todasLasRegionesYsusComunas() },
 		regionesAsignables () {
-			const todas = this.todasLasRegionesYsusComunas
-			if (this.$apoderade.tieneAccesoNacional) return todas
-			const regionesAlcanzadas = this.$apoderade.territorios && this.$apoderade.territorios.map(t => t.region)
-			return regionesAlcanzadas && this._.pickBy(todas, (r, regionID) => regionesAlcanzadas.includes(regionID))
-		},
-		comunasEnRegionesAsignables () {
 			const _ = this._
-			const regionesAsignables = Object.assign({}, this.regionesAsignables)
-			_.forEach(regionesAsignables, (region, regionID) => {
-				if (this.$apoderade.tieneAccesoNacional) return
-				const territoriosAsignables = _.pickBy(this.$apoderade.territorios, t => t.region === regionID)
-				const comunaIDs = _.map(territoriosAsignables, t=> t.comunaCodigo)
-				regionesAsignables[regionID].comunas = _.pick(region.comunas, comunaIDs)
-			})
-			return regionesAsignables
+			const todas = this.todasLasRegionesYsusComunas
+			if (this.$apoderade.tieneAccesoNacional) return Object.keys(todas)
+			const regionesAlcanzadas = this.$apoderade.territorios && this.$apoderade.territorios.map(t => t.region)
+			return regionesAlcanzadas && _.compact(_.map(todas, (r, regionID) => (regionID && regionesAlcanzadas.includes(regionID))))
 		},
 		comunasAsignables () {
+			const _ = this._
+			const todas = this.todasLasComunas
+			if (this.$apoderade.tieneAccesoNacional) return Object.keys(todas)
+			const prefiltradas = _.pick(this.todasLasComunas, c => this.regionesAsignables.includes(c.regionID))
+			// Ver asignaciones del apoderade
+			const asignaciones = _.map(this.$apoderade.territorios, t => this.$cuentaBack.territorioAasignacion(t))
+			const asigUtiles = _.filter(asignaciones, asignacion => asignacion.capa === 'regional')
+			const filtradas = _.pick(prefiltradas, a => _.map(asigUtiles, a => a.region).includes(prefiltradas))
+			return filtradas
+		},
+		comunasAsignablesOld () {
 			const _ = this._
 			const regionesAsignables = this.regionesAsignables
 			let comunasAsignables = Object.assign({}, ...(_.map(regionesAsignables, r => r.comunas)))
@@ -136,15 +138,6 @@ export default {
 			const comunaElegida = this.asignacionTerritorialForm.comuna
 			if (comunaElegida) return locales[comunaElegida]
 			return Object.assign({}, ...Object.values(locales))
-		},
-		localesSugeridosPorBusqueda () {
-			const _ = this._
-			const buscado = parameterize(this.busquedaLocal)
-			console.log('buscado', buscado)
-			if (_.isEmpty(buscado)) return this.localesAsignables
-			let localesFiltrados = Object.assign({}, this.localesAsignables)
-			localesFiltrados = _.pickBy(localesFiltrados, local => parameterize(local.nombre).includes(buscado))
-			return localesFiltrados
 		}
 	},
 	methods: {
@@ -168,7 +161,19 @@ export default {
 			}, [])
 		},
 		filtrarSugerenciasLocales (buscado) {
+			console.log('filtrarSugerenciasLocales', buscado)
 			this.busquedaLocal = buscado
+
+			const _ = this._
+			const q = parameterize(buscado)
+			console.log('query', q)
+			const comunaElegida = this.asignacionTerritorialForm.comunaID
+			if (!comunaElegida) return
+			const todosLosLocales = this.$store.state.locales
+			this.localesSugeridosPorBusqueda = _.reduce(todosLosLocales, (resultado, local, localID) => {
+				if (parameterize(local.nombre).includes(q)) resultado.push({...local, localID})
+				return resultado
+			}, [])
 		},
 		elegirRegion (regionID) {
 			console.log('elegirRegion', regionID)

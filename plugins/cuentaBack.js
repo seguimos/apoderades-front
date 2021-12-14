@@ -337,8 +337,8 @@ const cuentaBack = {
 	},
 
 	preferenciaSaltada: null,
-	async guardarTerritorioPreferencia ({ regionID, comunaID, localID }) {
-		const fx = 'cuentaBack>guardarTerritorioPreferencia'
+	async guardarLocalDeVotacion ({ regionID, comunaID, localID }) {
+		const fx = 'cuentaBack>guardarLocalDeVotacion'
 		try {
 			const s = await solicitar({
 				method: 'post',

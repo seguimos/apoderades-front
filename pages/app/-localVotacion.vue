@@ -38,7 +38,7 @@
 							//a-icon.certain-category-icon(slot='suffix' type='search')
 
 				a-form-model-item.acciones
-					a-button.w100.bpStyle.verde(type="primary" @click="elegirTerritorio") Guardar
+					a-button.w100.bpStyle.verde(type="primary" @click="guardarLocalDeVotacion") Guardar
 				a-button.w100.casiBpStyle(type="dashed" @click='$cuentaBack.preferenciaSaltada = true') Saltar
 
 </template>
@@ -134,15 +134,15 @@ export default {
 			this.asignacionTerritorialForm.localID = localID
 			this.$refs.asignacionTerritorialForm.validate()
 		},
-		elegirTerritorio () {
+		guardarLocalDeVotacion () {
 			this.$refs.asignacionTerritorialForm.validate(async valid => {
 				if (!valid) {
 					console.error('Formulario no pasó validación')
 					return
 				}
 				const { regionID, comunaID, localID } = this.asignacionTerritorialForm
-				const resultado = await this.$cuentaBack.guardarTerritorioPreferencia({ regionID, comunaID, localID })
-				console.log('elegirTerritorio', resultado)
+				const resultado = await this.$cuentaBack.guardarLocalDeVotacion({ regionID, comunaID, localID })
+				console.log('guardarLocalDeVotacion', resultado)
 				return resultado
 			})
 		},
