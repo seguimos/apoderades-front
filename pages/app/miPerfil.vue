@@ -22,10 +22,10 @@
 			div(v-else) 
 				div(v-for="terr in $apoderade.territoriosAsignados")
 					.asignacion(v-for="asignacion in [$cuentaBack.territorioAasignacion(terr)]")
-						strong(v-if="asignacion.capa === 'regional'") Coordinador Regional
-						strong(v-else-if="asignacion.capa === 'comunal'") Coordinador Comunal
-						strong(v-else-if="asignacion.capa === 'general'") Apoderado General
-						strong(v-else-if="asignacion.capa === 'mesa'") Apoderado Mesa
+						.rol(v-if="asignacion.capa === 'regional'") Coordinador Regional
+						.rol(v-else-if="asignacion.capa === 'comunal'") Coordinador Comunal
+						.rol(v-else-if="asignacion.capa === 'general'") Apoderado General
+						.rol(v-else-if="asignacion.capa === 'mesa'") Apoderado Mesa
 						strong(v-else) 
 							.icono(style="font-size: 4em; margin-bottom: 1rem;") 🤨
 							strong '!>!?!??!'
@@ -47,22 +47,24 @@
 	.persona(v-if="$usuario")
 		.miniCabecera
 			h3 Mis datos personales
+			a-button(v-if="!decriptados" type="dashed" @click="mostrarDatosPersonales") Mostrar
+			a-button(v-else type="primary" @click="decriptados = null") Ocultar
 
-		.datosPersonales(v-if="!decriptados")
-			a-button.w100(type="dashed" @click="mostrarDatosPersonales") Mostrar datos personales
-		.datosPersonales(v-else)
-			.item
-				b Nombre:
-				.texto {{decriptados.nombre}} {{decriptados.apellido}}
-			.item
-				b RUT:
-				.texto {{decriptados.rut || '-'}}
-			.item
-				b Email:
-				.texto {{decriptados.email || '-'}}
-			.item
-				b Teléfono:
-				.texto {{decriptados.telefono || '-'}}
+		transition(mode="out-in")
+			.datosPersonales(v-if="decriptados" key="datosPersonales")
+				.item
+					.etiqueta Nombre:
+					.texto {{decriptados.nombre}} {{decriptados.apellido}}
+				.item
+					.etiqueta RUT:
+					.texto {{decriptados.rut || '-'}}
+				.item
+					.etiqueta Email:
+					.texto {{decriptados.email || '-'}}
+				.item
+					.etiqueta Teléfono:
+					.texto {{decriptados.telefono || '-'}}
+			a-skeleton.esqueleto(v-else key="esqueleto")
 
 	//- a-divider
 
@@ -96,16 +98,18 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
-
+@import '@style/vars'
 .miniCabecera
-	margin-bottom: 2em
+	margin-bottom: 1.4rem
 	h3
 		margin: 0
 .microCabecera
-	margin-bottom: 1em
+	margin-bottom: 1rem
 	h4 
 		margin: 0
-
+.rol
+	color: black
+	+fwb
 
 .asignaciones,
 .localVotacion
@@ -119,7 +123,27 @@ export default {
 
 
 .persona
-	text-align: center
+	.miniCabecera
+		display: flex
+		justify-content: space-between
+		align-items: center
 	h3
 		margin: 0
+
+	.esqueleto,
+	.datosPersonales
+		+saliendo
+			max-height: 80vh
+			overflow: hidden
+		+salir
+			opacity: 0
+			max-height: 10vh
+		.item
+			.etiqueta
+				opacity: .5
+			.texto
+				color: black
+			+ .item
+				margin-top: 0.5rem
+
 </style>
