@@ -58,9 +58,9 @@
 
 			.asignadorRegion(v-if="tipoAsignacion === 'regional'")
 				p.descripcionAsignacion El apoderado podrá gestionar a otros coordinadores y apoderados dentro de la región.
-				a-form-model-item(has-feedback prop="region" label="Región")
+				a-form-model-item(has-feedback prop="regionID" label="Región")
 					a-select.input(v-model="asignacionTerritorialForm.regionID" @change="elegirRegion" placeholder="Región")
-						a-select-option(v-for="(region, regionID) in regionesAsignables" :key="`region-${regionID}`" :value="regionID") {{ region.nombre }}
+						a-select-option(v-for="region in regionesAsignables" :key="`region-${region.regionID}`" :value="region.regionID") {{ region.nombre }}
 
 
 			a-form-model-item
@@ -113,9 +113,9 @@ export default {
 			}
 		},
 		regionesAsignables () {
-			const _ = this._
-			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$chile.todasLasRegionesYsusComunas(), r => r.regionID)
-			return _.uniq(_.map(_.filter(this.$apoderade.asignaciones, a => a.regionID && a.capa === 'regional'), aa => aa.regionID))
+			const regiones = Object.values(this.$chile.todasLasRegionesYsusComunas())
+			if (this.$apoderade.tieneAccesoNacional) return regiones
+			return []
 		},
 		comunasAsignables () {
 			const _ = this._
