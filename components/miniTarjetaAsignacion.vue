@@ -19,7 +19,7 @@
 				a-divider(type="vertical" v-if="asignacion.comunaID")
 				span.comuna {{_.get(asignacion, ['comuna','nombre'])}}
 
-		.acciones
+		.acciones(v-if="mostrarDesasignar")
 			a-popconfirm(v-if="puedeEliminarAsignacion" title="Eliminar asignación?" ok-text="Eliminar" cancel-text="No" placement="topRight" @confirm="$emit('desasignarTerritorio')")
 				a-button(shape="circle")
 					a-icon(type="close")
@@ -37,6 +37,9 @@ export default {
 		territorioAsignado: {
 			type: Object,
 			required: true
+		},
+		mostrarDesasignar: {
+			type: Boolean
 		}
 	},
 	computed: {

@@ -37,7 +37,7 @@
 
 					.asignaciones(v-if="!_.isEmpty(datosApoderade.territoriosAsignados)")
 						div(v-for="terr in datosApoderade.territoriosAsignados")
-							miniTarjetaAsignacion(:territorioAsignado="terr" @desasignarTerritorio="desasignarTerritorio(datosApoderade, terr)")
+							miniTarjetaAsignacion(:territorioAsignado="terr" @desasignarTerritorio="desasignarTerritorio(datosApoderade, terr)" mostrarDesasignar)
 
 
 					a-alert.noAsignade(v-else banner message="Aún no se ha asignado local/territorio") 
