@@ -1,7 +1,7 @@
 <template lang="pug">
 .miniTarjetaLocal(:class="localDeVotacion.capa")
-	.paraMapa(v-if="['mesa', 'general'].includes(localDeVotacion.capa)")
-		.icono 🗺
+	.acciones
+		.icono 🗳
 	.info
 		.territorio
 			span.region {{_.get(localDeVotacion, ['region','nombre'])}}
@@ -9,7 +9,7 @@
 			span.comuna {{_.get(localDeVotacion, ['comuna','nombre'])}}
 		.local 
 			.nombre {{_.get(localDeVotacion, ['local','nombre'])}}
-			.direccion {{_.get(localDeVotacion, ['local','ubicacion', 'direccion'])}}
+			.direccion {{_.get(localDeVotacion, ['local', 'direccion'])}}
 </template>
 <script>
 export default {
@@ -33,12 +33,12 @@ export default {
 	display: flex
 	align-items: center
 	line-height: 1
-	.paraMapa
+	.acciones
 		flex: auto 0 0
 		.icono
 			font-size: 3em
-			padding: 0.8rem
-			margin-right: 1rem
+			padding: 0 .8rem
+			// margin-right: 1rem
 	.info
 		flex: auto 1 1
 		line-height: 1.4
