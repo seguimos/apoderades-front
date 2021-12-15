@@ -2,8 +2,8 @@
 .checkPorRut
 
 	a-form-model(ref="rutForm" :model="rutForm" :rules="reglasFormRut")
-		a-form-model-item(has-feedback prop="rut" label="Ingresa RUT del apoderado")
-			a-input.input(ref="inputRut" v-model="rutForm.rut" type="rut" allow-clear)
+		a-form-model-item(prop="rut" label="Ingresa RUT del apoderado")
+			a-input.input(ref="inputRut" v-model="rutForm.rut" type="rut" allow-clear @keyup.enter="checkRut")
 		a-form-model-item
 			a-button.w100.casiBpStyle.verde(type="primary" @click="checkRutOBuscarOtro"
 				:loading="revisandoRut") 
@@ -34,7 +34,7 @@ export default {
 				return callback();
 			};
 			return { 
-				rut: [{ required: true, message: '*', whitespace: false }, { validator: rutValidador, trigger: "change" }] 
+				rut: [{ required: true, message: '*', whitespace: false }, { validator: rutValidador, trigger: "blur" }] 
 			}
 		},
 	},
