@@ -1,15 +1,15 @@
 <template lang="pug">
 .asignadorTerritorio
 	//- div
-	//- 	strong regionesAsignables
-	//- 	div {{regionesAsignables}}
+	//- 	strong regionesAsignablesIDs
+	//- 	div {{regionesAsignablesIDs}}
 	//- div
-	//- 	strong comunasAsignables
-	//- 	div {{comunasAsignables}}
+		strong comunasAsignablesIDs
+		div {{comunasAsignablesIDs}}
 	//- div
-	//- 	strong localesAsignables
-	//- 	div {{localesAsignables}}
-	//div
+		strong localesAsignablesIDs
+		div {{localesAsignablesIDs}}
+	//- div
 		strong comunasSugeridasPorBusqueda
 		div {{comunasSugeridasPorBusqueda}}
 	//- div
@@ -60,7 +60,7 @@
 				p.descripcionAsignacion El apoderado podrá gestionar a otros coordinadores y apoderados dentro de la región.
 				a-form-model-item(has-feedback prop="regionID" label="Región")
 					a-select.input(v-model="asignacionTerritorialForm.regionID" @change="elegirRegion" placeholder="Región")
-						a-select-option(v-for="region in regionesAsignables" :key="`region-${region.regionID}`" :value="region.regionID") {{ region.nombre }}
+						a-select-option(v-for="region in regionesAsignablesIDs" :key="`region-${region.regionID}`" :value="region.regionID") {{ region.nombre }}
 
 
 			a-form-model-item
@@ -112,21 +112,38 @@ export default {
 				localID: [{ required: true, message: '*', whitespace: false, trigger: 'blur' }],
 			}
 		},
-		regionesAsignables () {
-			const regiones = Object.values(this.$chile.todasLasRegionesYsusComunas())
-			if (this.$apoderade.tieneAccesoNacional) return regiones
-			return []
+		regionesAsignablesIDs () {
+			const _ = this._
+			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$chile.todasLasComunas(), r => r.regionID)
+			const asignacionesRegionales = _.filter(this.$apoderade.asignaciones, a => a.capa === 'regional')
+			const asignacionesRegionalesRegionIDs = _.flatten(_.map(asignacionesRegionales, a => Object.keys(a.comunas)))
+			const asignacionesComunales = _.filter(this.$apoderade.asignaciones, a => a.capa === 'comunal')
+			const asignacionesComunalesRegionIDs = _.map(asignacionesComunales, a => a.regionID)
+			const asignacionesGenerales = _.filter(this.$apoderade.asignaciones, a => a.capa === 'general')
+			const asignacionesGeneralesRegionIDs = _.map(asignacionesGenerales, a => a.regionID)
+			const regionIDs = [ ...asignacionesRegionalesRegionIDs, ...asignacionesComunalesRegionIDs, ...asignacionesGeneralesRegionIDs]
+			return _.uniq(regionIDs)
 		},
-		comunasAsignables () {
+		comunasAsignablesIDs () {
 			const _ = this._
 			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$chile.todasLasComunas(), r => r.comunaID)
-			return _.uniq(_.map(_.filter(this.$apoderade.asignaciones, a => a.comunaID && a.capa === 'comunal'), aa => aa.comunaID))
+			const asignacionesRegionales = _.filter(this.$apoderade.asignaciones, a => a.capa === 'regional')
+			const asignacionesRegionalesComunaIDs = _.flatten(_.map(asignacionesRegionales, a => Object.keys(a.comunas)))
+			const asignacionesComunales = _.filter(this.$apoderade.asignaciones, a => a.capa === 'comunal')
+			const asignacionesComunalesComunaIDs = _.map(asignacionesComunales, a => a.comunaID)
+			const asignacionesGenerales = _.filter(this.$apoderade.asignaciones, a => a.capa === 'general')
+			const asignacionesGeneralesComunaIDs = _.map(asignacionesGenerales, a => a.comunaID)
+			const comunaIDs = [ ...asignacionesRegionalesComunaIDs, ...asignacionesComunalesComunaIDs, ...asignacionesGeneralesComunaIDs]
+			return _.uniq(comunaIDs)
 		},
-		localesAsignables () {
+		localesAsignablesIDs () {
 			const _ = this._
-			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$store.state.locales, r => r.localID)
-			return _.uniq(_.map(_.filter(this.$apoderade.asignaciones, a => a.localID && a.capa === 'general'), aa => aa.localID))
-		},
+			if (this.$apoderade.tieneAccesoNacional) return this.$chile.todosLosLocales()
+			const localesAsignables = _.reduce(this.comunasAsignablesIDs, (pais, comuna, comunaID) => {
+				return Object.assign({}, pais, this.$chile.localesPorComunaID(comunaID))
+			}, {})
+			return Object.keys(localesAsignables)
+		}
 	},
 	mounted () {
 		this.filtrarSugerenciasComunas()
@@ -142,14 +159,11 @@ export default {
 			console.log('query:', q)
 			const regiones = Object.values(this.$chile.todasLasRegionesYsusComunas())
 
-			const asignables = this.$apoderade.tieneAccesoNacional? regiones : _.filter(regiones, r => {
-				const porCorRegional = this.regionesAsignables.includes(r.regionID) 
-				const porCorComunal = this.comunasAsignables.includes(r.comunaID)
-				return porCorRegional || porCorComunal
-			})
+			const asignables = this.$apoderade.tieneAccesoNacional? regiones : _.filter(regiones, r => this.regionesAsignablesIDs.includes(r.regionID))
 
 			this.comunasSugeridasPorBusqueda = _.reduce(asignables, (resultado, region) => {
 				const comunasCalzantes = _.pickBy(region.comunas, comuna => {
+					if (!this.comunasAsignablesIDs.includes(comuna.comunaID)) return false
 					if (q) return parameterize(comuna.nombre).includes(q)
 					return true
 				})
@@ -165,22 +179,34 @@ export default {
 			const _ = this._
 			const q = buscado && parameterize(buscado)
 
+			if (this.$apoderade.tieneAccesoNacional) return this.$chile.todosLosLocales()
+			// console.log('%c this.$chile.todosLosLocales()', 'color: yellow', this.$chile.todosLosLocales())
+
+			const comunasAsignablesIDs = this.comunasAsignablesIDs
+			// console.log('%c comunasAsignablesIDs', 'color: orange', comunasAsignablesIDs)
+			const localesAsignables = _.reduce(comunasAsignablesIDs, (pais, comunaID) => {
+				const localesComuna = this.$chile.localesPorComunaID(comunaID)
+				// console.log('%c localesComuna', 'color: GreenYellow', localesComuna)
+				return Object.assign({}, pais, localesComuna)
+			}, {})
+			// console.log('%c localesAsignables', 'color: orangered', localesAsignables)
+			const localesAsignablesIDs = _.uniq(Object.keys(localesAsignables))
+			// console.log('%c localesAsignablesIDs', 'color: yellow', localesAsignablesIDs)
+
+
+
 			const comunaElegida = this.asignacionTerritorialForm.comunaID
 			if (!comunaElegida) {
 				this.localesSugeridosPorBusqueda = []
 				return
 			} 
 
-			const locales = Object.values(this.$store.state.locales)
-			const asignables = this.$apoderade.tieneAccesoNacional? locales : _.filter(locales, r => {
-				const porCorRegional = this.regionesAsignables.includes(r.regionID) 
-				const porCorComunal = this.comunasAsignables.includes(r.comunaID)
-				const porApoGeneral = this.localesAsignables.includes(r.localID)
-				return porCorRegional || porCorComunal || porApoGeneral
-			})
+			const locales = this.$chile.localesPorComunaID(comunaElegida)
+			const asignables = this.$apoderade.tieneAccesoNacional? locales : _.filter(locales, local => localesAsignablesIDs.includes(local.localID))
+			console.log('%c asignables', 'color: yellow', asignables)
 
 			this.localesSugeridosPorBusqueda = _.reduce(asignables, (resultado, local) => {
-				if (comunaElegida !== local.comunaID) return resultado
+				// Incluir si no se está buscando por texto o si es que hay match
 				if (_.isEmpty(q) || parameterize(local.nombre).includes(q)) resultado.push(local)
 				return resultado
 			}, [])

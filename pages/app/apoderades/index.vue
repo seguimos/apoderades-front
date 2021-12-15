@@ -58,12 +58,12 @@
 									@click="abrirAsignadorTerritorio('mesa')") Apoderado de mesa
 
 			a-step(v-if="etapa === 'asignacionTerritorial'")
-				.flex(slot="title")
-					span(v-if="tipoAsignacion === 'regional'") Asignar como Coordinación regional
-					span(v-else-if="tipoAsignacion === 'comunal'") Asignar como Coordinación comunal
-					span(v-else-if="tipoAsignacion === 'general'") Asignar como Apoderado general
-					span(v-else-if="tipoAsignacion === 'mesa'") Asignar como Apoderado de mesa
-					span.x(@click="pasarAEtapa('estadoYOpcionesAsignacion')") x
+				.flex.jcsb.aic.w100(slot="title")
+					div(v-if="tipoAsignacion === 'regional'") Asignar como Coordinación regional
+					div(v-else-if="tipoAsignacion === 'comunal'") Asignar como Coordinación comunal
+					div(v-else-if="tipoAsignacion === 'general'") Asignar como Apoderado general
+					div(v-else-if="tipoAsignacion === 'mesa'") Asignar como Apoderado de mesa
+					a-icon(type="close" @click="pasarAEtapa('estadoYOpcionesAsignacion')")
 				div(slot="description")
 					asignadorTerritorio(ref="asignadorTerritorio" :usuarioID="usuarioID" :tipoAsignacion="tipoAsignacion" @asignacionRealizada="asignacionRealizada" @cancelar="cerrarAsignadorTerritorio")
 
@@ -199,6 +199,8 @@ export default {
 	&::v-deep
 		.ant-steps-item-title
 			margin-bottom: 0.5rem
+			padding-right: 0
+			width: 100%
 		.ant-steps-item-content
 			width: auto
 
