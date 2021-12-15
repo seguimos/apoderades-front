@@ -103,6 +103,12 @@ export default {
 				nombre: `usuarioID: ${apo.usuarioID}`
 			}))
 		},
+		guardarUrl (url) {
+			this.formulario.urlPaseDeMovilidad = url
+			this.bloquearBoton = true
+			this.$refs.cargadorImagen.$emit('guardado')
+			console.log('guardarUrl', this.formulario.urlPaseDeMovilidad)
+		},
 	}
 }
 </script>
