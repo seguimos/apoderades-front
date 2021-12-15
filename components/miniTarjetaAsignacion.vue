@@ -4,8 +4,8 @@
 		//.paraMapa(v-if="['mesa', 'general'].includes(asignacion.capa)")
 		.icono 🔖
 	.info
-		.rol(v-if="asignacion.capa === 'regional'") Coordinador Regional
-		.rol(v-else-if="asignacion.capa === 'comunal'") Coordinador Comunal
+		.rol(v-if="asignacion.capa === 'regional'") Coordinación Regional
+		.rol(v-else-if="asignacion.capa === 'comunal'") Coordinación Comunal
 		.rol(v-else-if="asignacion.capa === 'general'") Apoderado General
 		.rol(v-else-if="asignacion.capa === 'mesa'") Apoderado Mesa
 		strong(v-else) 
@@ -16,7 +16,7 @@
 			.info
 				.territorio
 					span.region {{_.get(asignacion, ['region','nombre'])}}
-					a-divider(type="vertical")
+					a-divider(type="vertical" v-if="asignacion.comunaID")
 					span.comuna {{_.get(asignacion, ['comuna','nombre'])}}
 				.local 
 					.nombre {{_.get(asignacion, ['local','nombre'])}}
@@ -36,6 +36,42 @@ export default {
 	computed: {
 		asignacion () {
 			return this.$cuentaBack.territorioAasignacion(this.territorioAsignado)
+		},
+		misAsignaciones () {
+			return this.$apoderade.asignaciones
+		},
+		puedeEliminarAsignacion () {
+			if (this.$apoderade.tieneAccesoNacional) return true
+			const misAsignaciones = this.$apoderade.asignaciones
+			if (this.asignacion.capa === 'regional') return false
+			if (this.asignacion.capa === 'comunal') {
+				const esSuCoordinadorRegional = this._.find(misAsignaciones || [], a => {
+					return a.capa === 'regional' && a.regionID && a.regionID === this.asignacion.regionID
+				})
+				return esSuCoordinadorRegional
+			}
+			if (this.asignacion.capa === 'general') {
+				const esSuCoordinadorRegional = this._.find(misAsignaciones || [], a => {
+					return a.capa === 'regional' && a.regionID && a.regionID === this.asignacion.regionID
+				})
+				const esSuCoordinadorComunal = this._.find(misAsignaciones || [], a => {
+					return a.capa === 'comunal' && a.comunaID && a.comunaID === this.asignacion.comunaID
+				})
+				return esSuCoordinadorRegional || esSuCoordinadorComunal
+			}
+			if (this.asignacion.capa === 'mesa') {
+				const esSuCoordinadorRegional = this._.find(misAsignaciones || [], a => {
+					return a.capa === 'regional' && a.regionID && a.regionID === this.asignacion.regionID
+				})
+				const esSuCoordinadorComunal = this._.find(misAsignaciones || [], a => {
+					return a.capa === 'comunal' && a.comunaID && a.comunaID === this.asignacion.comunaID
+				})
+				const esSuApoderadoGeneral = this._.find(misAsignaciones || [], a => {
+					return a.capa === 'general' && a.localID && a.localID === this.asignacion.localID
+				})
+				return esSuCoordinadorRegional || esSuCoordinadorComunal || esSuApoderadoGeneral
+			}
+			return false
 		}
 	}
 }
