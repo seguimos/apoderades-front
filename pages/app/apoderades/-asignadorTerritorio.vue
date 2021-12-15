@@ -15,8 +15,6 @@
 	//- div
 		strong localesSugeridosPorBusqueda
 		div(v-for="local in localesSugeridosPorBusqueda") {{local}}
-	div 
-		b mostrarOpcionesLocal: {{mostrarOpcionesLocal}}
 
 	.asignadores
 		a-form-model.asignadores(ref="nuevaAsignacion" :model="nuevaAsignacion" :rules="reglasFormAsignacionTerritorial")
@@ -43,21 +41,34 @@
 						a-input
 
 			.asignadorLocal(v-if="['general', 'mesa'].includes(tipoAsignacion)")
+				
 				p.descripcionAsignacion(v-if="tipoAsignacion === 'general'") El apoderado podrá gestionar a otros apoderados dentro del local de votación asignado.
-				//- p.descripcionAsignacion(v-if="tipoAsignacion === 'mesa'") El apoderado podrá gestionar a otros apoderados dentro de la región.
 				+selectorComuna
-				a-form-model-item(has-feedback prop="localID" label="Local de votación")
 
-					a-input(placeholder='Escribe parte del nombre del local' v-model="busquedaLocal" allow-clear)
+				a-form-model-item(has-feedback prop="localID")
+					.flex.jcsb.aic(slot='label') 
+						span Local de votación
+						a-button(v-show="nuevaAsignacion.localID") Cambiar
 
-					.zonaOpciones(v-if="mostrarOpcionesLocal")
-						.opciones(v-if="!_.isEmpty(sugerenciasLocales)" )
-							.opcion(v-for='local in sugerenciasLocales' :key='`local-${local.localID}`'
-								@click="elegirLocal(local.localID)")
-								.nombre {{ local.nombre }}
-								.direccion {{ local.direccion }}
-						a-empty(v-else)
+					.hayLocalElegido(v-if="nuevaAsignacion.localID")
+						miniTarjetaLocal(:local="$cuentaBack.reinstanciarAsignacion(nuevaAsignacion)")
+							
 
+					.noHayLocalElegido(v-else)
+
+						a-input(ref="buscadorLocal" placeholder='Escribe parte del nombre del local' v-model="busquedaLocal" allow-clear @blur="$refs.nuevaAsignacion.validate()")
+						.zonaOpciones
+							div(v-if="busquedaLocal")
+								a-alert(v-if="!nuevaAsignacion.comunaID" message="Antes de buscar, por favor elige comuna" banner) 
+								a-empty(v-else-if="_.isEmpty(sugerenciasLocales)" )
+								.opciones(v-else)
+									.opcion(v-for='local in sugerenciasLocales' :key='`local-${local.localID}`'
+										@click="elegirLocal(local.localID)")
+										.nombre {{ local.nombre.toLowerCase() }}
+										.direccion {{ local.direccion }}
+
+			
+			
 			.asignadorComuna(v-if="tipoAsignacion === 'comunal'")
 				p.descripcionAsignacion El coordinador podrá gestionar a otros apoderados dentro de la comuna.
 				+selectorComuna
@@ -69,9 +80,9 @@
 						a-select-option(v-for="region in regionesAsignablesIDs" :key="`region-${region.regionID}`" :value="region.regionID") {{ region.nombre }}
 
 
-			a-form-model-item
+			a-form-model-item.acciones
 				a-button.w100.casiBpStyle(type="primary" @click="asignarTerritorio") Asignar
-				a-button.w100.casiBpStyle(@click="$emit('cancelar')") Cancelar
+				a-button.w100.casiBpStyle(@click="$emit('cancelar')" type="dashed") Cancelar
 </template>
 <script>
 import parameterize from '@lib/parameterize'
@@ -92,11 +103,11 @@ export default {
 				regionID: undefined,
 				comunaID: undefined,
 				localID: undefined,
+				esApoGeneral: undefined,
 			},
 			localesPorComuna: {},
 			busquedaComuna: '',
 			busquedaLocal: '',
-			mostrarOpcionesLocal: undefined,
 			comunasSugeridasPorBusqueda: [],
 			localesSugeridosPorBusqueda: []
 		}
@@ -110,13 +121,13 @@ export default {
 			} else if (this.tipoAsignacion === 'comunal') {
 				return {
 					regionID: [{ required: true, message: '*', whitespace: true, trigger: 'blur' }],
-					comunaID: [{ required: true, message: '*', whitespace: true, trigger: 'blur' }],
+					comunaID: [{ required: true, message: '* es necesaria', whitespace: true, trigger: 'blur' }],
 				}
 			}
 			return {
 				regionID: [{ required: true, message: '*', whitespace: true, trigger: 'blur' }],
-				comunaID: [{ required: true, message: '*', whitespace: true, trigger: 'blur' }],
-				localID: [{ required: true, message: '*', whitespace: false, trigger: 'blur' }],
+				comunaID: [{ required: true, message: '* es necesaria', whitespace: true, trigger: 'blur' }],
+				localID: [{ required: true, message: '* es necesario', whitespace: false, trigger: 'blur' }],
 			}
 		},
 		regionesAsignablesIDs () {
@@ -177,11 +188,6 @@ export default {
 			}, [])
 		}
 	},
-	watch: {
-		busquedaLocal (actual, anterior) {
-			if (actual && anterior !== actual) this.mostrarOpcionesLocal = true
-		}
-	},
 	mounted () {
 		this.filtrarSugerenciasComunas()
 	},
@@ -215,23 +221,22 @@ export default {
 		async elegirComuna (comunaID) {
 			console.log('elegirComuna', comunaID)
 			this.nuevaAsignacion.comunaID = comunaID
-			const regionID = this.$chile.regionIDporComunaID(comunaID)
-			if (this.nuevaAsignacion.regionID !== regionID) this.nuevaAsignacion.regionID = regionID
+			this.nuevaAsignacion.regionID = this.$chile.regionIDporComunaID(comunaID)
 			this.nuevaAsignacion.localID = null
+			this.busquedaLocal = null
 			
 			await new Promise(resolve => this.$nextTick(() => resolve()))
-			this.$refs.nuevaAsignacion.validate()
-			this.buscarLocales(regionID, comunaID)
+			this.$refs.buscadorLocal.focus()
+			this.buscarLocales(this.nuevaAsignacion.regionID, comunaID)
 		},
 		elegirLocal (localID) {
 			console.log('elegirLocal', localID)
 			this.nuevaAsignacion.localID = localID
 			const local = this._.get(this.$store.state.locales, [localID])
-			this.busquedaLocal = local.nombre
+			this.busquedaLocal = null
 			const comunaID = local.comunaID
 			console.log('elegirLocal comunaID =', comunaID)
 			if (this.nuevaAsignacion.comunaID !== comunaID) this.elegirComuna(comunaID)
-			this.mostrarOpcionesLocal = false
 			this.$refs.nuevaAsignacion.validate()
 		},
 		asignarTerritorio () {
@@ -267,26 +272,41 @@ export default {
 </script>
 <style lang="sass" scoped>
 @import "@style/vars"
-.modosAsignacion
-	margin-bottom: 3em
 .descripcionAsignacion
 	line-height: 1.4
+	font-style: italic
+	opacity: .7
+	padding: 1em
+	margin-bottom: 2em
+
 
 .asignadorLocal
 	::v-deep
+		.ant-form-item-required::before
+			content: none
+		//.noHayLocalElegido
+			min-height: 20vh
 		.opciones
 			line-height: 1.4
-			.opcion
-				// border: 1px solid $azul1
-				color: black
-				margin-top: 1em
-				border-radius: 4px
-				padding: 1em
-				background-color: white
-				box-shadow: 0 0 .3em hsla(0, 0%, 0%, .2)
-				.nombre
-					+fwn
-				.direccion
-					+fwl
+		.opcion,
+		.localElegido
+			line-height: 1.4
+			color: black
+			margin-top: 1em
+			border-radius: 4px
+			padding: 1em
+			background-color: white
+			box-shadow: 0 0 .3em hsla(0, 0%, 0%, .2)
+			&.localElegido
+				box-shadow: none
+				padding: 0
+				text-align: center
+			.nombre
+				+fwn
+				text-transform: capitalize
+
+			.direccion
+				+fwl
+				opacity: .7
 
 </style>

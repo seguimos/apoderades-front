@@ -57,12 +57,14 @@
 								a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('mesa')"
 									@click="abrirAsignadorTerritorio('mesa')") Apoderado de mesa
 
-			a-step(v-if="etapa === 'asignacionTerritorial'")
+			a-step.pasoAsignacionTerritorial(v-if="etapa === 'asignacionTerritorial'")
 				.flex.jcsb.aic.w100(slot="title")
-					div(v-if="tipoAsignacion === 'regional'") Asignar como Coordinación regional
-					div(v-else-if="tipoAsignacion === 'comunal'") Asignar como Coordinación comunal
-					div(v-else-if="tipoAsignacion === 'general'") Asignar como Apoderado general
-					div(v-else-if="tipoAsignacion === 'mesa'") Asignar como Apoderado de mesa
+					div
+						div Asignando como
+						div.rol(v-if="tipoAsignacion === 'regional'") Coordinación regional
+						div.rol(v-else-if="tipoAsignacion === 'comunal'") Coordinación comunal
+						div.rol(v-else-if="tipoAsignacion === 'general'") Apoderado general
+						div.rol(v-else-if="tipoAsignacion === 'mesa'") Apoderado de mesa
 					a-icon(type="close" @click="pasarAEtapa('estadoYOpcionesAsignacion')")
 				div(slot="description")
 					asignadorTerritorio(ref="asignadorTerritorio" :usuarioID="usuarioID" :tipoAsignacion="tipoAsignacion" @asignacionRealizada="asignacionRealizada" @cancelar="cerrarAsignadorTerritorio")
@@ -227,5 +229,8 @@ export default {
 		
 
 
-
+.pasoAsignacionTerritorial
+	.rol
+		color: $azul2
+		// text-shadow: .5px .5px 0 $azul1, 1px 1px 0 $azul1, 1.5px 1.5px 0 $azul1
 </style>

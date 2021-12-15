@@ -1,5 +1,5 @@
 <template lang="pug">
-.miniTarjetaLocal(:class="localDeVotacion.capa")
+.miniTarjetaLocal(v-if="localDeVotacion" :class="localDeVotacion.capa")
 	.acciones
 		.icono 🗳
 	.info
@@ -21,7 +21,7 @@ export default {
 	},
 	computed: {
 		localDeVotacion () {
-			return this.local && this.$cuentaBack.territorioAasignacion(this.local)
+			return this.local
 		}
 	}
 }
