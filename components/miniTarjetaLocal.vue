@@ -3,10 +3,10 @@
 	.acciones
 		.icono 🗳
 	.info
-		.territorio
-			span.region {{_.get(localDeVotacion, ['region','nombre'])}}
-			a-divider(type="vertical")
-			span.comuna {{_.get(localDeVotacion, ['comuna','nombre'])}}
+		//- .territorio
+			//- .region {{_.get(localDeVotacion, ['region','nombreCompleto'])}}
+			//- a-divider(type="vertical")
+			.comuna {{_.get(localDeVotacion, ['comuna','nombre'])}}
 		.local 
 			.nombre {{_.get(localDeVotacion, ['local','nombre'])}}
 			.direccion {{_.get(localDeVotacion, ['local', 'direccion'])}}
@@ -31,7 +31,10 @@ export default {
 
 .miniTarjetaLocal
 	display: flex
+	flex-flow: column nowrap
+	justify-content: center
 	align-items: center
+	text-align: center
 	line-height: 1
 	.acciones
 		flex: auto 0 0
