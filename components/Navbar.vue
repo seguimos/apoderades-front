@@ -19,11 +19,17 @@
 
 
 		a-sub-menu(v-if="$usuario")
-			n-link.submenu-title-wrapper(slot="title" to="/app/apoderades/")
+			n-link.submenu-title-wrapper(slot="title" to="/app/apoderades")
 				a-icon(type="team")
 				span.texto Apoderados
 
 		a-sub-menu(v-if="$usuario")
+			n-link.submenu-title-wrapper(slot="title" to="/app/locales")
+				a-icon(type="book")
+				span.texto Locales
+
+
+		//a-sub-menu(v-if="$usuario")
 			span.submenu-title-wrapper(slot="title")
 				a-icon(type="compass")
 				span.texto Locales

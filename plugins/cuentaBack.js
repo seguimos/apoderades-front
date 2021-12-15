@@ -23,7 +23,7 @@ const cuentaBack = {
 	backURL: null,
 
 	async init (vm) {
-		const fx = 'cuentaBack>init'
+		// const fx = 'cuentaBack>init'
 		this.vm = vm
 
 		this.backURL = process.env.dev ? process.env.backURL : process.env.backURL.replace('HOST', window.location.host)
@@ -44,7 +44,6 @@ const cuentaBack = {
 			cuentaBack.leerMisDatos()
 			cuentaBack.misTerritorios()
 		}
-		consolo.log(fx, { tokenAutofirmado: cuentaBack.cuenta.tokenAutofirmado })
 
 		// Frente a cambios de usuario, reaccionar acorde
 		cuentaBack.cuenta.on('cambioToken', token => {
@@ -82,7 +81,7 @@ const cuentaBack = {
 		const fx = 'cuentaBack>leerMisDatos'
 		this.leyendoDatos = true
 		try {
-			consolo.log(fx)
+			// consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
 				url: `${cuentaBack.backURL}/apoderade`
@@ -93,7 +92,7 @@ const cuentaBack = {
 				console.error(fx, 'fail', r)
 				return
 			}
-			consolo.log(fx, 'r', r)
+			// consolo.log(fx, 'r', r)
 			const { apoderade } = r
 			if (apoderade.territorioPreferencia) {
 				const t = apoderade.territorioPreferencia
@@ -119,7 +118,7 @@ const cuentaBack = {
 	async misTerritorios () {
 		const fx = 'cuentaBack>misTerritorios'
 		try {
-			consolo.log(fx)
+			// consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
 				url: `${cuentaBack.backURL}/apoderade/territorios`
@@ -263,6 +262,31 @@ const cuentaBack = {
 		}
 	},
 
+	async obtenerDatosPersonalesOtrosUsuarios (usuarioIDs, campos) {
+		const fx = 'cuentaBack>obtenerDatosPersonalesOtrosUsuarios'
+		try {
+			console.log(fx, JSON.stringify({usuarioIDs, campos}))
+			// Primero obtener autorización del back
+			const r = await solicitar({
+				method: 'post',
+				// TODO: establecer una URL en el back para obtener autorizacion
+				url: `${cuentaBack.backURL}/autorizarAccesoDatosPersonalesTerceros`,
+				data: {usuarioIDs, campos}
+			})
+			if (!r || !r.ok) throw ['No se pudo autorizar obtenerDatosPersonalesOtrosUsuarios', r]
+
+			const { autorizacion } = r
+			const s = await cuentaBack.cuenta.datosPersonalesTerceros(autorizacion)
+			if (!s || !s.ok) throw ['No se pudo obtenerDatosPersonalesOtrosUsuarios', r]
+			// TODO: hacer cosas con los datos
+			return s
+		} catch (e) {
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
+		}
+	},
+
 	async asignarTerritorio ({ usuarioID, regionID, comunaID, localID, esApoGeneral}) {
 		const fx = 'cuentaBack>asignarTerritorio'
 		try {
@@ -383,14 +407,14 @@ const cuentaBack = {
 	async localPorID (regionID, localID) {
 		const fx = 'cuentaBack>localPorID'
 		try {
-			consolo.log(fx)
+			// consolo.log(fx)
 			const r = await solicitar({
 				method: 'get',
 				url: `${cuentaBack.backURL}/locales/${regionID}/locales/${localID}`
 			})
 			if (!r || !r.ok) throw [`No se pudo cargar local con id ${localID}`, r]
-			if (dev) cuentaBack.vm.$message.success('Local cargado')
-			consolo.log(fx, 'r', r)
+			// if (dev) cuentaBack.vm.$message.success('Local cargado')
+			// consolo.log(fx, 'r', r)
 			cuentaBack.vm.$store.commit('local', r.local)
 			return r
 		} catch (e) {
@@ -466,6 +490,9 @@ const cuentaBack = {
 
 async function solicitar (request, errorHandler) {
 	const tokenAutofirmado = await cuentaBack.cuenta.mantenerTokenAutorizado()
+	if (!tokenAutofirmado) {
+		throw 'Falta tokenAutofirmado'
+	}
 	const defaultHeaders = {
 		Accept: 'application/json',
 		'Content-Type': 'application/json',
@@ -533,7 +560,7 @@ export default function ({ app }, inject) {
 		mounted () {
 			const vm = this
 			vm.$nextTick(() => {
-				consolo.log('cuentaBack MOUNTED')
+				// consolo.log('cuentaBack MOUNTED')
 				cuentaBack.init(vm)
 			})
 		}

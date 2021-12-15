@@ -64,8 +64,8 @@
 
 
 			a-form-model-item
-				a-button.w100.casiBpStyle(type="primary" @click="$emit('cancelar')") Cancelar
-				a-button.w100.casiBpStyle(@click="asignarTerritorio") Asignar
+				a-button.w100.casiBpStyle(type="primary" @click="asignarTerritorio") Asignar
+				a-button.w100.casiBpStyle(@click="$emit('cancelar')") Cancelar
 </template>
 <script>
 import parameterize from '@lib/parameterize'
