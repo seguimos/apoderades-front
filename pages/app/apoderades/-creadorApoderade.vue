@@ -72,7 +72,7 @@ export default {
 				this.guardandoDatos = false
 				console.log('guardarDatosPersonales', r)
 				const {usuarioID} = r
-				this.$emit('incripcionRealizada', {...r, usuarioID})
+				this.$emit('incripcionRealizada', {...r, rut, usuarioID})
 			})
 		},	
 	}

@@ -1,15 +1,6 @@
 <template lang="pug">
 .appApoderadesIndex
 
-	//.miniNavbar
-		.cambioEtapa(:class="{activa: !etapa}" @click="pasarAEtapa()") Buscar
-		//- .cambioEtapa(:class="{activa: etapa === 'datosPersonales'}" @click="pasarAEtapa('datosPersonales')") Inscribir
-		.cambioEtapa(:class="{activa: etapa === 'asignacionTerritorial'}" @click="pasarAEtapa('asignacionTerritorial')") Asignar territorio
-
-	//- pre etapa: {{etapa}}
-	//- pre rut: {{rut}}
-
-
 	a-steps(progress-dot :current='paso' direction='vertical')
 
 		a-step(title="Búsqueda")
