@@ -496,6 +496,16 @@ const cuentaBack = {
 		return url
 	},
 
+	async guardarVotos (region, localID, votos, mesaID) {
+		const res = await solicitar({
+			method: 'post',
+			url: `${cuentaBack.backURL}/locales/${region}/locales/${localID}/mesa/${mesaID}`,
+			data: votos
+		})
+		console.log(res)
+		return res
+	}
+
 }
 
 

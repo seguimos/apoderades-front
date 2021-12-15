@@ -7,7 +7,7 @@
 				.tipo Selecciona una mesa:
 				a-select.select(placeholder="mesas" @select="seleccionarMesa")
 					a-select-option(v-for="mesa in local.mesas" :key="mesa.id" :value="mesa.id") {{ mesa.mesa}}
-			.grupo2(v-if="formulario.mesaid")
+			.grupo2(v-if="mesaid")
 				.grupo
 					.tipo Gabriel Boric:
 					a-input.input(placeholder='N° Votos Boric', type='num' v-model="formulario.votos.Boric")
@@ -32,6 +32,9 @@
 						a-button.cambioImagen(@click="cargar" :disabled="bloquearBoton" title="")
 							div(v-if="!bloquearBoton") Cargar acta de cierre
 							div(v-else) Acta cargada correctamente
+
+				.contenedorBoton
+					.boton(@click="enviarFormulario") Enviar cierre de mesa
 </template>
 <script>
 export default {
@@ -44,13 +47,15 @@ export default {
 				apoderados: [],
 				apoderadoGeneral: ''
 			},
+		
+			mesaid: null,
 			formulario: {
-				mesaid: null,
 				votos: {
 					Boric: null,
 					Kast: null,
 					blancos: null,
 					nulos: null,
+					actaURL: null
 				}
 			},
 			abrirModalReportes: null,
@@ -71,19 +76,11 @@ export default {
 	},
 	methods: {
 		seleccionarMesa (v) {
-			this.formulario.mesaid  = v
+			this.mesaid  = v
 		},
 		async firmarCarga () {
-			const url = await this.$cuentBack.firmarCarga({region: this.region, nombre: this.local.nombre, mesaid: this.formulario.mesaid})
+			const url = await this.$cuentBack.firmarCarga({region: this.region, nombre: this.local.nombre, mesaid: this.mesaid})
 			console.log('urlFirmada', url)
-			// const archivo = `region-${this.region}-local-${this.local.nombre}-mesa-${this.formulario.mesaid}`
-			// this.modificandoAvatar = true
-			// const url = await axios({
-			// 	method: 'get',
-			// 	url: `${this.$cuentaBack.backURL}/signedUrl/${archivo}`
-			// })
-			// 	.then(r => r.data)
-			// 	.catch(e => console.error('fallo respuesta', e))
 
 			this.modificandoAvatar = false
 			return url
@@ -104,11 +101,19 @@ export default {
 			}))
 		},
 		guardarUrl (url) {
-			this.formulario.urlPaseDeMovilidad = url
+			this.formulario.votos.actaURL = url
 			this.bloquearBoton = true
 			this.$refs.cargadorImagen.$emit('guardado')
-			console.log('guardarUrl', this.formulario.urlPaseDeMovilidad)
+			console.log('guardarUrl', this.formulario.votos.actaURL)
 		},
+		async enviarFormulario () {
+			const region = this.$route.params.region
+			const localID = this.$route.params.localId
+			const votos = this.formulario
+			console.log(region, localID, votos)
+			const enviado = await this.$cuentaBack.guardarVotos(region, localID, votos, this.mesaid)
+			console.log('enviado', enviado)
+		}
 	}
 }
 </script>
@@ -142,4 +147,7 @@ export default {
 				display: flex
 				justify-content: center
 				padding: 1em
+		.boton
+			background-color: #fff
+			color: rgba(0, 0, 0, .5)
 </style>
