@@ -1,9 +1,13 @@
 <template lang="pug">
-.miniTarjetaAsignacion.asignacion(v-if="asignacion")
-	.encabezado
+.miniTarjetaAsignacion.asignacion(v-if="asignacion" :class="{activa}")
+	.encabezado(@click="cambiarVisibilidad")
 		.acciones
 			//.paraMapa(v-if="['mesa', 'general'].includes(asignacion.capa)")
 			.icono 🔖
+			
+			//a-popconfirm(v-if="mostrarDesasignar &&puedeEliminarAsignacion" title="Eliminar asignación?" ok-text="Eliminar" cancel-text="No" placement="topRight" @confirm="$emit('desasignarTerritorio')")
+				.icono ❌
+				div(slot="content")
 		.info
 			.rol
 				span(v-if="asignacion.capa === 'regional'") Coordinación Regional
@@ -14,22 +18,29 @@
 					.icono(style="font-size: 4em; margin-bottom: 1rem;") 🤨
 					.texto Error
 
-			.territorio
-				span.region {{_.get(asignacion, ['region','nombre'])}}
-				a-divider(type="vertical" v-if="asignacion.comunaID")
-				span.comuna {{_.get(asignacion, ['comuna','nombre'])}}
+			.territorio(v-if="['regional', 'comunal'].includes(asignacion.capa)")
+				.region(:class="{ laImportante: asignacion.capa === 'regional' }") {{_.get(asignacion, ['region','nombreCompleto'])}}
+				//- a-divider(type="vertical" v-if="asignacion.comunaID")
+				.comuna(:class="{ laImportante: asignacion.capa === 'comunal' }") {{_.get(asignacion, ['comuna','nombre'])}}
 
-		.acciones(v-if="mostrarDesasignar")
-			a-popconfirm(v-if="puedeEliminarAsignacion" title="Eliminar asignación?" ok-text="Eliminar" cancel-text="No" placement="topRight" @confirm="$emit('desasignarTerritorio')")
-				a-button(shape="circle")
-					a-icon(type="close")
-				div(slot="content")
 
-	.miniTarjetaLocal(:class="asignacion.capa")
-		.info
-			.local 
-				.nombre {{_.get(asignacion, ['local','nombre'])}}
+			.local(v-if="['general', 'mesa'].includes(asignacion.capa)")
+				.nombre {{_.get(asignacion, ['local','nombre'], '').toLowerCase()}}
 				.direccion {{_.get(asignacion, ['local', 'direccion'])}}
+	transition
+		.contenido(v-if="activa") 
+
+
+			a-popconfirm(v-if="mostrarDesasignar && puedeEliminarAsignacion" title="Eliminar asignación?" ok-text="Eliminar" okType="danger" cancel-text="No" placement="topRight" @confirm="$emit('desasignarTerritorio')")
+				a-button.w100(type="danger") Eliminar
+				div(slot="content")
+			a-button.w100(v-else-if="mostrarDesasignar" type="danger" disabled) Eliminar
+
+
+			//- div CONTENIDO
+			//- div CONTENIDO
+			//- div CONTENIDO
+			//- div CONTENIDO
 </template>
 <script>
 export default {
@@ -40,6 +51,18 @@ export default {
 		},
 		mostrarDesasignar: {
 			type: Boolean
+		},
+		activada: {
+			type: Boolean
+		},
+		activable: {
+			type: Boolean,
+			default: false
+		},
+	},
+	data () {
+		return {
+			activa: null
 		}
 	},
 	computed: {
@@ -82,16 +105,19 @@ export default {
 			}
 			return false
 		}
+	},
+	methods: {
+		cambiarVisibilidad () {
+			this.activa = !this.activa
+		}
 	}
 }
 </script>
 <style lang="sass" scoped>
 @import '@style/vars'
 
-.rol
-	color: black
-	+fwb
 .miniTarjetaAsignacion
+	color: black
 	.encabezado
 		display: flex
 		align-items: center
@@ -103,28 +129,57 @@ export default {
 		.info
 			flex: auto 1 1
 
-	.miniTarjetaLocal
-		margin-top: 0.5rem
-		display: flex
-		align-items: center
-		line-height: 1
-		.info
-			flex: auto 1 1
-			line-height: 1.4
-
-		&.mesa,
-		&.general
+	.info
+		.rol
+			opacity: 1
+			+fwb
+			font-size: 1.1em
+		.territorio
+			display: flex
+			flex-flow: column nowrap
 			.region,
 			.comuna
 				// +fwb
-				opacity: .65
-			.local
-				font-size: .8rem	
-				.nombre
-					color: black
-					// +fwb
-					margin: 0.25rem 0
-				.direccion
-					color: #333
-					font-weight: lighter
+				opacity: .8
+				+fwl
+				&.laImportante
+					opacity: 1
+					order: -1
+					+fwn
+					font-size: 1.1em
+	.local
+		.nombre
+			opacity: 1
+			text-transform: capitalize
+			+fwn
+			font-size: 1.1em
+		.direccion
+			opacity: .8
+			+fwl
+
+
+	//border: 1px solid transparent
+	border-radius: 4px
+	transition: all .3s ease
+	padding: 0.3em
+	.contenido
+		// margin: 0.3em
+		border-radius: inherit
+		background-color: white
+		padding: 1em
+		transition: all .3s ease
+		margin-top: 1em
+		+saliendo
+			max-height: 20em
+			overflow: hidden
+		+salir
+			max-height: 0
+			padding-top: 0
+			padding-bottom: 0
+			margin-top: 0
+			// margin: 0 .3em
+	&.activa
+		background-color: $azul1
+		color: white
+		//border-color: #566
 </style>

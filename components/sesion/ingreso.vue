@@ -13,7 +13,9 @@
 
 			h1.titulo {{ $t('ingresaATuCuenta') }}
 
-			a-form-model-item(prop="email" :label="$t('correo')")
+			a-form-model-item(prop="email" :label="$t('correo')"
+				:help="emailsNoExistentes.includes(cuenta.email) ? 'No registrado' : ''"
+				:validateStatus="emailsNoExistentes.includes(cuenta.email) ? 'error' : ''")
 				a-input(
 					v-enfocar
 					v-model="cuenta.email"
@@ -43,7 +45,7 @@
 
 			.accion
 				a-form-model-item
-					a-button.w-100(type="primary" block
+					a-button.w100.azul(type="primary" block
 						@click="procesarIngreso"
 						:loading="conectando"
 						:disabled="passIncorrectos.includes(cuenta.password)"
@@ -132,6 +134,7 @@ export default {
 			// cuenta: { nombre: '', apellido: '', email: '', password: '', confirmacion: '' },
 			cuenta,
 
+			emailsNoExistentes: [],
 			passIncorrectos: []
 		}
 	},
@@ -179,18 +182,19 @@ export default {
 				const r = await this.$cuenta.ingresar(email, password)
 
 				if (!r.ok) {
-					if (r.error === 'noExiste') {
-						const vm = this
-						this.$info({
-							title: vm.$t('correoNoRegistrado'),
-							content: vm.$t('emailSinCuenta'),
-							okText: vm.$t('registrarme'),
-							onOk () { vm.modoActivo = 'registro' },
-							closable: true,
-							maskClosable: true,
-							cancelText: vm.$t('cancelar'),
-							centered: true
-						})
+					if (_.get(r, 'error.email') === 'noExiste') {
+						// const vm = this
+						// this.$info({
+						// 	title: vm.$t('correoNoRegistrado'),
+						// 	content: vm.$t('emailSinCuenta'),
+						// 	okText: vm.$t('registrarme'),
+						// 	onOk () { vm.modoActivo = 'registro' },
+						// 	closable: true,
+						// 	maskClosable: true,
+						// 	cancelText: vm.$t('cancelar'),
+						// 	centered: true
+						// })
+						this.emailsNoExistentes = [...this.emailsNoExistentes, email]
 					} else if (_.get(r, 'error.pass') === 'incorrecto') {
 						this.passIncorrectos = [...this.passIncorrectos, password]
 					}
@@ -303,11 +307,11 @@ export default {
 
 	.cambioModo
 		display: block
-		margin-top: .5em
+		margin-top: 2em
 		text-align: center
 
 	a
-		color: #ff1799
+		color: $colorSecundariosA2
 		+bold
 
 	.grupoCampos

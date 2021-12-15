@@ -1,68 +1,71 @@
 <template lang="pug">
 .appApoderadesIndex
 
-	a-steps(progress-dot :current='paso' direction='vertical')
+	.wrapperConPasos
+		a-steps(progress-dot :current='paso' direction='vertical')
 
-		a-step(title="Búsqueda")
-			div(slot="description")
-				div(v-if="!rut")
-					//- div Busca al apo
-					checkPorRut(ref="checkPorRut" @noInscrite="iniciarInscripcion" @inscrite="cargarApoderade")
-				.rut(v-else)
-					div {{formatearRut(rut)}}
-					a-button(@click="buscarOtroRut") Buscar otro rut
-
-
-		a-step(:title="!rut? 'Inscripción' : !usuarioID? 'Inscribir' : 'Inscripción realizada'")
-			div(slot="description")
-				div(v-if="!usuarioID && etapa !== 'datosPersonales'")
-					div Si a quien corresponde al rut no se le ha inscrito, podrás incribirle aquí
-				div(v-else-if="!puedeInscribir")
-					div Si a quien pertenece el rut desea ser apoderado, por favor solicita a tu apoderado general, o coordinador comunal o regional que le inscriba.
-				div(v-else-if="!usuarioID")
-					//- div Todo listo aquí
-					creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @incripcionRealizada="cargarApoderade")
-				div(v-else-if="!datosApoderade")
-					a-icon(type="loading")
-				div(v-else)
-					.nombre {{datosApoderade.nombre}} {{datosApoderade.apellido}}.
-
-		a-step(title='Asignación de local/territorio')
-			div(slot="description")
-				div(v-if="!['estadoYOpcionesAsignacion', 'asignacionTerritorial'].includes(etapa)")
-					div Aquí verás los locales/territorios asignados al apoderado inscrito
-				div(v-else-if="!datosApoderade")
-					a-icon(type="loading")
-				div(v-else)
-
-					.asignaciones(v-if="!_.isEmpty(datosApoderade.territoriosAsignados)")
-						div(v-for="terr in datosApoderade.territoriosAsignados")
-							miniTarjetaAsignacion(:territorioAsignado="terr" @desasignarTerritorio="desasignarTerritorio(datosApoderade, terr)" mostrarDesasignar)
+			a-step(title="Búsqueda")
+				div(slot="description")
+					div(v-if="!rut")
+						//- div Busca al apo
+						checkPorRut(ref="checkPorRut" @noInscrite="iniciarInscripcion" @inscrite="cargarApoderade")
+					.rut(v-else)
+						div {{formatearRut(rut)}}
+						a-button(@click="buscarOtroRut") Buscar otro rut
 
 
-					a-alert.noAsignade(v-else banner message="Aún no se ha asignado local/territorio") 
+			a-step(:title="!rut? 'Inscripción' : !usuarioID? 'Inscribir' : 'Inscripción realizada'")
+				div(slot="description")
+					div(v-if="!usuarioID && etapa !== 'datosPersonales'")
+						div Si a quien corresponde al rut no se le ha inscrito, podrás incribirle aquí
+					div(v-else-if="!puedeInscribir")
+						div Si a quien pertenece el rut desea ser apoderado, por favor solicita a tu apoderado general, o coordinador comunal o regional que le inscriba.
+					div(v-else-if="!usuarioID")
+						//- div Todo listo aquí
+						creadorApoderade(ref="creadorApoderade" @buscarRut="pasarAEtapa()" :rut="rut" @incripcionRealizada="cargarApoderade")
+					div(v-else-if="!datosApoderade")
+						a-icon(type="loading")
+					div(v-else)
+						.nombre {{datosApoderade.nombre}} {{datosApoderade.apellido}}.
 
-					.opcionesAsignacion(v-if="etapa === 'estadoYOpcionesAsignacion' && !_.isEmpty(alternativasAsignacion)")
-						.info Puedes asignarle los siguientes roles
+			a-step(title='Asignación de local/territorio')
+				div(slot="description")
+					div(v-if="!['estadoYOpcionesAsignacion', 'asignacionTerritorial'].includes(etapa)")
+						div Aquí verás los locales/territorios asignados al apoderado inscrito
+					div(v-else-if="!datosApoderade")
+						a-icon(type="loading")
+					div(v-else)
 
-						.alternativas
-							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('regional')"
-								@click="abrirAsignadorTerritorio('regional')") Coordinación regional
-							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('comunal')"
-								@click="abrirAsignadorTerritorio('comunal')") Coordinación comunal
-							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('general')"
-								@click="abrirAsignadorTerritorio('general')") Apoderado general
-							a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('mesa')"
-								@click="abrirAsignadorTerritorio('mesa')") Apoderado de mesa
+						.asignaciones(v-if="!_.isEmpty(datosApoderade.territoriosAsignados)")
+							.elementoAsignacion(v-for="terr in datosApoderade.territoriosAsignados" )
+								miniTarjetaAsignacion(:territorioAsignado="terr" @desasignarTerritorio="desasignarTerritorio(datosApoderade, terr)" mostrarDesasignar activable)
+								a-divider.separador
 
-		a-step(v-if="etapa === 'asignacionTerritorial'")
-			div(slot="title")
-				span(v-if="tipoAsignacion === 'regional'") Asignar como Coordinación regional
-				span(v-else-if="tipoAsignacion === 'comunal'") Asignar como Coordinación comunal
-				span(v-else-if="tipoAsignacion === 'general'") Asignar como Apoderado general
-				span(v-else-if="tipoAsignacion === 'mesa'") Asignar como Apoderado de mesa
-			div(slot="description")
-				asignadorTerritorio(ref="asignadorTerritorio" :usuarioID="usuarioID" :tipoAsignacion="tipoAsignacion" @asignacionRealizada="asignacionRealizada" @cancelar="cerrarAsignadorTerritorio")
+
+						a-alert.noAsignade(v-else banner message="Aún no se ha asignado local/territorio") 
+
+						.opcionesAsignacion(v-if="etapa === 'estadoYOpcionesAsignacion' && !_.isEmpty(alternativasAsignacion)")
+							.info Puedes asignarle los siguientes roles
+
+							.alternativas
+								a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('regional')"
+									@click="abrirAsignadorTerritorio('regional')") Coordinación regional
+								a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('comunal')"
+									@click="abrirAsignadorTerritorio('comunal')") Coordinación comunal
+								a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('general')"
+									@click="abrirAsignadorTerritorio('general')") Apoderado general
+								a-button.alternativa.w100.casiBpStyle(v-if="alternativasAsignacion.includes('mesa')"
+									@click="abrirAsignadorTerritorio('mesa')") Apoderado de mesa
+
+			a-step(v-if="etapa === 'asignacionTerritorial'")
+				.flex(slot="title")
+					span(v-if="tipoAsignacion === 'regional'") Asignar como Coordinación regional
+					span(v-else-if="tipoAsignacion === 'comunal'") Asignar como Coordinación comunal
+					span(v-else-if="tipoAsignacion === 'general'") Asignar como Apoderado general
+					span(v-else-if="tipoAsignacion === 'mesa'") Asignar como Apoderado de mesa
+					span.x(@click="pasarAEtapa('estadoYOpcionesAsignacion')") x
+				div(slot="description")
+					asignadorTerritorio(ref="asignadorTerritorio" :usuarioID="usuarioID" :tipoAsignacion="tipoAsignacion" @asignacionRealizada="asignacionRealizada" @cancelar="cerrarAsignadorTerritorio")
 
 
 
@@ -118,11 +121,11 @@ export default {
 		},
 		formatearRut (rut) { return Rut.format(rut)},
 		buscarOtroRut () {
-			this.etapa = null
 			this.rut = null
 			this.usuarioID = null
 			this.datosApoderade = null
 			this.tipoAsignacion = null
+			this.pasarAEtapa(null)
 		},
 		iniciarInscripcion (rut) {
 			console.log('iniciarInscripcion', rut)
@@ -190,6 +193,8 @@ export default {
 	margin: 0 auto
 	max-width: 100%
 	width: 400px
+	.wrapperConPasos
+		margin-left: -.5em
 
 	&::v-deep
 		.ant-steps-item-title
@@ -212,11 +217,11 @@ export default {
 
 	::v-deep .ant-steps-item-content
 		padding: 0.3rem
-	.miniTarjetaAsignacion
-		background-color: white
-		padding: 1em
-		border-radius: 4px
-		box-shadow: 0 0 .3rem transparentize(black, .8)
+	.asignaciones
+		.separador
+			margin: .5em 0
+			&:last-child
+				display: none
 		
 
 

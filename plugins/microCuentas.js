@@ -22,7 +22,8 @@ let llaveroMicroCuentas
 
 async function procesarInfoUsuario (r) {
 	try {
-		if (!r || !r.ok) throw r
+		console.log('procesarInfoUsuario', r)
+		if (!r || !r.ok) return r
 		if (r.datosPrivados) {
 			// Datos personales
 			cuenta.datosPrivados = r.datosPrivados
