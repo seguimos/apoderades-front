@@ -16,56 +16,91 @@
 		strong localesSugeridosPorBusqueda
 		div(v-for="local in localesSugeridosPorBusqueda") {{local}}
 	.asignadores
-		a-form-model.asignadores(ref="asignacionTerritorialForm" :model="asignacionTerritorialForm" :rules="reglasFormAsignacionTerritorial")
-
+		a-form-model.asignadores(
+			ref='asignacionTerritorialForm',
+			:model='asignacionTerritorialForm',
+			:rules='reglasFormAsignacionTerritorial'
+		)
 			mixin selectorComuna
-				a-form-model-item(has-feedback prop="comunaID" label="Comuna")
+				a-form-model-item(has-feedback, prop='comunaID', label='Comuna')
 					a-auto-complete.certain-category-search(
-						dropdown-class-name='certain-category-search-dropdown'
-						:dropdown-match-select-width='false'
-						:dropdown-style="{ width: '300px' }" 
-						size='large' 
-						style='width: 100%' 
-						placeholder='Escribe parte del nombre de la comuna' 
-						@focus="filtrarSugerenciasComunas(busquedaComuna)" 
-						@search="filtrarSugerenciasComunas" 
-						@select="elegirComuna" 
-						allow-clear)
+						dropdown-class-name='certain-category-search-dropdown',
+						:dropdown-match-select-width='false',
+						:dropdown-style='{ width: "300px" }',
+						size='large',
+						style='width: 100%',
+						placeholder='Escribe parte del nombre de la comuna',
+						@focus='filtrarSugerenciasComunas(busquedaComuna)',
+						@search='filtrarSugerenciasComunas',
+						@select='elegirComuna',
+						allow-clear
+					)
 						template(slot='dataSource')
-							a-select-opt-group(v-for='region in comunasSugeridasPorBusqueda' :key='`reg-${region.regionID}`')
+							a-select-opt-group(
+								v-for='region in comunasSugeridasPorBusqueda',
+								:key='`reg-${region.regionID}`'
+							)
 								span(slot='label')
 									| {{ region.nombre }}
-								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='comuna in region.comunas' :key='`comuna-${comuna.comunaID}`' :value='comuna.comunaID')
+								a-select-option(
+									v-if='!_.isEmpty(region.comunas)',
+									v-for='comuna in region.comunas',
+									:key='`comuna-${comuna.comunaID}`',
+									:value='comuna.comunaID'
+								)
 									| {{ comuna.nombre }}
 						a-input
 
-			.asignadorLocal(v-if="['general', 'mesa'].includes(tipoAsignacion)")
-				p.descripcionAsignacion(v-if="tipoAsignacion === 'general'") El apoderado podrá gestionar a otros apoderados dentro del local de votación asignado.
+			.asignadorLocal(v-if='["general", "mesa"].includes(tipoAsignacion)')
+				p.descripcionAsignacion(v-if='tipoAsignacion === "general"') El apoderado podrá gestionar a otros apoderados dentro del local de votación asignado.
 				//- p.descripcionAsignacion(v-if="tipoAsignacion === 'mesa'") El apoderado podrá gestionar a otros apoderados dentro de la región.
 				+selectorComuna
-				a-form-model-item(has-feedback prop="localID" label="Local de votación")
-					a-auto-complete.certain-category-search(dropdown-class-name='certain-category-search-dropdown' :dropdown-match-select-width='false' :dropdown-style="{ width: '300px' }" size='large' style='width: 100%' placeholder='Escribe parte del nombre del local' @focus="filtrarSugerenciasLocales(busquedaLocal)" @search="filtrarSugerenciasLocales" @select="elegirLocal" allow-clear)
+				a-form-model-item(has-feedback, prop='localID', label='Local de votación')
+					a-auto-complete.certain-category-search(
+						dropdown-class-name='certain-category-search-dropdown',
+						:dropdown-match-select-width='false',
+						:dropdown-style='{ width: "300px" }',
+						size='large',
+						style='width: 100%',
+						placeholder='Escribe parte del nombre del local',
+						@focus='filtrarSugerenciasLocales(busquedaLocal)',
+						@search='filtrarSugerenciasLocales',
+						@select='elegirLocal',
+						allow-clear
+					)
 						template(slot='dataSource')
-							a-select-option(v-if="!_.isEmpty(localesSugeridosPorBusqueda)" v-for='local in localesSugeridosPorBusqueda' :key='`local-${local.localID}`' :value='local.localID')
+							a-select-option(
+								v-if='!_.isEmpty(localesSugeridosPorBusqueda)',
+								v-for='local in localesSugeridosPorBusqueda',
+								:key='`local-${local.localID}`',
+								:value='local.localID'
+							)
 								| {{ local.nombre }}
 								//- span.certain-search-item-count {{ local.direccion }}
 						a-input
 							//a-icon.certain-category-icon(slot='suffix' type='search')
 
-			.asignadorComuna(v-if="tipoAsignacion === 'comunal'")
+			.asignadorComuna(v-if='tipoAsignacion === "comunal"')
 				p.descripcionAsignacion El coordinador podrá gestionar a otros apoderados dentro de la comuna.
 				+selectorComuna
 
-			.asignadorRegion(v-if="tipoAsignacion === 'regional'")
+			.asignadorRegion(v-if='tipoAsignacion === "regional"')
 				p.descripcionAsignacion El apoderado podrá gestionar a otros coordinadores y apoderados dentro de la región.
-				a-form-model-item(has-feedback prop="regionID" label="Región")
-					a-select.input(v-model="asignacionTerritorialForm.regionID" @change="elegirRegion" placeholder="Región")
-						a-select-option(v-for="region in regionesAsignables" :key="`region-${region.regionID}`" :value="region.regionID") {{ region.nombre }}
-
+				a-form-model-item(has-feedback, prop='regionID', label='Región')
+					a-select.input(
+						v-model='asignacionTerritorialForm.regionID',
+						@change='elegirRegion',
+						placeholder='Región'
+					)
+						a-select-option(
+							v-for='region in regionesAsignables',
+							:key='`region-${region.regionID}`',
+							:value='region.regionID'
+						) {{ region.nombre }}
 
 			a-form-model-item
-				a-button.w100.casiBpStyle(type="primary" @click="asignarTerritorio") Asignar
-				a-button.w100.casiBpStyle(@click="$emit('cancelar')") Cancelar
+				a-button.w100.casiBpStyle(type='primary', @click='asignarTerritorio') Asignar
+				a-button.w100.casiBpStyle(@click='$emit("cancelar")') Cancelar
 </template>
 <script>
 import parameterize from '@lib/parameterize'
@@ -119,6 +154,7 @@ export default {
 		},
 		comunasAsignables () {
 			const _ = this._
+			console.log('this.$apoderade', this.$apoderade)
 			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$chile.todasLasComunas(), r => r.comunaID)
 			return _.uniq(_.map(_.filter(this.$apoderade.asignaciones, a => a.comunaID && a.capa === 'comunal'), aa => aa.comunaID))
 		},
