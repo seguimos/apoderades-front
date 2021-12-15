@@ -8,6 +8,7 @@ import Llavero from '@lib/llavero'
 import emisorEventos from '@lib/emisorEventos'
 
 import { _ } from './lodash'
+import { moment } from './fechas'
 
 const cuentaStore = localforage.createInstance({ name: 'criptoCuentaStore' })
 const llaveroStore = localforage.createInstance({ name: 'llaveroStore' })
@@ -20,8 +21,6 @@ let miLlavero
 let llaveroMicroCuentas
 
 async function procesarInfoUsuario(r) {
-	// Paja sacar el async
-	await new Promise(resolve => resolve())
 	try {
 		if (!r || !r.ok) throw r
 		if (r.datosPrivados) {
@@ -30,15 +29,19 @@ async function procesarInfoUsuario(r) {
 		}
 
 		if (r.token) {
-			cuenta.token = r.token
 			const decodificado = tokenDecoder(r.token)
 			cuenta.decodificado = decodificado
 			miLlavero.renombrar(decodificado.sub)
+			if (usarStores) await llaveroStore.setItem('miLlavero', miLlavero)
+
 			const shallowDecodificado = Object.assign({}, decodificado)
 			shallowDecodificado.id = decodificado.sub
 			delete shallowDecodificado.llaves
 			delete shallowDecodificado.sub
+			await new Promise(resolve => cuenta.vm.$nextTick(() => { resolve() }))
 			cuenta.usuario = shallowDecodificado
+			cuenta.token = r.token
+			await new Promise(resolve => cuenta.vm.$nextTick(() => { resolve() }))
 
 			cuenta.vm.$nextTick(() => {
 				cuenta.emit('cambioToken', r.token)
@@ -66,8 +69,8 @@ const cuenta = {
 	datosPrivados: undefined,
 	sinConexion: undefined,
 
-	async init(vm) {
-		const fx = 'microCuentas>init'
+	async init (vm) {
+		// const fx = 'microCuentas>init'
 
 		this.vm = vm
 		this.token = (usarStores && (await cuentaStore.getItem('token'))) || null
@@ -78,22 +81,22 @@ const cuenta = {
 		const llaveroMio =
 			(usarStores && (await llaveroStore.getItem('miLlavero'))) || null
 		if (llaveroMio) {
-			consolo.log(fx, 'Llavero recuperado', llaveroMio)
+			// consolo.log(fx, 'Llavero recuperado', llaveroMio)
 			miLlavero = new Llavero()
 			miLlavero.reinstanciar(llaveroMio)
 		} else {
 			miLlavero = new Llavero()
 			await miLlavero.init({ crearKeys: 1 })
-			consolo.log(fx, 'Llavero creado', miLlavero)
+			// consolo.log(fx, 'Llavero creado', miLlavero)
 			if (usarStores) await llaveroStore.setItem('miLlavero', miLlavero)
 		}
-		consolo.log(fx, { token: this._token })
+		// consolo.log(fx, { token: this._token })
 
 		// Emitir evento y marcar inicializado para otros procesos
-		this.emit('initListo')
-		this.inicializado = true
+		cuenta.emit('initListo')
+		cuenta.inicializado = true
 
-		this.leer()
+		cuenta.leer()
 	},
 
 	get host() {
@@ -122,16 +125,32 @@ const cuenta = {
 		if (usarStores) cuentaStore.setItem('usuario', usr)
 	},
 
+	tokenAutofirmado: undefined,
+	expTokenAutofirmado: undefined,
 	async mantenerTokenAutorizado(token) {
 		const fx = 'microCuentas>mantenerTokenAutorizado'
 		try {
 			token = token || cuenta.token
 			if (!token) return
-			// console.log(`%c ${fx} generado`, 'color: seagreen;')
+			// consolo.log(`%c ${fx} generando`, 'color: yellow;')
+			// consolo.log(`%c ${fx} miLlavero.nombre`, 'color: orangered;', miLlavero.nombre)
+			if (!miLlavero.nombre) {
+				throw `miLlavero.nombre: ${miLlavero.nombre}`
+			}
+
+			// Revisar si hay token cacheado
+			if (cuenta.tokenAutofirmado && cuenta.expTokenAutofirmado) {
+				if (moment().isBefore(moment(cuenta.expTokenAutofirmado).subtract(10 ,'s'))) return cuenta.tokenAutofirmado
+			}
+
+			consolo.log(`%c ${fx} nuevo token autorizado`, 'color: green;', miLlavero.nombre)
 			const cuerpoToken = { jtiCuentas: tokenDecoder(token).jti }
-			const moment = cuenta.vm.$moment
-			cuerpoToken.exp = moment().add(1, 'm').unix()
-			return await miLlavero.firmarToken(cuerpoToken)
+			const exp = moment().add(1, 'm')
+			cuerpoToken.exp = exp.unix()
+			const tokenAutofirmado =  await miLlavero.firmarToken(cuerpoToken)
+			this.tokenAutofirmado = tokenAutofirmado
+			this.expTokenAutofirmado = exp
+			return tokenAutofirmado
 		} catch (e) {
 			console.error(fx, e)
 		}
@@ -173,10 +192,10 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				if (cuenta.usuario !== null) cuenta.usuario = null
-				console.log(fx, 'abortado por no haber token')
+				consolo.log(fx, 'abortado por no haber token')
 				return
 			}
-			console.log(fx)
+			// consolo.log(fx)
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/leer`,
 				method: 'get',
@@ -267,7 +286,7 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				if (cuenta.usuario !== null) cuenta.usuario = null
-				console.log(fx, 'abortado por no haber token')
+				consolo.log(fx, 'abortado por no haber token')
 				return
 			}
 			consolo.log(fx, { pass })
@@ -285,6 +304,8 @@ const cuenta = {
 	async salir() {
 		cuenta.usuario = null
 		cuenta.token = null
+		cuenta.tokenAutofirmado = null
+		cuenta.expTokenAutofirmado = null
 		await cuentaStore.clear()
 		cuenta.ping()
 
@@ -447,7 +468,7 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				if (cuenta.usuario !== null) cuenta.usuario = null
-				console.log(fx, 'abortado por no haber token')
+				consolo.log(fx, 'abortado por no haber token')
 				return
 			}
 			if (!miLlavero) throw 'Falta miLlavero'
@@ -496,7 +517,7 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				if (cuenta.usuario !== null) cuenta.usuario = null
-				console.log(fx, 'abortado por no haber token')
+				consolo.log(fx, 'abortado por no haber token')
 				return
 			}
 
@@ -536,7 +557,7 @@ const cuenta = {
 			const token = cuenta.token
 			if (!token) {
 				if (cuenta.usuario !== null) cuenta.usuario = null
-				console.log(fx, 'abortado por no haber token')
+				consolo.log(fx, 'abortado por no haber token')
 				return
 			}
 
@@ -581,7 +602,7 @@ const cuenta = {
 		try {
 			if (!cuenta.token) {
 				if (cuenta.usuario !== null) cuenta.usuario = null
-				console.log(fx, 'abortado por no haber token')
+				consolo.log(fx, 'abortado por no haber token')
 				return
 			}
 
@@ -621,10 +642,10 @@ const cuenta = {
 	async datosPersonalesTerceros (autorizacion) {
 		const fx = 'microCuentas>datosPersonalesTerceros'
 		try {
-			console.log(fx, JSON.stringify({autorizacion}))
+			consolo.log(fx, JSON.stringify({autorizacion}))
 			if (!cuenta.token) {
 				if (cuenta.usuario !== null) cuenta.usuario = null
-				console.log(fx, 'abortado por no haber token')
+				consolo.log(fx, 'abortado por no haber token')
 				return
 			}
 
@@ -669,7 +690,7 @@ async function solicitar(request, errorHandler) {
 
 	const data = await axios(ops)
 		.then(r => {
-			// console.log('r', r)
+			// consolo.log('r', r)
 			if (cuenta.sinConexion === undefined || cuenta.sinConexion)
 			{cuenta.sinConexion = false}
 			return r.data
@@ -703,14 +724,14 @@ function capturadorErrorSolicitud(error) {
 	console.error('capturadorErrorSolicitud', error)
 	if (error.response) {
 		const { status, data } = error.response
-		console.log('Status fuera del rango 2XX', { status, data })
+		consolo.log('Status fuera del rango 2XX', { status, data })
 	} else if (error.request) {
-		console.log('Sin respuesta (capturadorErrorSolicitud)')
+		consolo.log('Sin respuesta (capturadorErrorSolicitud)')
 		cuenta.sinConexion = true
 		// consolo.log(error.request)
 		cuenta.ping()
 	} else {
-		console.log('Error inesperado (capturadorErrorSolicitud)', error.message)
+		consolo.log('Error inesperado (capturadorErrorSolicitud)', error.message)
 	}
 	consolo.log(error.config)
 }
@@ -726,7 +747,7 @@ export default function ({ app }, inject) {
 	if (!app.mixins) app.mixins = []
 	app.mixins.push({
 		mounted() {
-			consolo.log('criptoCuenta MOUNTED')
+			// consolo.log('criptoCuenta MOUNTED')
 			cuenta.init(this)
 		},
 	})
