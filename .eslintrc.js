@@ -24,6 +24,7 @@ module.exports = {
 		'no-console': 'off',
 		'no-undef': ['warn', { typeof: false }],
 		// 'standard/computed-property-even-spacing': 'off',
+		"space-before-function-paren": ["error", "always"],
 		'import/no-webpack-loader-syntax': 'off',
 		'prefer-promise-reject-errors': 'off',
 		'no-throw-literal': 'off',

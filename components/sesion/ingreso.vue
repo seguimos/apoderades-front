@@ -172,6 +172,7 @@ export default {
 			})
 		},
 		async ingresar ({ email, password }) {
+			const _ = this._
 			this.$consolo.log('ingresar', { email, password })
 			this.conectando = true
 			try {
@@ -190,7 +191,7 @@ export default {
 							cancelText: vm.$t('cancelar'),
 							centered: true
 						})
-					} else if (r.error === 'passIncorrecto') {
+					} else if (_.get(r, 'error.pass') === 'incorrecto') {
 						this.passIncorrectos = [...this.passIncorrectos, password]
 					}
 				}

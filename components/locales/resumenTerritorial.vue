@@ -26,7 +26,7 @@ export default {
 		},
 		resumen: {
 			type: Object,
-			default() { return {}}
+			default () { return {}}
 		}
 	},
 	methods: {

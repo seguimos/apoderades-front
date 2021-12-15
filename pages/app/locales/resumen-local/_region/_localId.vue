@@ -55,7 +55,7 @@ export default {
 		}
 	},
 	computed: {
-		region() {
+		region () {
 			return this.$route.params.region
 		},
 		comunaCodigo () {
@@ -82,18 +82,18 @@ export default {
 				return (apoderado.nombre.toLocaleLowerCase().search(buscar.toLocaleLowerCase()) > -1)
 			})
 		},
-		apoderadosGenerales() {
+		apoderadosGenerales () {
 			return this.local.apoderados.filter(apoderado => {
 				return apoderado.esApoderadoGeneral
 			})
 		},
-		puedeAsignarApoderados() {
+		puedeAsignarApoderados () {
 			return this.$apoderade.tieneAccesoNacional ||
 				this.$apoderade.regionesAdministradas.includes(this.region) ||
 				this.$apoderade.comunasAdministradas.includes(this.comunaCodigo) ||
 				this.$apoderade.localesAdministrados.includes(this.localId)
 		},
-		puedeAsignarApoderadoGeneral() {
+		puedeAsignarApoderadoGeneral () {
 			return this.$apoderade.tieneAccesoNacional ||
 				this.$apoderade.regionesAdministradas.includes(this.region) ||
 				this.$apoderade.comunasAdministradas.includes(this.comunaCodigo)

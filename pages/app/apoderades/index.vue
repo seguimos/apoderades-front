@@ -75,7 +75,7 @@ import asignadorTerritorio from './-asignadorTerritorio'
 
 export default {
 	components: { checkPorRut, creadorApoderade, asignadorTerritorio },
-	data() {
+	data () {
 		return {
 			etapa: undefined,
 			paso: undefined,
@@ -116,7 +116,7 @@ export default {
 			}
 			this.paso = (etapa && etapasPasos[etapa]) || 0
 		},
-		formatearRut(rut) { return Rut.format(rut)},
+		formatearRut (rut) { return Rut.format(rut)},
 		buscarOtroRut () {
 			this.etapa = null
 			this.rut = null

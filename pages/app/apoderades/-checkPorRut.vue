@@ -39,7 +39,7 @@ export default {
 		},
 	},
 	methods: {
-		checkRut() {
+		checkRut () {
 			this.$refs.rutForm.validate(async valid => {
 				if (!valid) return false;
 				const rut = this.rutForm.rut
