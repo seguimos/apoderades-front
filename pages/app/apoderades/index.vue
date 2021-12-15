@@ -37,7 +37,7 @@
 
 					.asignaciones(v-if="!_.isEmpty(datosApoderade.territoriosAsignados)")
 						div(v-for="terr in datosApoderade.territoriosAsignados")
-							miniTarjetaAsignacion(:territorioAsignado="terr")
+							miniTarjetaAsignacion(:territorioAsignado="terr" @desasignarTerritorio="desasignarTerritorio(datosApoderade, terr)")
 
 
 					a-alert.noAsignade(v-else banner message="Aún no se ha asignado local/territorio") 
@@ -173,11 +173,19 @@ export default {
 			const rut = this.rut
 			this.cargarApoderade({rut, usuarioID, nombre, apellido})
 		},
+		async desasignarTerritorio (datosApoderade, terr) {
+			const { usuarioID, nombre, apellido } = datosApoderade
+			const { regionID, comunaID, localID } = this.$cuentaBack.territorioAasignacion(terr)
+			const r = await this.$cuentaBack.desasignarTerritorio({ usuarioID, regionID, comunaID, localID })
+			console.log('apoderades/index desasignarTerritorio', r)
+			const rut = this.rut
+			this.cargarApoderade({rut, usuarioID, nombre, apellido})
+		}
 	},
 };
 </script>
 <style lang="sass" scoped>
-@import '@style/utils'
+@import '@style/vars'
 .appApoderadesIndex
 	margin: 0 auto
 	max-width: 100%
@@ -201,6 +209,15 @@ export default {
 		.alternativas
 			.alternativa
 				margin-top: 1em
+
+	::v-deep .ant-steps-item-content
+		padding: 0.3rem
+	.miniTarjetaAsignacion
+		background-color: white
+		padding: 1em
+		border-radius: 4px
+		box-shadow: 0 0 .3rem transparentize(black, .8)
+		
 
 
 
