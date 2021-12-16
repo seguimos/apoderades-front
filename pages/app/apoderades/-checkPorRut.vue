@@ -34,7 +34,7 @@ export default {
 				return callback();
 			};
 			return { 
-				rut: [{ required: true, message: '*', whitespace: false }, { validator: rutValidador, trigger: "blur" }] 
+				rut: [{ required: true, message: '*', whitespace: false }, { validator: rutValidador, trigger: "change" }] 
 			}
 		},
 	},
