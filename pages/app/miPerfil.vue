@@ -30,7 +30,8 @@
 			.sinTerritorios(v-if="_.isEmpty($apoderade.territorioPreferencia)") 
 				.info No has seleccionado tu local de preferencia
 			.territorios(v-else)
-				miniTarjetaLocal(:local="$apoderade.territorioPreferencia")
+				//- div(v-for="")
+				miniTarjetaLocal(:local="localDeVotacion")
 				
 							
 
@@ -70,6 +71,12 @@ export default {
 	data () {
 		return {
 			decriptados: undefined
+		}
+	},
+	computed: {
+		localDeVotacion () {
+			const datosApoderade = this.$apoderade.territorioPreferencia
+			return this.$cuentaBack.territorioAasignacion(datosApoderade)
 		}
 	},
 	methods: {

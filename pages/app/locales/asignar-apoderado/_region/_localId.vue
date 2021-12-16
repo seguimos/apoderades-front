@@ -59,7 +59,7 @@ export default {
 		}
 	},
 	computed: {
-		region() {
+		region () {
 			return this.$route.params.region
 		},
 		comunaCodigo () {

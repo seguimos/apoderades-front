@@ -7,7 +7,7 @@
 	.modosAsignacion
 
 	.asignadores
-		a-form-model.asignadores(ref="asignacionTerritorialForm" :model="asignacionTerritorialForm" :rules="reglasFormAsignacionTerritorial")
+		a-form-model.asignadores(ref="localVotacion" :model="localVotacion" :rules="reglasFormAsignacionTerritorial")
 
 			mixin selectorComuna
 				a-form-model-item(has-feedback prop="comunaID" label="Comuna")
@@ -19,7 +19,7 @@
 									| {{ region.nombre }}
 								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='comuna in region.comunas' :key='`comuna-${comuna.comunaID}`' :value='comuna.comunaID')
 									| {{ comuna.nombre }}
-						a-input
+						a-input(ref="comuna")
 							//a-icon.certain-category-icon(slot='suffix' type='search')
 
 			.asignadorLocal
@@ -30,8 +30,12 @@
 							a-select-option(v-if="!_.isEmpty(localesSugeridosPorBusqueda)" v-for='local in localesSugeridosPorBusqueda' :key='`local-${local.localID}`' :value='local.localID')
 								| {{ local.nombre }}
 								//- span.certain-search-item-count {{ comuna.count }} people
-						a-input
+						a-input(ref="local")
 							//a-icon.certain-category-icon(slot='suffix' type='search')
+
+
+				a-form-model-item(has-feedback prop="localID" label="Local de votación")
+					a-input(ref="mesa" v-model="localVotacion.mesa")
 
 				a-form-model-item.acciones
 					a-button.w100.casiBpStyle.verde(type="primary" @click="guardarLocalDeVotacion") Guardar
@@ -44,10 +48,11 @@ export default {
 	data () {
 		return {
 			// Asignacion territorial
-			asignacionTerritorialForm: {
+			localVotacion: {
 				regionID: undefined,
 				comunaID: undefined,
-				localID: undefined
+				localID: undefined,
+				mesa: undefined
 			},
 			busquedaComuna: '',
 			busquedaLocal: '',
@@ -61,6 +66,7 @@ export default {
 				region: [{ required: true, message: '*', whitespace: true, trigger: 'blur' }],
 				comuna: [{ required: true, message: '*', whitespace: true, trigger: 'blur' }],
 				local: [{ required: true, message: '*', whitespace: false, trigger: 'blur' }],
+				mesa: [{ required: false, message: '*', whitespace: false, trigger: 'change' }],
 			}
 		}
 	},
@@ -97,7 +103,7 @@ export default {
 			this.busquedaLocal = buscado
 			const _ = this._
 			const q = buscado && parameterize(buscado)
-			const comunaElegida = this.asignacionTerritorialForm.comunaID
+			const comunaElegida = this.localVotacion.comunaID
 			if (!comunaElegida) {
 				this.localesSugeridosPorBusqueda = []
 				return
@@ -111,31 +117,31 @@ export default {
 		},
 		async elegirComuna (comunaID) {
 			console.log('elegirComuna', comunaID)
-			this.asignacionTerritorialForm.comunaID = comunaID
+			this.localVotacion.comunaID = comunaID
 			const regionID = this.$chile.regionIDporComunaID(comunaID)
-			if (this.asignacionTerritorialForm.regionID !== regionID) this.asignacionTerritorialForm.regionID = regionID
-			this.asignacionTerritorialForm.localID = null
+			if (this.localVotacion.regionID !== regionID) this.localVotacion.regionID = regionID
+			this.localVotacion.localID = null
 			await new Promise(resolve => this.$nextTick(() => resolve()))
-			this.$refs.asignacionTerritorialForm.validate()
+			this.$refs.localVotacion.validate()
 			this.filtrarSugerenciasLocales()
 			this.buscarLocales(regionID, comunaID)
 		},
 		elegirLocal (localID) {
 			console.log('elegirLocal', localID)
-			this.asignacionTerritorialForm.localID = localID
+			this.localVotacion.localID = localID
 			const comunaID = this._.get(this.$store.state.locales, [localID, 'comunaID'])
 			console.log('elegirLocal comunaID =', comunaID)
-			if (this.asignacionTerritorialForm.comunaID !== comunaID) this.elegirComuna(comunaID)
-			this.$refs.asignacionTerritorialForm.validate()
+			if (this.localVotacion.comunaID !== comunaID) this.elegirComuna(comunaID)
+			this.$refs.localVotacion.validate()
 		},
 		guardarLocalDeVotacion () {
-			this.$refs.asignacionTerritorialForm.validate(async valid => {
+			this.$refs.localVotacion.validate(async valid => {
 				if (!valid) {
 					console.error('Formulario no pasó validación')
 					return
 				}
-				const { regionID, comunaID, localID } = this.asignacionTerritorialForm
-				const resultado = await this.$cuentaBack.guardarLocalDeVotacion({ regionID, comunaID, localID })
+				const { regionID, comunaID, localID, mesa } = this.localVotacion
+				const resultado = await this.$cuentaBack.guardarLocalDeVotacion({ regionID, comunaID, localID, mesa })
 				console.log('guardarLocalDeVotacion', resultado)
 				return resultado
 			})

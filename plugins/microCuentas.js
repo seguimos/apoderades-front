@@ -20,9 +20,10 @@ const minutosDeConfianza = process.env.dev ? 7 * 24 * 60 : 5
 let miLlavero
 let llaveroMicroCuentas
 
-async function procesarInfoUsuario(r) {
+async function procesarInfoUsuario (r) {
 	try {
-		if (!r || !r.ok) throw r
+		console.log('procesarInfoUsuario', r)
+		if (!r || !r.ok) return r
 		if (r.datosPrivados) {
 			// Datos personales
 			cuenta.datosPrivados = r.datosPrivados
@@ -99,35 +100,35 @@ const cuenta = {
 		cuenta.leer()
 	},
 
-	get host() {
+	get host () {
 		return new URL(cuenta.cuentasURL).host
 	},
 
-	get token() {
+	get token () {
 		return this._token
 	},
-	get miLlavero() {
+	get miLlavero () {
 		return miLlavero
 	},
 
-	set token(tkn) {
+	set token (tkn) {
 		this._token = tkn
 		this._expConfianza = tkn && tokenDecoder(tkn).iat + 60 * minutosDeConfianza
 		if (usarStores) cuentaStore.setItem('token', tkn)
 	},
 
-	get usuario() {
+	get usuario () {
 		return this._usuario
 	},
 
-	set usuario(usr) {
+	set usuario (usr) {
 		this._usuario = usr
 		if (usarStores) cuentaStore.setItem('usuario', usr)
 	},
 
 	tokenAutofirmado: undefined,
 	expTokenAutofirmado: undefined,
-	async mantenerTokenAutorizado(token) {
+	async mantenerTokenAutorizado (token) {
 		const fx = 'microCuentas>mantenerTokenAutorizado'
 		try {
 			token = token || cuenta.token
@@ -156,7 +157,7 @@ const cuenta = {
 		}
 	},
 
-	async ping() {
+	async ping () {
 		const fx = 'microCuentas>ping'
 		try {
 			consolo.log(fx)
@@ -186,7 +187,7 @@ const cuenta = {
 		}
 	},
 
-	async leer() {
+	async leer () {
 		const fx = 'microCuentas>leer'
 		try {
 			const token = cuenta.token
@@ -207,7 +208,7 @@ const cuenta = {
 		}
 	},
 
-	async decriptarDatosPersonales() {
+	async decriptarDatosPersonales () {
 		const fx = 'microCuentas>decriptarDatosPersonales'
 		try {
 			const desencriptado =
@@ -219,7 +220,7 @@ const cuenta = {
 		}
 	},
 
-	async ingresar(email, pass) {
+	async ingresar (email, pass) {
 		const fx = 'microCuentas>ingresar'
 		try {
 			consolo.log(fx, { email, pass })
@@ -249,7 +250,7 @@ const cuenta = {
 		}
 	},
 
-	async crearPass(pass) {
+	async crearPass (pass) {
 		const fx = 'microCuentas>crearPass'
 		try {
 			consolo.log(fx, { pass })
@@ -280,7 +281,7 @@ const cuenta = {
 		}
 	},
 
-	async reautenticar(pass) {
+	async reautenticar (pass) {
 		const fx = 'microCuentas>reautenticar'
 		try {
 			const token = cuenta.token
@@ -301,7 +302,7 @@ const cuenta = {
 		}
 	},
 
-	async salir() {
+	async salir () {
 		cuenta.usuario = null
 		cuenta.token = null
 		cuenta.tokenAutofirmado = null
@@ -320,7 +321,7 @@ const cuenta = {
 		return true
 	},
 
-	async ingresarConToken(token) {
+	async ingresarConToken (token) {
 		const fx = 'microCuentas>ingresarConToken'
 		try {
 			consolo.log(fx, { token })
@@ -339,7 +340,7 @@ const cuenta = {
 	},
 
 	cambiarPass: {
-		async conPass(pass, passNuevo) {
+		async conPass (pass, passNuevo) {
 			const fx = 'microCuentas>cambiarPass>conPass'
 			try {
 				const usuarioID = cuenta.usuario._id
@@ -355,7 +356,7 @@ const cuenta = {
 				console.error(fx, e)
 			}
 		},
-		async pedirCodigo(email, passNuevo) {
+		async pedirCodigo (email, passNuevo) {
 			const fx = 'microCuentas>cambiarPass>pedirCodigo'
 			try {
 				consolo.log(fx)
@@ -370,7 +371,7 @@ const cuenta = {
 				console.error(fx, e)
 			}
 		},
-		async conCodigo(email, codigo) {
+		async conCodigo (email, codigo) {
 			const fx = 'microCuentas>cambiarPass>conCodigo'
 			try {
 				consolo.log(fx)
@@ -386,7 +387,7 @@ const cuenta = {
 				console.error(fx, e)
 			}
 		},
-		async pedirToken(email, passNuevo) {
+		async pedirToken (email, passNuevo) {
 			const fx = 'microCuentas>cambiarPass>pedirToken'
 			try {
 				consolo.log(fx)
@@ -403,7 +404,7 @@ const cuenta = {
 		},
 	},
 
-	async obtenerCargaFirmadaAvatar() {
+	async obtenerCargaFirmadaAvatar () {
 		const fx = 'microCuentas>obtenerCargaFirmadaAvatar'
 		try {
 			consolo.log(fx)
@@ -421,7 +422,7 @@ const cuenta = {
 		}
 	},
 
-	async guardarUrlAvatar(url) {
+	async guardarUrlAvatar (url) {
 		const fx = 'microCuentas>guardarUrlAvatar'
 		try {
 			consolo.log(fx, url)
@@ -444,7 +445,7 @@ const cuenta = {
 
 	// Validacion de correo
 
-	async enviarValidacionEmail() {
+	async enviarValidacionEmail () {
 		const fx = 'microCuentas>enviarValidacionEmail'
 		try {
 			consolo.log(fx)
@@ -461,7 +462,7 @@ const cuenta = {
 
 	// Inscripciones y ediciones por usuarios con autorización del back
 
-	async crearCuenta(autorizacion, { nombre, apellido, email, telefono, rut }) {
+	async crearCuenta (autorizacion, { nombre, apellido, email, telefono, rut }) {
 		const fx = 'microCuentas>crearCuenta'
 		const _ = cuenta.vm._
 		try {
@@ -510,7 +511,7 @@ const cuenta = {
 		}
 	},
 
-	async editar({ nombre, apellido, email, telefono }) {
+	async editar ({ nombre, apellido, email, telefono }) {
 		const fx = 'microCuentas>editarCuenta'
 		const _ = cuenta.vm._
 		try {
@@ -550,7 +551,7 @@ const cuenta = {
 		}
 	},
 
-	async editarPorOtro(autorizacion, { nombre, apellido, email, telefono }) {
+	async editarPorOtro (autorizacion, { nombre, apellido, email, telefono }) {
 		const fx = 'microCuentas>editarCuentaPorOtroUsuario'
 		const _ = cuenta.vm._
 		try {
@@ -596,7 +597,7 @@ const cuenta = {
 		}
 	},
 
-	async buscarRut(autorizacion, rut) {
+	async buscarRut (autorizacion, rut) {
 		const fx = 'microCuentas>buscarRut'
 		const _ = cuenta.vm._
 		try {
@@ -676,7 +677,7 @@ const cuenta = {
 	},
 }
 
-async function solicitar(request, errorHandler) {
+async function solicitar (request, errorHandler) {
 	const _ = cuenta.vm._
 	const defaultHeaders = {
 		Accept: 'application/json',
@@ -720,7 +721,7 @@ async function solicitar(request, errorHandler) {
 	}
 	return data
 }
-function capturadorErrorSolicitud(error) {
+function capturadorErrorSolicitud (error) {
 	console.error('capturadorErrorSolicitud', error)
 	if (error.response) {
 		const { status, data } = error.response
@@ -746,7 +747,7 @@ export default function ({ app }, inject) {
 
 	if (!app.mixins) app.mixins = []
 	app.mixins.push({
-		mounted() {
+		mounted () {
 			// consolo.log('criptoCuenta MOUNTED')
 			cuenta.init(this)
 		},
@@ -755,12 +756,12 @@ export default function ({ app }, inject) {
 	if (!Vue.__cuentas__) {
 		Vue.__cuentas__ = true
 		Object.defineProperty(Vue.prototype, '$usuario', {
-			get() {
+			get () {
 				return cuenta.usuario
 			},
 		})
 		Object.defineProperty(Vue.prototype, '$cuentaSinConexion', {
-			get() {
+			get () {
 				return cuenta.sinConexion
 			},
 		})

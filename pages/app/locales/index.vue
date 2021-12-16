@@ -48,7 +48,7 @@ export default {
 			})
 			return locales
 		},
-		puedeAsignarCoordinador() {
+		puedeAsignarCoordinador () {
 			let response = false
 			if(this.region) response = this.$apoderade.tieneAccesoNacional
 			if(this.comuna) response = response || this.$apoderade.regionesAdministradas.includes(this.region)

@@ -484,6 +484,22 @@ const cuentaBack = {
 		asig.capa = asig.general ? 'general' : asig.local?  'mesa' : asig.comuna? 'comunal' : asig.region? 'regional' : '!>!?!??!'
 		return asig
 	},
+
+	reinstanciarAsignacion (asignacion) {
+		const chile = cuentaBack.vm.$chile
+		const asig = {
+			region: asignacion.regionID && chile.regionPorID(asignacion.regionID),
+			regionID: asignacion.regionID,
+			comuna: asignacion.comunaID && chile.comunaPorID(asignacion.comunaID),
+			comunaID: asignacion.comunaID,
+			local: asignacion.localID && chile.localPorID(asignacion.localID),
+			localID: asignacion.localID,
+			general: asignacion.esApoderadoGeneral
+		}
+		asig.capa = asig.general ? 'general' : asig.local?  'mesa' : asig.comuna? 'comunal' : asig.region? 'regional' : '!>!?!??!'
+		return asig
+	},
+	
 	async firmarCarga () {
 		const url = await solicitar({
 			method: 'get',
