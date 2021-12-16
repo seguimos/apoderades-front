@@ -1,6 +1,8 @@
 <template lang="pug">
 .root
-	h1 Chile
+	a-page-header.headerPagina(
+		title="Chile"
+		Xsub-title="Comuna")
 
 	.regiones
 		.region(v-for="region in regiones")

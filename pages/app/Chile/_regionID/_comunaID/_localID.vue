@@ -1,9 +1,8 @@
 <template lang="pug">
-.root
+.root(v-if="regionID && comunaID && localID")
 	a-breadcrumb(:routes='rutas')
 		template(slot='itemRender' slot-scope='{route, params, routes, paths}')
-			span(v-if='routes.indexOf(route) === routes.length - 1') {{route.breadcrumbName}}
-			n-link(v-else :to="`/${paths.join('/')}`") {{route.breadcrumbName}}
+			n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
 
 	a-page-header.headerPagina(
 		:title="local.nombre"
@@ -19,26 +18,20 @@ export default {
 	computed: {
 		rutas () { 
 			const _ = this._
-			if (_.isEmpty(this.region) || _.isEmpty(this.comuna)) return []
-			const rutas = [
+			return [
 				{
 					path: `/app/Chile`,
 					breadcrumbName: 'Chile',
 				},
 				{
 					path: this.regionID,
-					breadcrumbName: this.region.nombre,
+					breadcrumbName: _.get(this.region, 'nombre', 'Region?'),
 				},
 				{
 					path: this.comunaID,
-					breadcrumbName: this.comuna.nombre,
-				},
-				{
-					path: this.localID,
-					breadcrumbName: this.local ? this.local.nombre : 'Local',
+					breadcrumbName: _.get(this.comuna, 'nombre', 'Comuna?'),
 				}
 			] 
-			return rutas
 		},
 		regionID () { return this.$route.params.regionID },
 		region () { return this.$chile.regionPorID(this.regionID)},

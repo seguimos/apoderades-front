@@ -10,9 +10,10 @@ export const state = () => {
 export const mutations = {
 	locales (s, ls) {
 		const locales = _.reduce(ls, (res, l, localID) => {
+			const nombre = _.map((l.nombre || '').toLowerCase().split(' '), p => _.capitalize(p)).join(' ')
 			const local = {
 				localID,
-				nombre: l.nombre,
+				nombre,
 				comuna: _.get(l, 'ubicacion.comuna'),
 				comunaID: _.get(l, 'ubicacion.comunaCodigo'),
 				regionID: _.get(l, 'ubicacion.region'),
@@ -27,9 +28,10 @@ export const mutations = {
 	},
 	local (s, l) {
 		const localID = l._id
+		const nombre = _.map((l.nombre || '').toLowerCase().split(' '), p => _.capitalize(p)).join(' ')
 		const local = {
 			localID,
-			nombre: l.nombre,
+			nombre,
 			comuna: _.get(l, 'ubicacion.comuna'),
 			comunaID: _.get(l, 'ubicacion.comunaCodigo'),
 			regionID: _.get(l, 'ubicacion.region'),

@@ -2,8 +2,7 @@
 .root
 	a-breadcrumb(:routes='rutas')
 		template(slot='itemRender' slot-scope='{route, params, routes, paths}')
-			span(v-if='routes.indexOf(route) === routes.length - 1') {{route.breadcrumbName}}
-			n-link(v-else :to="`/${paths.join('/')}`") {{route.breadcrumbName}}
+			n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
 
 	a-page-header.headerPagina(
 		:title="region.nombreCompleto"
@@ -29,11 +28,7 @@ export default {
 				{
 					path: `/app/Chile`,
 					breadcrumbName: 'Chile',
-				},
-				{
-					path: this.regionID,
-					breadcrumbName: this.region.nombre,
-				},
+				}
 			] 
 		},
 		regionID () { return this.$route.params.regionID },

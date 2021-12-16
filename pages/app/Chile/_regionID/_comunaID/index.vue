@@ -2,17 +2,20 @@
 .root
 	a-breadcrumb(:routes='rutas')
 		template(slot='itemRender' slot-scope='{route, params, routes, paths}')
-			span(v-if='routes.indexOf(route) === routes.length - 1') {{route.breadcrumbName}}
-			n-link(v-else :to="`/${paths.join('/')}`") {{route.breadcrumbName}}
+			n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
 
 	a-page-header.headerPagina(
 		:title="comuna.nombre"
 		sub-title="Comuna")
 
-	.comunas
-		.comuna(v-for="local in _.orderBy(_.values(locales), l => l.nombre)")
-			n-link(:to="`/app/Chile/${regionID}/${comunaID}/${local.localID}`")
-				.nombre {{local.nombre}}
+	.locales
+		.local(v-for="local in _.orderBy(_.values(locales), l => l.nombre)")
+			
+				.zonaIcono
+					.icono 🗳
+				.info
+					n-link.nombre(:to="`/app/Chile/${regionID}/${comunaID}/${local.localID}`") {{local.nombre}}
+					.direccion {{local.direccion.split(', ').slice(0, -2).join(', ')}}
 
 
 	h1 Proto
@@ -24,7 +27,7 @@
 export default {
 	computed: {
 		rutas () { 
-			if (!this.region || !this.comuna) return false
+			const _ = this._
 			return [
 				{
 					path: `/app/Chile`,
@@ -32,12 +35,8 @@ export default {
 				},
 				{
 					path: this.regionID,
-					breadcrumbName: this.region.nombre,
-				},
-				{
-					path: this.comunaID,
-					breadcrumbName: this.comuna.nombre,
-				},
+					breadcrumbName: _.get(this.region, 'nombre', 'Region?'),
+				}
 			] 
 		},
 		regionID () { return this.$route.params.regionID },
@@ -45,6 +44,16 @@ export default {
 		comunaID () { return this.$route.params.comunaID },
 		comuna () { return this.$chile.comunaPorID(this.comunaID)},
 		locales () { return this._.filter(this.$store.state.locales, l => l.comunaID === this.comunaID)},
+		localesFiltrados () { 
+			const _ = this._
+			const p = this.$p
+			if (_.isEmpty(this.busqueda)) return this.locales
+			const busqueda = this.$p(this.busqueda)
+			return _.filter(this.locales, l => {
+				if (p(l.nombre).includes(busqueda)) return true
+				if (p(l.direccion).includes(busqueda)) return true
+			})
+		},
 	},
 	mounted () {
 		this.cargarLocalesComuna()
@@ -62,6 +71,29 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
+@import '@style/vars'
 //.headerPagina
 	display: block
+
+.locales
+	.local
+		display: flex
+		align-items: center
+		// border: 1px solid #aaa
+		// padding: 1em
+		margin-top: 1em
+		.zonaIcono
+			flex: auto 0 0
+			line-height: 0
+			margin-right: 1em
+			.icono
+				font-size: 3em
+		.info
+			flex: auto 1 1
+			.nombre
+				display: inline-block
+				// border: 1px solid red
+				+fwb
+			.direccion
+				opacity: .7
 </style>
