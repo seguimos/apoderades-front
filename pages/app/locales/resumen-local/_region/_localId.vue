@@ -21,7 +21,10 @@ div
 				| Asignar Apoderado G
 		a-col(:span='24')
 			a-button.button-red(block, size='large', @click='toReportes')
-				| Reportes
+				| Cierre de mesa
+		a-col(:span='24')
+			a-button.button-red(block, size='large', @click='toCerrarLocal')
+				| Cierre de local
 		a-col(:span='24')
 			a-button.button-border-blue(
 				block,
@@ -138,6 +141,11 @@ export default {
 			const region = this.$route.params.region
 			const localId = this.$route.params.localId
 			this.$router.push('/app/locales/conteo-votos/' + region + '/' + localId)
+		},
+		toCerrarLocal () {
+			const region = this.$route.params.region
+			const localId = this.$route.params.localId
+			this.$router.push('/app/locales/cerrar-local/' + region + '/' + localId)
 		},
 		toAsingarApoderados () {
 			const region = this.$route.params.region
