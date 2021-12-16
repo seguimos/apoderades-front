@@ -498,7 +498,30 @@ const cuentaBack = {
 		}
 		asig.capa = asig.general ? 'general' : asig.local?  'mesa' : asig.comuna? 'comunal' : asig.region? 'regional' : '!>!?!??!'
 		return asig
+	},
+	
+	async firmarCarga () {
+		const url = await solicitar({
+			method: 'get',
+			url: `${cuentaBack.backURL}/signedUrl`
+		})
+			.then(r => r.urlFirmada)
+			.catch(e => console.error('fallo respuesta', e))
+		console.log('firmarCarga', url)
+
+		return url
+	},
+
+	async guardarVotos (region, localID, votos, mesaID) {
+		const res = await solicitar({
+			method: 'post',
+			url: `${cuentaBack.backURL}/locales/${region}/locales/${localID}/mesa/${mesaID}`,
+			data: votos
+		})
+		console.log(res)
+		return res
 	}
+
 }
 
 

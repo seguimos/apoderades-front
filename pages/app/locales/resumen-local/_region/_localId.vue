@@ -1,43 +1,69 @@
 <template lang="pug">
 div
-	a-row(:gutter="[16, 16]")
-		a-col(:span="24")
-			h1(class="nombre-local") {{ local.nombre }}
+	a-row(:gutter='[16, 16]')
+		a-col(:span='24')
+			h1.nombre-local {{ local.nombre }}
 			.detalle-local {{ mesasLen }} mesas
 			.detalle-local {{ localApoderadosLen }} apoderados
-			.detalle-local(v-if="apoderadosGenerales.length") Apoderados Generales
-				div(v-for="(apoderado, index) in apoderadosGenerales" :key="index")
+			.detalle-local(v-if='apoderadosGenerales.length') Apoderados Generales
+				div(v-for='(apoderado, index) in apoderadosGenerales', :key='index')
 					| {{ apoderado.nombre }}
-			.status-icon(:class="apoderadosFaltantes < mesasLen / 2 ? 'green' : 'red'")
-			.detalle-local(style="display: inline") Faltan {{ apoderadosFaltantes }} apoderados
-	a-row(:gutter="[16, 16]")
-		a-col(:span="24")
-			a-button(class="button-red" block size="large" @click="toAsignarApoderadoGeneral" v-if="puedeAsignarApoderadoGeneral")
+			.status-icon(:class='apoderadosFaltantes < mesasLen / 2 ? "green" : "red"')
+			.detalle-local(style='display: inline') Faltan {{ apoderadosFaltantes }} apoderados
+	a-row(:gutter='[16, 16]')
+		a-col(:span='24')
+			a-button.button-red(
+				block,
+				size='large',
+				@click='toAsignarApoderadoGeneral',
+				v-if='puedeAsignarApoderadoGeneral'
+			)
 				| Asignar Apoderado G
-		a-col(:span="24")
-			a-button(class="button-red" block size="large" @click="toReportes")
+		a-col(:span='24')
+			a-button.button-red(block, size='large', @click='toReportes')
 				| Reportes
-		a-col(:span="24")
-			a-button(class="button-border-blue" block size="large" @click="toAsingarApoderados" v-if="puedeAsignarApoderados")
+		a-col(:span='24')
+			a-button.button-border-blue(
+				block,
+				size='large',
+				@click='toAsingarApoderados',
+				v-if='puedeAsignarApoderados'
+			)
 				| Asignar Apoderados
-	a-row(:gutter="[16, 10]")
-		a-col(:span="24")
-			h2(class="seccion-apoderados") Apoderados
-	a-row(:gutter="[16, 16]")
-		a-col(:span="24")
-			a-input(v-model="buscar" placeholder="Buscar" size="large")
-				a-icon(slot="prefix" type="search")
+	a-row(:gutter='[16, 10]')
+		a-col(:span='24')
+			h2.seccion-apoderados Apoderados
+	a-row(:gutter='[16, 16]')
+		a-col(:span='24')
+			a-input(v-model='buscar', placeholder='Buscar', size='large')
+				a-icon(slot='prefix', type='search')
 	a-row
 		a-col
-			a-row(v-for="(apoderado, index) in apoderadosFilter" :key="index" class="row-apoderado" type="flex" align="middle")
-				a-col(:span="12" class="col-apoderado")
+			a-row.row-apoderado(
+				v-for='(apoderado, index) in apoderadosFilter',
+				:key='index',
+				type='flex',
+				align='middle'
+			)
+				a-col.col-apoderado(:span='12')
 					| {{ apoderado.nombre }}
-				a-col(:span="12" style="text-align: end"  class="col-apoderado" v-if="puedeAsignarApoderados")
-					a-button(type="link" v-if="!apoderado.habilitado" class="button-success" @click="habilitarApoderado(apoderado.usuarioID)")
+				a-col.col-apoderado(
+					:span='12',
+					style='text-align: end',
+					v-if='puedeAsignarApoderados'
+				)
+					a-button.button-success(
+						type='link',
+						v-if='!apoderado.habilitado',
+						@click='habilitarApoderado(apoderado.usuarioID)'
+					)
 						| Habilitar
-					a-button(type="link" v-else class="button-danger" @click="bloquearApoderado(apoderado.usuarioID)")
+					a-button.button-danger(
+						type='link',
+						v-else,
+						@click='bloquearApoderado(apoderado.usuarioID)'
+					)
 						| Bloquear
-
 </template>
 
 <script>
@@ -51,7 +77,7 @@ export default {
 				mesas: [],
 				apoderados: [],
 				apoderadoGeneral: ''
-			}
+			},
 		}
 	},
 	computed: {
@@ -109,7 +135,9 @@ export default {
 		},
 		// TODO: ir a reportes
 		toReportes () {
-			console.warn('toReportes')
+			const region = this.$route.params.region
+			const localId = this.$route.params.localId
+			this.$router.push('/app/locales/conteo-votos/' + region + '/' + localId)
 		},
 		toAsingarApoderados () {
 			const region = this.$route.params.region
@@ -131,11 +159,19 @@ export default {
 			this.local.nombre = response.local.nombre
 			this.local.apoderadoGeneral = 'Gabriel Boric'
 			this.local.mesas = Object.values(response.local.mesas)
+			console.log('get local',response.local.mesas)
+
 			this.local.apoderados = response.local.apoderades.map(apo => ({
 				...apo,
 				nombre: `usuarioID: ${apo.usuarioID}`
 			}))
-		}
+		},
+
+
+
+
+
+		
 	}
 }
 </script>
@@ -201,5 +237,4 @@ export default {
 
 .button-success
 	color: #A3CD9C
-
 </style>

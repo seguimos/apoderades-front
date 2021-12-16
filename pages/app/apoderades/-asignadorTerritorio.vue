@@ -20,23 +20,32 @@
 		a-form-model.asignadores(ref="nuevaAsignacion" :model="nuevaAsignacion" :rules="reglasFormAsignacionTerritorial")
 
 			mixin selectorComuna
-				a-form-model-item(has-feedback prop="comunaID" label="Comuna")
+				a-form-model-item(has-feedback, prop='comunaID', label='Comuna')
 					a-auto-complete.certain-category-search(
-						dropdown-class-name='certain-category-search-dropdown'
-						:dropdown-match-select-width='false'
-						:dropdown-style="{ width: '300px' }" 
-						size='large' 
-						style='width: 100%' 
-						placeholder='Escribe parte del nombre de la comuna' 
-						@focus="filtrarSugerenciasComunas(busquedaComuna)" 
-						@search="filtrarSugerenciasComunas" 
-						@select="elegirComuna" 
-						allow-clear)
+						dropdown-class-name='certain-category-search-dropdown',
+						:dropdown-match-select-width='false',
+						:dropdown-style='{ width: "300px" }',
+						size='large',
+						style='width: 100%',
+						placeholder='Escribe parte del nombre de la comuna',
+						@focus='filtrarSugerenciasComunas(busquedaComuna)',
+						@search='filtrarSugerenciasComunas',
+						@select='elegirComuna',
+						allow-clear
+					)
 						template(slot='dataSource')
-							a-select-opt-group(v-for='region in comunasSugeridasPorBusqueda' :key='`reg-${region.regionID}`')
+							a-select-opt-group(
+								v-for='region in comunasSugeridasPorBusqueda',
+								:key='`reg-${region.regionID}`'
+							)
 								span(slot='label')
 									| {{ region.nombre }}
-								a-select-option(v-if="!_.isEmpty(region.comunas)" v-for='comuna in region.comunas' :key='`comuna-${comuna.comunaID}`' :value='comuna.comunaID')
+								a-select-option(
+									v-if='!_.isEmpty(region.comunas)',
+									v-for='comuna in region.comunas',
+									:key='`comuna-${comuna.comunaID}`',
+									:value='comuna.comunaID'
+								)
 									| {{ comuna.nombre }}
 						a-input
 
@@ -74,7 +83,7 @@
 				p.descripcionAsignacion El coordinador podrá gestionar a otros apoderados dentro de la comuna.
 				+selectorComuna
 
-			.asignadorRegion(v-if="tipoAsignacion === 'regional'")
+			.asignadorRegion(v-if='tipoAsignacion === "regional"')
 				p.descripcionAsignacion El apoderado podrá gestionar a otros coordinadores y apoderados dentro de la región.
 				a-form-model-item(has-feedback prop="regionID" label="Región")
 					a-select.input(v-model="nuevaAsignacion.regionID" @change="elegirRegion" placeholder="Región")
@@ -150,6 +159,7 @@ export default {
 		},
 		comunasAsignablesIDs () {
 			const _ = this._
+			console.log('this.$apoderade', this.$apoderade)
 			if (this.$apoderade.tieneAccesoNacional) return _.map(this.$chile.todasLasComunas(), r => r.comunaID)
 			const asignacionesRegionales = _.filter(this.$apoderade.asignaciones, a => a.capa === 'regional')
 			const asignacionesRegionalesComunaIDs = _.flatten(_.map(asignacionesRegionales, a => Object.keys(a.comunas)))
