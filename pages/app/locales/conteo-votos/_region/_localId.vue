@@ -3,44 +3,59 @@
 	.contenido
 		.conteoDeVotos
 			.titulo Conteo de votos
-			.grupo 
-				.tipo Selecciona una mesa:
-				a-select.select(placeholder="mesas" @select="seleccionarMesa")
-					a-select-option(v-for="mesa in local.mesas" :key="mesa.id" :value="mesa.id") {{ mesa.mesa}}
-			.grupo2(v-if="mesaid")
-				.grupo
-					.tipo Gabriel Boric:
-					a-input.input(placeholder='N° Votos Boric', type='num' v-model="formulario.votos.Boric")
-				.grupo
-					.tipo Jose Antonio Kast:
-					a-input.input(placeholder='N° Votos Kast', type='num' v-model="formulario.votos.Kast")
-				.grupo
-					.tipo Blancos:
-					a-input.input(placeholder='N° Blancos', type='num' v-model="formulario.votos.blancos")
-				.grupo
-					.tipo Nulos:
-					a-input.input(placeholder='N° Nulos', type='num' v-model="formulario.votos.nulos")
-				.actaCierre
-					cargaImagenS3.zonaCarga.mt-xs(:altura="900" :anchura="600"
-					ref="cargadorImagen"
-					:archivo="`actasDeCierre/region-${region}/local-${local.nombre}/local-${formulario.id}.jpg`"
-					value="PMprensa"
-					:firmarCarga="firmarCarga"
-					:modificandoAvatar="modificandoAvatar"
-					@subido="guardarUrl($event)")
-					.interior(slot-scope="{ value, cargar }")
-						a-button.cambioImagen(@click="cargar" :disabled="bloquearBoton" title="")
-							div(v-if="!bloquearBoton") Cargar acta de cierre
-							div(v-else) Acta cargada correctamente
+			a-form-model.suscribirse(
+				ref="formulario",
+				:model="formulario",
+				:rules="validaCierre"
+			)
+				.grupo 
+					.tipo Selecciona una mesa:
+					a-form-model-item(has-feedback, prop="mesaid")
+						a-select.select(placeholder="Selecciona una mesa" @select="seleccionarMesa")
+							a-select-option(v-for="mesa in local.mesas" :key="mesa.id" :value="mesa.id") {{ mesa.	mesa}}
+				.grupo2(v-if="formulario.mesaid")
+					.grupo
+						.tipo Gabriel Boric:
+						a-form-model-item(has-feedback, prop="boric")
+							a-input-number.input(placeholder='N° Votos Boric', type='number' v-model="formulario.Boric")
+					.grupo
+						.tipo Jose Antonio Kast:
+						a-form-model-item(has-feedback, prop="kast")
+							a-input-number.input(placeholder='N° Votos Kast', type='number' v-model="formulario.Kast")
+					.grupo
+						.tipo Blancos:
+						a-form-model-item(has-feedback, prop="blancos")
+							a-input-number.input(placeholder='N° Blancos', type='number' v-model="formulario.blancos")
+					.grupo
+						.tipo Nulos:
+						a-form-model-item(has-feedback, prop="nulos")
+							a-input-number.input(placeholder='N° Nulos', type='number' v-model="formulario.nulos")
+					.grupo
+						a-form-model-item(has-feedback, prop="actaURL")
+							//- a-input.input(type='text' v-model="formulario.actaURL")
+							.actaCierre
+								cargaImagenS3.zonaCarga.mt-xs(:altura="900" :anchura="600"
+								ref="cargadorImagen"
+								:archivo="`actasDeCierre/region-${region}/local-${local.nombre}/local-${formulario.id}.	jpg`"
+								value="PMprensa"
+								:firmarCarga="firmarCarga"
+								:modificandoAvatar="modificandoAvatar"
+								@subido="guardarUrl($event)")
+								.interior(slot-scope="{ value, cargar }")
+									a-button.cambioImagen(@click="cargar" :disabled="bloquearBoton" title="")
+										div(v-if="!bloquearBoton") Cargar acta de cierre
+										div(v-else) Acta cargada correctamente
 
-				.contenedorBoton
-					.boton(@click="enviarFormulario") Enviar cierre de mesa
+					.contenedorBoton
+						.boton(@click="enviarFormulario") Enviar cierre de mesa
 </template>
 <script>
 export default {
 
 	data () {
+
 		return {
+
 			local: {
 				nombre: '',
 				mesas: [],
@@ -48,15 +63,13 @@ export default {
 				apoderadoGeneral: ''
 			},
 		
-			mesaid: null,
 			formulario: {
-				votos: {
-					Boric: null,
-					Kast: null,
-					blancos: null,
-					nulos: null,
-					actaURL: null
-				}
+				mesaid: null,
+				Boric: null,
+				Kast: null,
+				blancos: null,
+				nulos: null,
+				actaURL: null
 			},
 			abrirModalReportes: null,
 			modificandoAvatar: null
@@ -70,16 +83,27 @@ export default {
 		localId () {
 			return this.$route.params.localId
 		},
+		validaCierre () {
+			console.log("validaCierre")
+			return { 
+				mesaid: [{ type: "number", message: 'mesa inválido', trigger: 'blur', required: true }],
+				Boric: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'blur', required: true }],
+				Kast: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'blur', required: true }],
+				blancos: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'blur', required: true }],
+				nulos: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'blur', required: true }],
+				actaURL: [{ type: "url", message: 'Debes subir un acta de cierre', trigger: 'blur', required: true }],
+			}
+		}
 	},
 	mounted () {
 		this.getLocal()
 	},
 	methods: {
 		seleccionarMesa (v) {
-			this.mesaid  = v
+			this.formulario.mesaid  = v
 		},
 		async firmarCarga () {
-			const url = await this.$cuentBack.firmarCarga({region: this.region, nombre: this.local.nombre, mesaid: this.mesaid})
+			const url = await this.$cuentBack.firmarCarga({region: this.region, nombre: this.local.nombre, mesaid: this.formulario.mesaid})
 			console.log('urlFirmada', url)
 
 			this.modificandoAvatar = false
@@ -101,18 +125,36 @@ export default {
 			}))
 		},
 		guardarUrl (url) {
-			this.formulario.votos.actaURL = url
+			this.formulario.actaURL = url
 			this.bloquearBoton = true
 			this.$refs.cargadorImagen.$emit('guardado')
-			console.log('guardarUrl', this.formulario.votos.actaURL)
+			console.log('guardarUrl', this.formulario.actaURL)
 		},
-		async enviarFormulario () {
-			const region = this.$route.params.region
-			const localID = this.$route.params.localId
-			const votos = this.formulario
-			console.log(region, localID, votos)
-			const enviado = await this.$cuentaBack.guardarVotos(region, localID, votos, this.mesaid)
-			console.log('enviado', enviado)
+		enviarFormulario () {
+			console.log("enviarFormulario", this.formulario)
+			this.$refs.formulario.validate(async valid => {
+				console.log('valid', valid)
+
+				if (!valid) {
+					console.log('no pasó validacion')
+					return false
+				}
+				const region = this.$route.params.region
+				const localID = this.$route.params.localId
+				const conteo = this.formulario
+				const votos = {
+					Boric: Number(conteo.Boric),
+					Kast: Number(conteo.Kast),
+					blancos: Number(conteo.blancos),
+					nulos: Number(conteo.nulos),
+					actaURL: conteo.actaURL
+				}
+				console.log(region, localID, votos)
+				const enviado = await this.$cuentaBack.guardarVotos(region, localID, votos, this.formulario.mesaid)
+				console.log('enviado', enviado)
+			})
+
+			
 		}
 	}
 }
@@ -147,7 +189,11 @@ export default {
 				display: flex
 				justify-content: center
 				padding: 1em
-		.boton
-			background-color: #fff
-			color: rgba(0, 0, 0, .5)
+		.contenedorBoton
+			display: flex
+			justify-content: center
+			.boton
+				background-color: #fff
+				color: rgba(0, 0, 0, .5)
+				border: 1px solid rgba(0, 0, 0, .5)
 </style>
