@@ -30,7 +30,7 @@
 						.tipo Nulos:
 						a-form-model-item(has-feedback, prop="nulos")
 							a-input-number.input(placeholder='N° Nulos', type='number' v-model="formulario.nulos")
-					.grupo
+					.grupo.grupoActa
 						a-form-model-item(has-feedback, prop="actaURL")
 							//- a-input.input(type='text' v-model="formulario.actaURL")
 							.actaCierre
@@ -77,7 +77,7 @@ export default {
 	},
 	
 	computed: {
-		region() {
+		region () {
 			return this.$route.params.region
 		},
 		localId () {
@@ -185,10 +185,15 @@ export default {
 				.tipo
 					// padding: 0 1em
 					width: 160px
-			.actaCierre
+			.grupoActa
 				display: flex
 				justify-content: center
-				padding: 1em
+				width: 100%
+				.actaCierre
+					display: flex
+					justify-content: center
+					width: 100%
+					padding: 1em
 		.contenedorBoton
 			display: flex
 			justify-content: center
