@@ -656,7 +656,7 @@ const cuenta = {
 			// Desencriptar secreto
 			const tokenDecodificado = tokenDecoder(autorizacion)
 			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
-			console.log(fx, 'tokenDecodificado', tokenDecodificado)
+			// console.log(fx, 'tokenDecodificado', tokenDecodificado)
 			if (_.isEmpty(tokenDecodificado.usuarioIDs)) {
 				consolo.info(fx, 'saltada por falta de usuariosIDs')
 				return { ok: 1, usuarios: []}
@@ -670,8 +670,10 @@ const cuenta = {
 			})
 			if (!r || !r.ok) throw r
 			const decriptado = await miLlavero.desencriptar(r.encriptado)
+			// console.log(fx, 'decriptado', decriptado)
 			const objetoDecriptado = JSON.parse(decriptado)
 			const {usuarios} = objetoDecriptado
+			// console.log(fx, 'usuarios', usuarios)
 			return {ok: 1, usuarios}
 		} catch (e) {
 			console.error(fx, e)
