@@ -640,8 +640,8 @@ const cuenta = {
 	},
 
 
-	async datosPersonalesTerceros (autorizacion) {
-		const fx = 'microCuentas>datosPersonalesTerceros'
+	async datosPersonalesOtrosUsuarios (autorizacion) {
+		const fx = 'microCuentas>datosPersonalesOtrosUsuarios'
 		try {
 			consolo.log(fx, JSON.stringify({autorizacion}))
 			if (!cuenta.token) {
@@ -667,7 +667,8 @@ const cuenta = {
 			if (!r || !r.ok) throw r
 			const decriptado = await miLlavero.desencriptar(r.encriptado)
 			consolo.log(`${fx} decriptado`, decriptado)
-			const usuarios = JSON.parse(decriptado)
+			const objetoDecriptado = JSON.parse(decriptado)
+			const {usuarios} = objetoDecriptado
 			consolo.log(`${fx} usuarios`, usuarios)
 			return {ok: 1, usuarios}
 		} catch (e) {

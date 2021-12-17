@@ -10,6 +10,7 @@ function capitalizar (string) {
 }
 
 export default function () {
+	Vue.prototype.$dev = process.env.dev
 	Vue.prototype.$p = parameterize
 	Vue.prototype.$c = capitalizar
 	// Vue.prototype.$id = MiniID

@@ -276,7 +276,7 @@ const cuentaBack = {
 			if (!r || !r.ok) throw ['No se pudo autorizar obtenerDatosPersonalesOtrosUsuarios', r]
 
 			const { autorizacion } = r
-			const s = await cuentaBack.cuenta.datosPersonalesTerceros(autorizacion)
+			const s = await cuentaBack.cuenta.datosPersonalesOtrosUsuarios(autorizacion)
 			if (!s || !s.ok) throw ['No se pudo obtenerDatosPersonalesOtrosUsuarios', r]
 			// TODO: hacer cosas con los datos
 			return s
@@ -416,6 +416,12 @@ const cuentaBack = {
 			// if (dev) cuentaBack.vm.$message.success('Local cargado')
 			// consolo.log(fx, 'r', r)
 			cuentaBack.vm.$store.commit('local', r.local)
+			if (r.autorizacion) {
+				const obtencionDatosPersonales = await cuentaBack.cuenta.datosPersonalesOtrosUsuarios(r.autorizacion)
+				const {usuarios} = obtencionDatosPersonales
+				console.log('apoderades', usuarios)
+				cuentaBack.vm.$store.commit('apoderades', usuarios)
+			}
 			return r
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)

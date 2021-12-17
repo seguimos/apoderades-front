@@ -3,7 +3,8 @@ import _ from "lodash"
 
 export const state = () => {
 	return {
-		locales: {}
+		locales: {},
+		apoderades: {},
 	}
 }
 
@@ -44,5 +45,21 @@ export const mutations = {
 		const r = {}
 		r[localID] = local
 		s.locales = Object.assign({}, s.locales, r)
+	},
+	apoderades (s, aps) {
+		const apoderades = _.reduce(aps, (res, apoderade) => {
+			const usuarioID = apoderade.usuarioID
+			delete apoderade.usuarioID
+			res[usuarioID] = apoderade
+			return res
+		}, {})
+		s.apoderades = Object.assign({}, s.apoderades, apoderades)
+	},
+	apoderade (s, apo) {
+		const usuarioID = apo.usuarioID
+		delete apo.usuarioID
+		const r = {}
+		r[usuarioID] = apo
+		s.locales = Object.assign({}, s.apoderades, r)
 	}
 }
