@@ -49,6 +49,9 @@
 
 					.contenedorBoton
 						.boton(@click="enviarFormulario") Enviar cierre de mesa
+
+
+
 	a-modal.modal(:visible="abrirModal" :confirm-loading="confirmLoading" @ok="handleOk" @cancel="handleCancel")
 		.footer(slot='footer')
 			div
@@ -56,37 +59,47 @@
 			br
 			div
 				a-button.w100(type='danger' ghost @click='siQuieroEditar') EDITAR DE TODOS MODOS
-		.contenidoModal(v-if="mesaRecibida")
-			.titulo La mesa que consultas tiene {{ mesaRecibidaLen }} cierre/s.
-			.contenedorCajaCierre 
-				.cajaCierre(v-for="conteo in mesaRecibida")
-					.grupomesa.conteo
-						.titulo Votos mesa
-						.votos Gabriel Boric: #[span.nVotos {{ conteo.votos.Boric }}]
-						.votos Jose Kast: #[span.nVotos {{ conteo.votos.Kast }}]
-						.votos nulos: #[span.nVotos {{ conteo.votos.nulos }}]
-						.votos blancos: #[span.nVotos {{ conteo.votos.blancos }}]
-						.votos Acta de Cierre: #[a.nVotos(:href="conteo.votos.actaURL" target="_blank") Ver acta]
-						.votos Fecha: {{ conteo.fecha}}
-			.titulo.warning Si los resultados estan bien, por favor no subas otro cierre, si de todas maneras quieres continuar da click en EDITAR
-			//.contenedorBoton
-				.boton(@click="siQuieroEditar") QUIERO EDITAR EL CIERRE
-		.contenidoModal(v-else)
+		//- .contenidoModal(v-if="mesaRecibida")
+		//- 	.titulo La mesa que consultas tiene {{ mesaRecibidaLen }} cierre/s.
+		//- 	.contenedorCajaCierre 
+		//- 		.contenedorMesas
+		//- 			.mesa(v-for="conteo in mesaRecibida")
+		//- 				.titulo {{conteo.mesa}}
+		//- 				.conteo
+		//- 					.votos Boric 
+		//- 						.contador {{ conteo.votos.Boric }}
+		//- 					.votos Kast 
+		//- 						.contador {{ conteo.votos.Kast }}
+		//- 					.votos nulos 
+		//- 						.contador {{ conteo.votos.nulos }}
+		//- 					.votos blancos
+		//- 						.contador {{ conteo.votos.blancos }}
+		//- 	.titulo.warning Si los resultados estan bien, por favor no subas otro cierre, si de todas maneras quieres continuar da click en EDITAR
+		//- 	//.contenedorBoton
+		//- 		.boton(@click="siQuieroEditar") QUIERO EDITAR EL CIERRE
+		.contenidoModal
 			.titulo La mesa que consultas tiene {{ yaSeCerroLen }} cierre/s.
 			.contenedorCajaCierre
-				.cajaCierre(v-for="conteos in yaSeCerro")
-					.grupomesa.conteo(v-for="cont in conteos.conteo")
-						.titulo Votos mesa {{conteos.mesa}}
-						.contendorVotos
-							.votos.vot Gabriel Boric: #[span.nVotos {{ cont.votos.Boric }}]
-							.votos.vot Jose Kast: #[span.nVotos {{ cont.votos.Kast }}]
-							.votos.vot nulos: #[span.nVotos {{ cont.votos.nulos }}]
-							.votos.vot blancos: #[span.nVotos {{ cont.votos.blancos }}]
-						.votos Acta de Cierre: #[a.nVotos(:href="cont.votos.actaURL" target="_blank") Ver acta]
-						.votos Fecha: #[span.nVotos {{ cont.fecha}}]
-			.titulo.warning Si quieres continuar e ingresar otro cierre da click en EDITAR
-			//.contenedorBoton
-				.boton(@click="siQuieroEditar") QUIERO EDITAR EL CIERRE
+				.contenedorMesas
+					.mesa(v-for="mesa in yaSeCerro")
+						.titulo Mesa {{ mesa.mesa }}
+							.contenedorGrupo
+								.grupomesa(v-for="(conteo, index) in mesa.conteo")
+									.conteo
+										.lado
+											.votos Boric 
+												.contador {{ conteo.votos.Boric }}
+											.votos Kast 
+												.contador {{ conteo.votos.Kast }}
+										.lado
+											.votos nulos 
+												.contador {{ conteo.votos.nulos }}
+											.votos blancos
+												.contador {{ conteo.votos.blancos }}
+									.acta Acta de Cierre: #[a.nVotos(:href="conteo.votos.actaURL" 	target="_blank") Ver acta]
+									.fecha Fecha: {{ conteo.fecha}}
+			.titulo.warning Si quieres continuar e ingresar otro cierre a esta mesa da click en EDITAR
+
 
 
 
@@ -325,31 +338,52 @@ export default {
 			padding-bottom: 1em
 		.warning
 			color: rgba(186, 0, 0, 1)
-		.contenedorCajaCierre
+		.contenedorMesas
 			display: flex
 			flex-flow: row wrap
 			width: 100%
-			justify-content: center
-			padding-bottom: 2em
-			.cajaCierre
-				border: 1px solid rgba(0, 0, 0, 0.5)
+			.mesa
 				border-radius: 10px
-				padding: 1em
-				.grupomesa
-					display: flex
-					flex-flow: column nowrap
-					align-items: center
-				.contendorVotos
-					width: 80%
-					padding-bottom: 1em 
-				.votos
+				margin: 1em
+				padding: .3em
+				.titulo
 					font-size: 1rem
+					font-style: italic
+					padding-left: .5em
+				.contenedorGrupo
 					display: flex
-					justify-content: space-between
-					width: 100%
-				.nVotos
-					font-size: 1.1rem
-					font-weight: 700
+					flex-flow: row wrap
+					justify-content: center
+				.grupomesa
+					border: 1px solid rgba(0, 0, 0, .5)
+					border-radius: 10px
+					padding: .3em
+					margin: 1em
+					width: 250px
+					.conteo
+						display: flex
+						flex-flow: column nowrap
+						align-items: center
+						// width: 200px
+						padding: 0 1em
+						.lado
+							display: flex
+							flex-flow: row nowrap
+							justify-content: space-evenly
+							width: 100%
+						.votos
+							margin: .2em .5em
+							padding: .5em
+							font-size: 1rem
+							.contador
+								padding: 0 .2em
+								text-align: center
+								font-size: 1.7rem
+					.nVotos 
+						font-weight: 700
+					.acta
+						font-size: 1rem
+						padding-bottom: .5em
 
 		.contenedorBoton
 			display: flex
