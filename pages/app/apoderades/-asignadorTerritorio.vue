@@ -15,7 +15,7 @@
 	//- div
 		strong localesSugeridosPorBusqueda
 		div(v-for="local in localesSugeridosPorBusqueda") {{local}}
-	div
+	//div
 		strong busquedaLocal
 		div {{busquedaLocal}}
 
@@ -107,7 +107,6 @@ export default {
 				regionID: undefined,
 				comunaID: undefined,
 				localID: undefined,
-				esApoGeneral: undefined,
 			},
 			localesPorComuna: {},
 			busquedaComuna: '',
@@ -182,7 +181,7 @@ export default {
 			const comunasAsignablesIDs = this.comunasAsignablesIDs
 			const localesAsignables = _.reduce(comunasAsignablesIDs, (pais, comunaID) => {
 				const localesComuna = this.$chile.localesPorComunaID(comunaID)
-				return Object.assign({}, pais, localesComuna)
+				return _.assignIn({}, pais, localesComuna)
 			}, {})
 			const localesAsignablesIDs = _.uniq(Object.keys(localesAsignables))
 	
@@ -200,6 +199,15 @@ export default {
 			}, [])
 			console.log('%c asignables', 'color: green', 'filtrados', filtrados)
 			return filtrados
+		}
+	},
+	watch: {
+		tipoAsignacion () {
+			this.nuevaAsignacion = {
+				regionID: undefined,
+				comunaID: undefined,
+				localID: undefined,
+			}
 		}
 	},
 	mounted () {
@@ -228,7 +236,7 @@ export default {
 
 				if (_.isEmpty(comunasCalzantes)) return resultado
 				region.regionID = regionID
-				resultado[regionID] = Object.assign({}, region, {comunas: comunasCalzantes})
+				resultado[regionID] = _.assignIn({}, region, {comunas: comunasCalzantes})
 
 				return resultado
 			}, {})

@@ -13,6 +13,7 @@ export const mutations = {
 		const locales = _.reduce(ls, (res, l, localID) => {
 			const nombre = _.map((l.nombre || '').toLowerCase().split(' '), p => _.capitalize(p)).join(' ')
 			const local = {
+				...l,
 				localID,
 				nombre,
 				comuna: _.get(l, 'ubicacion.comuna'),
@@ -21,17 +22,17 @@ export const mutations = {
 				direccion: _.get(l, 'ubicacion.direccion'),
 				latitud: _.get(l, 'ubicacion.latitud'),
 				longitud: _.get(l, 'ubicacion.longitud'),
-				...l
 			}
 			res[localID] = local
 			return res
 		}, {})
-		s.locales = Object.assign({}, s.locales, locales)
+		s.locales = _.assignIn({}, s.locales, locales)
 	},
 	local (s, l) {
 		const localID = l._id
 		const nombre = _.map((l.nombre || '').toLowerCase().split(' '), p => _.capitalize(p)).join(' ')
 		const local = {
+			...l,
 			localID,
 			nombre,
 			comuna: _.get(l, 'ubicacion.comuna'),
@@ -40,26 +41,27 @@ export const mutations = {
 			direccion: _.get(l, 'ubicacion.direccion'),
 			latitud: _.get(l, 'ubicacion.latitud'),
 			longitud: _.get(l, 'ubicacion.longitud'),
-			...l
 		}
 		const r = {}
 		r[localID] = local
-		s.locales = Object.assign({}, s.locales, r)
+		s.locales = _.assignIn({}, s.locales, r)
 	},
 	apoderades (s, aps) {
 		const apoderades = _.reduce(aps, (res, apoderade) => {
-			const usuarioID = apoderade.usuarioID
+			const usuarioID = `${apoderade.usuarioID}`
 			delete apoderade.usuarioID
-			res[usuarioID] = apoderade
+			const apoderadeAnterior = _.find(s.apoderades, a => a.usuarioID === usuarioID)
+			res[usuarioID] = _.assignIn({}, apoderadeAnterior, apoderade)
 			return res
 		}, {})
-		s.apoderades = Object.assign({}, s.apoderades, apoderades)
+		s.apoderades = _.assignIn({}, s.apoderades, apoderades)
 	},
 	apoderade (s, apo) {
-		const usuarioID = apo.usuarioID
-		delete apo.usuarioID
-		const r = {}
-		r[usuarioID] = apo
-		s.locales = Object.assign({}, s.apoderades, r)
+		const usuarioID = `${apo.usuarioID}`
+		// delete apo.usuarioID
+		const apoderadeAnterior = _.find(s.apoderades, a => a.usuarioID === usuarioID)
+		const apoderades = Object.assign({}, s.apoderades)
+		apoderades[usuarioID] = _.assignIn(apoderadeAnterior, apo)
+		s.apoderades = apoderades
 	}
 }

@@ -23,8 +23,13 @@
 				a-icon(type="team")
 				span.texto Apoderados
 
-		a-sub-menu(v-if="$usuario")
+		a-sub-menu(v-if="$usuario && $dev")
 			n-link.submenu-title-wrapper(slot="title" to="/app/locales")
+				a-icon(type="book")
+				span.texto Se va
+
+		a-sub-menu(v-if="$usuario")
+			n-link.submenu-title-wrapper(slot="title" to="/app/Chile")
 				a-icon(type="book")
 				span.texto Locales
 

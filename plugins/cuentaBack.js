@@ -232,6 +232,9 @@ const cuentaBack = {
 			})
 			this.leyendoDatos = false
 			consolo.log(fx, 'r', r)
+			const apoderade = r.apoderade
+			apoderade.asignaciones = _.map(apoderade.territoriosAsignados, terr => cuentaBack.territorioAasignacion(terr))
+			cuentaBack.vm.$store.commit('apoderade', apoderade)
 			return r
 		} catch (e) {
 			console.error(fx, e)
@@ -325,6 +328,7 @@ const cuentaBack = {
 			if (!r || !r.ok) throw ['No se pudo desasignar territorio', r]
 			cuentaBack.vm.$message.success('Se desasignó territorio')
 			console.log(fx, 'r', r)
+			await cuentaBack.obtenerApoderade(usuarioID)
 			return r
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
@@ -407,7 +411,7 @@ const cuentaBack = {
 	async localPorID (regionID, localID) {
 		const fx = 'cuentaBack>localPorID'
 		try {
-			// consolo.log(fx)
+			consolo.log(fx, {regionID, localID})
 			const r = await solicitar({
 				method: 'get',
 				url: `${cuentaBack.backURL}/locales/${regionID}/locales/${localID}`
@@ -415,13 +419,35 @@ const cuentaBack = {
 			if (!r || !r.ok) throw [`No se pudo cargar local con id ${localID}`, r]
 			// if (dev) cuentaBack.vm.$message.success('Local cargado')
 			// consolo.log(fx, 'r', r)
-			cuentaBack.vm.$store.commit('local', r.local)
+			let local = r.local
 			if (r.autorizacion) {
 				const obtencionDatosPersonales = await cuentaBack.cuenta.datosPersonalesOtrosUsuarios(r.autorizacion)
 				const {usuarios} = obtencionDatosPersonales
-				console.log('apoderades', usuarios)
-				cuentaBack.vm.$store.commit('apoderades', usuarios)
+				// Unir datos de apoderade y usuario
+				// const todesLesApoderades = Object.assign({})
+				// console.log('local.apoderades', JSON.parse(JSON.stringify(local.apoderades)))
+				// console.log('usuarios', JSON.parse(JSON.stringify(usuarios)))
+				// console.log('r.apoderadesDisponibles', JSON.parse(JSON.stringify(r.apoderadesDisponibles)))
+				// JSON.parse(JSON.stringify())
+				const apoderades = _.map(r.apoderadesDisponibles, apoderade => {
+					// console.log('apoderade.usuarioID', apoderade.usuarioID)
+					const usuario = _.find(usuarios, u => u.usuarioID === apoderade.usuarioID) || {}
+					apoderade.asignaciones = _.map(apoderade.territoriosAsignados, terr => cuentaBack.territorioAasignacion(terr))
+					// console.log('apoderade', apoderade)
+					// console.log('usuario', usuario)
+					const unificado = Object.assign({}, usuario || {}, apoderade)
+					// console.log('unificado', unificado)
+					return unificado
+				})
+				const apoderadeIDs = _.map(apoderades, a => a.usuarioID)
+				console.log('[localPorID] apoderades usuarioID s', _.map(apoderades, a => a.usuarioID))
+				// console.log('[localPorID] apoderades', )
+
+				cuentaBack.vm.$store.commit('apoderades', Object.assign({}, _.map(apoderades, a => a)))
+				local = _.assignIn(local, { get todesLesApoderades () { return _.pick(cuentaBack.vm.$store.state.apoderades, apoderadeIDs) } })
 			}
+			cuentaBack.vm.$store.commit('local', local)
+
 			return r
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
@@ -509,6 +535,17 @@ const cuentaBack = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 async function solicitar (request, errorHandler) {
 	const tokenAutofirmado = await cuentaBack.cuenta.mantenerTokenAutorizado()
 	if (!tokenAutofirmado) {
@@ -520,7 +557,7 @@ async function solicitar (request, errorHandler) {
 		Authorization: `Bearer ${cuentaBack.cuenta.token}`,
 		'Token-Autofirmado': tokenAutofirmado
 	}
-	const ops = _.merge({ headers: defaultHeaders }, request)
+	const ops = _.assignIn({ headers: defaultHeaders }, request)
 
 	const data = await axios(ops).then(r => {
 		if (cuentaBack.sinConexion === undefined || cuentaBack.sinConexion) cuentaBack.sinConexion = false

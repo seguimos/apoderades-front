@@ -76,19 +76,6 @@ a
 .wf
 	width: 100%
 
-.boton
-	display: block
-	margin: 0 auto
-	cursor: pointer
-	text-transform: uppercase
-	padding: .5em 1.3em
-	border-radius: 4px
-	background-color: black
-	color: white
-	font-weight: 900
-	+compu
-		padding: .7em 1.5em
-
 h1, h2, h3, h4, h5
 	color: $azul2
 	margin-top: 20px
@@ -98,12 +85,18 @@ h1, h2, h3, h4, h5
 	text-overflow: unset!important
 	white-space: break-spaces!important
 
+.boton
+	&.w100
+		display: block !important
+
 .ant-btn
 	&.w100
 		width: 100%
 	//&.casiBpStyle
 	+bold
 	//font-size: 1.2em
+	&:disabled
+		display: block !important
 	&:not(disabled)
 		&.ant-btn-primary,
 		&.azul
@@ -113,6 +106,21 @@ h1, h2, h3, h4, h5
 			color: $petroleo1
 			background-color: $verde3
 
+		// margin: 0 auto
+		// cursor: pointer
+		// text-transform: uppercase
+		// padding: .5em 1.3em
+		// border-radius: 4px
+		// background-color: black
+		// color: white
+		// font-weight: 900
+		// +compu
+		// 	padding: .7em 1.5em
+
+.acciones
+	.boton
+		display: block
+		margin-top: 1rem
 .ant-form
 	+compu
 		.ant-form-item
