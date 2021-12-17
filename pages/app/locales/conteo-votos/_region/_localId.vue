@@ -3,6 +3,7 @@
 	.contenido
 		.conteoDeVotos
 			.titulo Conteo de votos
+			.warning(v-if="aceptaIngresarNuevoCierre") Estas editando los #[br]resultados de esta mesa
 			a-form-model.suscribirse(
 				ref="formulario",
 				:model="formulario",
@@ -48,6 +49,48 @@
 
 					.contenedorBoton
 						.boton(@click="enviarFormulario") Enviar cierre de mesa
+	a-modal.modal(:visible="abrirModal" :confirm-loading="confirmLoading" @ok="handleOk" @cancel="handleCancel")
+		.footer(slot='footer')
+			div
+				a-button.w100(type='primary' @click='handleCancel') CERRAR
+			br
+			div
+				a-button.w100(type='danger' ghost @click='siQuieroEditar') EDITAR DE TODOS MODOS
+		.contenidoModal(v-if="mesaRecibida")
+			.titulo La mesa que consultas tiene {{ mesaRecibidaLen }} cierre/s.
+			.contenedorCajaCierre 
+				.cajaCierre(v-for="conteo in mesaRecibida")
+					.grupomesa.conteo
+						.titulo Votos mesa
+						.votos Gabriel Boric: #[span.nVotos {{ conteo.votos.Boric }}]
+						.votos Jose Kast: #[span.nVotos {{ conteo.votos.Kast }}]
+						.votos nulos: #[span.nVotos {{ conteo.votos.nulos }}]
+						.votos blancos: #[span.nVotos {{ conteo.votos.blancos }}]
+						.votos Acta de Cierre: #[a.nVotos(:href="conteo.votos.actaURL" target="_blank") Ver acta]
+						.votos Fecha: {{ conteo.fecha}}
+			.titulo.warning Si los resultados estan bien, por favor no subas otro cierre, si de todas maneras quieres continuar da click en EDITAR
+			//.contenedorBoton
+				.boton(@click="siQuieroEditar") QUIERO EDITAR EL CIERRE
+		.contenidoModal(v-else)
+			.titulo La mesa que consultas tiene {{ yaSeCerroLen }} cierre/s.
+			.contenedorCajaCierre
+				.cajaCierre(v-for="conteos in yaSeCerro")
+					.grupomesa.conteo(v-for="cont in conteos.conteo")
+						.titulo Votos mesa {{conteos.mesa}}
+						.contendorVotos
+							.votos.vot Gabriel Boric: #[span.nVotos {{ cont.votos.Boric }}]
+							.votos.vot Jose Kast: #[span.nVotos {{ cont.votos.Kast }}]
+							.votos.vot nulos: #[span.nVotos {{ cont.votos.nulos }}]
+							.votos.vot blancos: #[span.nVotos {{ cont.votos.blancos }}]
+						.votos Acta de Cierre: #[a.nVotos(:href="cont.votos.actaURL" target="_blank") Ver acta]
+						.votos Fecha: #[span.nVotos {{ cont.fecha}}]
+			.titulo.warning Si quieres continuar e ingresar otro cierre da click en EDITAR
+			//.contenedorBoton
+				.boton(@click="siQuieroEditar") QUIERO EDITAR EL CIERRE
+
+
+
+	a-modal
 </template>
 <script>
 export default {
@@ -60,7 +103,8 @@ export default {
 				nombre: '',
 				mesas: [],
 				apoderados: [],
-				apoderadoGeneral: ''
+				apoderadoGeneral: '',
+				mesasCerradas: []
 			},
 		
 			formulario: {
@@ -71,7 +115,15 @@ export default {
 				nulos: null,
 				actaURL: null
 			},
-			abrirModalReportes: null,
+
+			mesaRecibida: null,
+			votosMesa: null,
+			aceptaIngresarNuevoCierre: null,
+			mensajeError: null,
+			confirmLoading: null,
+
+			verActa: null,
+			abrirModal: false,
 			modificandoAvatar: null
 		}
 	},
@@ -82,6 +134,23 @@ export default {
 		},
 		localId () {
 			return this.$route.params.localId
+		},
+		yaSeCerroLen () {
+			return this.yaSeCerro.length
+		},
+		mesaRecibidaLen () {
+			return this.mesaRecibida.length
+		},
+		yaSeCerro () {
+			const seleccionada = this.formulario.mesaid
+			const cerrada = this._.filter(this.local.mesasCerradas, {'id': seleccionada})
+			const simple = this._.map(cerrada, c => {
+				c.conteo = Object.values(c.conteo)
+			})
+			console.log('cierres', simple)
+
+			if (cerrada === []) return
+			return cerrada
 		},
 		validaCierre () {
 			console.log("validaCierre")
@@ -99,8 +168,19 @@ export default {
 		this.getLocal()
 	},
 	methods: {
-		seleccionarMesa (v) {
-			this.formulario.mesaid  = v
+		seleccionarMesa (mesaID) {
+			this.formulario.mesaid  = mesaID
+
+			const cerrada = this.yaSeCerro
+			console.log('cerrada', cerrada)
+
+			console.log('if del selecciona')
+			if (!cerrada || this._.isEmpty(cerrada)) return null
+			else {
+				this.abrirModal = true
+			}
+
+
 		},
 		async firmarCarga () {
 			const url = await this.$cuentBack.firmarCarga({region: this.region, nombre: this.local.nombre, mesaid: this.formulario.mesaid})
@@ -117,7 +197,8 @@ export default {
 			this.local.nombre = response.local.nombre
 			this.local.apoderadoGeneral = 'Gabriel Boric'
 			this.local.mesas = Object.values(response.local.mesas)
-			console.log('get local',response.local.mesas)
+
+			this.local.mesasCerradas = this._.filter(this.local.mesas, 'conteo')
 
 			this.local.apoderados = response.local.apoderades.map(apo => ({
 				...apo,
@@ -128,7 +209,6 @@ export default {
 			this.formulario.actaURL = url
 			this.bloquearBoton = true
 			this.$refs.cargadorImagen.$emit('guardado')
-			console.log('guardarUrl', this.formulario.actaURL)
 		},
 		enviarFormulario () {
 			console.log("enviarFormulario", this.formulario)
@@ -150,12 +230,38 @@ export default {
 					actaURL: conteo.actaURL
 				}
 				console.log(region, localID, votos)
-				const enviado = await this.$cuentaBack.guardarVotos(region, localID, votos, this.formulario.mesaid)
-				console.log('enviado', enviado)
-			})
+				const enviado = await this.$cuentaBack.guardarVotos(region, localID, votos, this.formulario.mesaid, this.aceptaIngresarNuevoCierre)
 
-			
-		}
+				if (enviado.ok === 0) {
+					this.mensajeError = this._.get(enviado, "yaContado.mensaje")
+					const mesaRecibida = this._.get(enviado, "yaContado.mesaSeleccionada")
+					this.mesaRecibida = Object.values(mesaRecibida)
+					console.log('this.mesaRecibida', this.mesaRecibida)
+					this.votosMesa = this._.get(this.mesaRecibida, "votos")
+
+					this.abrirModal = true
+				}
+				else {
+					this.aceptaIngresarNuevoCierre = null
+				}
+			})	
+		},
+		siQuieroEditar () {
+			this.aceptaIngresarNuevoCierre = true
+			this.handleOk()
+		},
+		handleOk (e) {
+			this.confirmLoading = true;
+			setTimeout(() => {
+				this.abrirModal = false;
+				this.confirmLoading = false;
+			}, 300);
+		},
+		handleCancel (e) {
+			this.abrirModal = false;
+			this.aceptaIngresarNuevoCierre = false
+			this.formulario.mesaid = undefined
+		},
 	}
 }
 </script>
@@ -171,6 +277,10 @@ export default {
 			.titulo
 				color: #767676
 				font-size: 1.3rem
+			.warning
+				color: rgba(255, 0, 0, .8)
+				font-size: 1.1rem
+				font-style: italic
 			.grupo
 				display: flex
 				flex-flow: row wrap
@@ -201,4 +311,53 @@ export default {
 				background-color: #fff
 				color: rgba(0, 0, 0, .5)
 				border: 1px solid rgba(0, 0, 0, .5)
+
+.modal
+	.contenidoModal
+		display: flex
+		flex-flow: column nowrap
+		align-items: center
+		width: 100%
+		padding: 1em
+		.titulo
+			text-align: center
+			font-size: 1.2rem
+			padding-bottom: 1em
+		.warning
+			color: rgba(186, 0, 0, 1)
+		.contenedorCajaCierre
+			display: flex
+			flex-flow: row wrap
+			width: 100%
+			justify-content: center
+			padding-bottom: 2em
+			.cajaCierre
+				border: 1px solid rgba(0, 0, 0, 0.5)
+				border-radius: 10px
+				padding: 1em
+				.grupomesa
+					display: flex
+					flex-flow: column nowrap
+					align-items: center
+				.contendorVotos
+					width: 80%
+					padding-bottom: 1em 
+				.votos
+					font-size: 1rem
+					display: flex
+					justify-content: space-between
+					width: 100%
+				.nVotos
+					font-size: 1.1rem
+					font-weight: 700
+
+		.contenedorBoton
+			display: flex
+			padding-bottom: 1em
+			.boton
+				text-align: center
+				background-color: #fff
+				color: rgba(0, 0, 0, 0.5)
+				border: 1px solid rgba(0, 0, 0, 0.5)
+
 </style>

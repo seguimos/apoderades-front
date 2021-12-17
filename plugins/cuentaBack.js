@@ -512,11 +512,11 @@ const cuentaBack = {
 		return url
 	},
 
-	async guardarVotos (region, localID, votos, mesaID) {
+	async guardarVotos (region, localID, votos, mesaID, aceptaIngresarNuevoCierre) {
 		const res = await solicitar({
 			method: 'post',
 			url: `${cuentaBack.backURL}/locales/${region}/locales/${localID}/mesa/${mesaID}`,
-			data: votos
+			data: {votos, aceptaIngresarNuevoCierre}
 		})
 		console.log(res)
 		return res

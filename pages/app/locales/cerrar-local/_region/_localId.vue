@@ -56,6 +56,7 @@ export default {
 				nombre: `usuarioID: ${apo.usuarioID}`
 			}))
 		},
+		 
 	}
 }
 </script>
