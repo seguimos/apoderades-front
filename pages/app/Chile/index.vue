@@ -2,7 +2,7 @@
 .root
 	a-page-header.headerPagina(
 		title="Chile"
-		Xsub-title="Comuna")
+		Xsub-title="País")
 
 
 	.filtros

@@ -155,6 +155,12 @@ export default {
 		switchDelColapso (usuarioID) {
 			if (this.apoderadeExtendide === usuarioID) this.apoderadeExtendide = false
 			else this.apoderadeExtendide = usuarioID
+		},
+		puedeAsignarApoderadoGeneral () {
+			return this.$apoderade.tieneAccesoNacional || this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID) || this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID)
+		},
+		puedeAsignarYHabilitarApoderadoMesa () {
+			return this.$apoderade.tieneAccesoNacional || this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID) || this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID) || this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID)
 		}
 	}
 }

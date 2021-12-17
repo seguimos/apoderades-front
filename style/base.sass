@@ -136,10 +136,14 @@ h1, h2, h3, h4, h5
 	padding: 0
 	margin: 1em 0 3em 0
 	.ant-page-header-heading
+		display: flex
+		flex-flow: column nowrap
 		.ant-page-header-heading-title,
 		.ant-page-header-heading-sub-title
 			display: block
 			float: none
+		.ant-page-header-heading-sub-title
+			order: -1
 		//.ant-page-header-heading-title
 			display: block
 		//.ant-page-header-heading-sub-title

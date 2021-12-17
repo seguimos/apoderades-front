@@ -389,18 +389,29 @@ const cuentaBack = {
 		}
 	},
 
-	async localesXRegion ({ region }) {
+	async localesXRegion (regionID) {
 		const fx = 'cuentaBack>localesXRegion'
 		try {
-			consolo.log(fx)
+			consolo.log(fx, regionID || 'ABORTADO')
+			if (!regionID) return 
+
 			const r = await solicitar({
 				method: 'get',
-				url: `${cuentaBack.backURL}/locales/:region`,
-				params: { region }
+				url: `${cuentaBack.backURL}/locales/${regionID}`
 			})
 			if (!r || !r.ok) throw ['No se pudo cargar locales de la región', r]
 			cuentaBack.vm.$message.success('Locales cargados')
 			consolo.log(fx, 'r', r)
+
+			const locales = _.reduce(r.locales, (locs, local) => {
+				local.localID = local._id
+				locs[local._id] = local
+				delete locs[local._id]._id
+				return locs
+			}, {})
+			console.log(fx, 'locales', locales)
+			cuentaBack.vm.$store.commit('locales', locales)
+
 			return r
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
@@ -408,6 +419,35 @@ const cuentaBack = {
 			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
+	async localesXComuna ({ regionID, comunaID }) {
+		const fx = 'cuentaBack>localesXComuna'
+		try {
+			consolo.log(fx, { regionID, comunaID })
+			const r = await solicitar({
+				method: 'get',
+				url: `${cuentaBack.backURL}/locales/${regionID}/comunas/${comunaID}/`
+			})
+			if (!r || !r.ok) throw ['No se pudo cargar locales de comuna', r]
+			cuentaBack.vm.$message.success('Locales cargados')
+			consolo.log(fx, 'r', r)
+
+			const locales = _.reduce(r.locales, (locs, local) => {
+				local.localID = local._id
+				locs[local._id] = local
+				delete locs[local._id]._id
+				return locs
+			}, {})
+			console.log(fx, 'locales', locales)
+			cuentaBack.vm.$store.commit('locales', locales)
+
+			return r
+		} catch (e) {
+			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
+			else console.error(fx, e)
+			cuentaBack.vm.$message.error('Algo falló')
+		}
+	},
+
 	async localPorID (regionID, localID) {
 		const fx = 'cuentaBack>localPorID'
 		try {
@@ -456,32 +496,6 @@ const cuentaBack = {
 		}
 	},
 
-	async localesXComuna ({ region, comunaCodigo }) {
-		const fx = 'cuentaBack>localesXComuna'
-		try {
-			consolo.log(fx, { region, comunaCodigo })
-			const r = await solicitar({
-				method: 'get',
-				url: `${cuentaBack.backURL}/locales/${region}/comunas/${comunaCodigo}/`
-			})
-			if (!r || !r.ok) throw ['No se pudo cargar locales de comuna', r]
-			cuentaBack.vm.$message.success('Locales cargados')
-			consolo.log(fx, 'r', r)
-
-			const locales = _.reduce(r.locales, (locs, local) => {
-				locs[local._id] = local
-				delete locs[local._id]._id
-				return locs
-			}, {})
-			console.log(fx, 'locales', locales)
-			cuentaBack.vm.$store.commit('locales', locales)
-			return r
-		} catch (e) {
-			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
-			else console.error(fx, e)
-			cuentaBack.vm.$message.error('Algo falló')
-		}
-	},
 
 	async obtenerLocal ({ region, localId }) {
 		const fx = 'cuentaBack>obtenerLocal'

@@ -12,6 +12,14 @@ export const mutations = {
 	locales (s, ls) {
 		const locales = _.reduce(ls, (res, l, localID) => {
 			const nombre = _.map((l.nombre || '').toLowerCase().split(' '), p => _.capitalize(p)).join(' ')
+
+			if (l.estadisticas) {
+				l.estadisticas = {
+					mesas: l.estadisticas.numeroMesas,
+					apoderades: l.estadisticas.numeroApoderados
+				}
+			}
+
 			const local = {
 				...l,
 				localID,
@@ -20,8 +28,6 @@ export const mutations = {
 				comunaID: _.get(l, 'ubicacion.comunaCodigo'),
 				regionID: _.get(l, 'ubicacion.region'),
 				direccion: _.get(l, 'ubicacion.direccion'),
-				latitud: _.get(l, 'ubicacion.latitud'),
-				longitud: _.get(l, 'ubicacion.longitud'),
 			}
 			res[localID] = local
 			return res
@@ -31,6 +37,14 @@ export const mutations = {
 	local (s, l) {
 		const localID = l._id
 		const nombre = _.map((l.nombre || '').toLowerCase().split(' '), p => _.capitalize(p)).join(' ')
+
+		if (l.estadisticas) {
+			l.estadisticas = {
+				mesas: l.estadisticas.numeroMesas,
+				apoderades: l.estadisticas.numeroApoderados
+			}
+		}
+		
 		const local = {
 			...l,
 			localID,

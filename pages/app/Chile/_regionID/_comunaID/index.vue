@@ -8,22 +8,37 @@
 		:title="comuna.nombre"
 		sub-title="Comuna")
 
-	.filtros
-		a-input(v-model="busqueda" allow-clear placeholder='Nombre o dirección')
-	.locales
-		.local(v-for="local in _.orderBy(_.values(localesFiltrados), l => l.nombre)")
-			.zonaIcono
-				.icono 🗳
-			.info
-				n-link.nombre(:to="`/app/Chile/${regionID}/${comunaID}/${local.localID}`") {{local.nombre}}
-				.direccion {{local.direccion.split(', ').slice(0, -2).join(', ')}}
+		.estadisticas(v-if="estadisticas")
+			a-statistic(decimalSeparator="," groupSeparator="." title="Locales" :value="estadisticas.locales")
+			a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" :value="estadisticas.mesas")
+			a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="estadisticas.apoderades")
+
+
+
+
+	.zonaLocales
+		h2 Locales de votación
+		.filtros
+			a-input(v-model="busqueda" allow-clear placeholder='Nombre o dirección')
+		.locales
+			n-link.local(:to="`/app/Chile/${regionID}/${comunaID}/${local.localID}`" 
+				v-for="local in _.orderBy(_.values(localesFiltrados), l => l.nombre)")
+				.info
+					h3.nombre 🗳 {{local.nombre}}
+					.direccion {{local.direccion.split(', ').slice(0, -2).join(', ')}}
+				.estadisticas(v-if="local.estadisticas")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" 
+					:value="_.get(local, ['estadisticas', 'mesas'])")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" 
+					:value="_.get(local, ['estadisticas', 'apoderades'])")
 
 </template>
 <script>
 export default {
 	data () {
 		return {
-			busqueda: ''
+			busqueda: '',
+			estadisticas: null
 		}
 	},
 	computed: {
@@ -55,9 +70,13 @@ export default {
 				if (p(l.direccion).includes(busqueda)) return true
 			})
 		},
+		puedeAsignarCoordinacionComunal () {
+			return this.$apoderade.tieneAccesoNacional || this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID)
+		}
 	},
 	mounted () {
-		this.cargarLocalesComuna()
+		if (!this.estadisticas) this.cargarComuna()
+		// this.cargarLocalesComuna()
 	},
 	methods: {
 		cargarLocalesComuna () {
@@ -66,35 +85,66 @@ export default {
 			const comunaID = this.comunaID
 			if (!regionID || !comunaID) return
 			console.log('cargarLocalesComuna', regionID, comunaID)
-			this.$cuentaBack.localesXComuna({ region: regionID, comunaCodigo: comunaID })
+			this.$cuentaBack.localesXComuna({ regionID, comunaID })
+		},
+		async cargarComuna () {
+			const fx = 'chile.comuna cargarComuna'
+			const _ = this._
+			if (!this.regionID || !this.regionID) return
+			const r = await this.$cuentaBack.localesXComuna({ regionID: this.regionID, comunaID: this.comunaID })
+			if (!r || !r.ok) {
+				console.error(fx, r)
+				return
+			}
+			this.estadisticas = {
+				locales: (r.locales || []).length,
+				mesas: _.reduce((r.locales || []), (res, local) =>{
+					if (!_.get(local, 'estadisticas', 'mesas')) return res
+					return res + local.estadisticas.mesas
+				}, 0),
+				apoderades: _.reduce((r.locales || []), (res, local) =>{
+					if (!_.get(local, 'estadisticas', 'numeroApoderades')) return res
+					if (local.estadisticas.apoderades) console.info('local.estadisticas.apoderades', local)
+					return res + local.estadisticas.apoderades
+				}, 0)
+			}
 		}
 	}
 }
 </script>
 <style lang="sass" scoped>
 @import '@style/vars'
-//.headerPagina
-	display: block
+.estadisticas
+	display: flex
+	align-items: center
+	justify-content: space-between
+
+.comunas
+	.comuna
+		margin-top: 2em
+		background-color: #eee
+		+radio
+		padding: .5em 1em
+		.nombre
+			+fwb
+			color: black
+			margin: 0
+			margin-bottom: .5em
 
 .locales
 	.local
-		display: flex
-		align-items: center
-		// border: 1px solid #aaa
-		// padding: 1em
-		margin-top: 1em
-		.zonaIcono
-			flex: auto 0 0
-			line-height: 0
-			margin-right: 1em
-			.icono
-				font-size: 3em
+		display: block
+		margin-top: 2em
+		background-color: #eee
+		+radio
+		padding: .5em 1em
 		.info
-			flex: auto 1 1
+			margin-bottom: .5em
 			.nombre
 				display: inline-block
-				// border: 1px solid red
+				color: black
 				+fwb
+				margin: 0
 			.direccion
 				opacity: .7
 </style>
