@@ -23,10 +23,10 @@
 				a-icon(type="team")
 				span.texto Apoderados
 
-		a-sub-menu(v-if="$usuario && $dev")
+		a-sub-menu(v-if="$usuario")
 			n-link.submenu-title-wrapper(slot="title" to="/app/locales")
 				a-icon(type="book")
-				span.texto Se va
+				span.texto Por integrar
 
 		a-sub-menu(v-if="$usuario")
 			n-link.submenu-title-wrapper(slot="title" to="/app/Chile")
