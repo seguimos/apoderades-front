@@ -38,7 +38,7 @@
 
 						.asignaciones(v-if="!_.isEmpty(datosApoderade.territoriosAsignados)")
 							.elementoAsignacion(v-for="terr in datosApoderade.territoriosAsignados" )
-								miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="datosApoderade.usuarioID" mostrarDesasignar)
+								miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="datosApoderade.usuarioID" mostrarDesasignar @asignacionEliminada="asignacionEliminada")
 								a-divider.separador
 
 
@@ -174,6 +174,12 @@ export default {
 		},
 		asignacionRealizada () {
 			console.log('asignacionRealizada')
+			const { usuarioID, nombre, apellido} = this.datosApoderade
+			const rut = this.rut
+			this.cargarApoderade({rut, usuarioID, nombre, apellido})
+		},
+		asignacionEliminada () {
+			console.log('asignacionEliminada')
 			const { usuarioID, nombre, apellido} = this.datosApoderade
 			const rut = this.rut
 			this.cargarApoderade({rut, usuarioID, nombre, apellido})

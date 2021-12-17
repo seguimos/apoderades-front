@@ -144,7 +144,7 @@ export default {
 			const r = await this.$cuentaBack.desasignarTerritorio({ usuarioID, regionID, comunaID, localID })
 			console.log('apoderades/index desasignarTerritorio', r)
 			const s = await this.$cuentaBack.obtenerApoderade(usuarioID)
-			if (s && s.ok) this.$emit('desasignado')
+			if (s && s.ok) this.$emit('asignacionEliminada')
 		}
 	}
 }

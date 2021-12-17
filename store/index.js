@@ -42,26 +42,33 @@ export const mutations = {
 			latitud: _.get(l, 'ubicacion.latitud'),
 			longitud: _.get(l, 'ubicacion.longitud'),
 		}
-		const r = {}
+		const r = _.pickBy(s.locales)
 		r[localID] = local
 		s.locales = _.assignIn({}, s.locales, r)
 	},
 	apoderades (s, aps) {
-		const apoderades = _.reduce(aps, (res, apoderade) => {
+		console.log('commit apoderades', aps)
+		const apoderades = _.pickBy(s.apoderades, a => a)
+		_.forEach(aps, apoderade => {
 			const usuarioID = `${apoderade.usuarioID}`
-			delete apoderade.usuarioID
-			const apoderadeAnterior = _.find(s.apoderades, a => a.usuarioID === usuarioID)
-			res[usuarioID] = _.assignIn({}, apoderadeAnterior, apoderade)
-			return res
-		}, {})
-		s.apoderades = _.assignIn({}, s.apoderades, apoderades)
+			const apoderadeAnterior = _.find(apoderades, a => a.usuarioID === usuarioID)
+			apoderades[usuarioID] = _.assignInWith({}, apoderadeAnterior, apoderade, (objValue, srcValue) => {
+				return _.isUndefined(srcValue) ? objValue : srcValue;
+			})
+		})
+		s.apoderades = apoderades
 	},
-	apoderade (s, apo) {
-		const usuarioID = `${apo.usuarioID}`
-		// delete apo.usuarioID
+	apoderade (s, apoderade) {
+		console.log('commit apoderade', apoderade)
+		const usuarioID = `${apoderade.usuarioID}`
 		const apoderadeAnterior = _.find(s.apoderades, a => a.usuarioID === usuarioID)
-		const apoderades = Object.assign({}, s.apoderades)
-		apoderades[usuarioID] = _.assignIn(apoderadeAnterior, apo)
+		const apoderades = _.pickBy(s.apoderades, a => a)
+		apoderades[usuarioID] = _.assignInWith({}, apoderadeAnterior, apoderade, (objValue, srcValue) => {
+			return _.isUndefined(srcValue) ? objValue : srcValue;
+		})
+
+		console.log(`commit apoderades[${usuarioID}]`, apoderades[usuarioID])
+		
 		s.apoderades = apoderades
 	}
 }

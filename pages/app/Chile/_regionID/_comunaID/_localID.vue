@@ -32,7 +32,7 @@
 							.asignaciones
 								
 								.asignacion(v-for="terr in apoderade.territoriosAsignados")
-									miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="usuarioID" mostrarDesasignar sinDireccion sinIcono @desasignado="cargarLocal")
+									miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="usuarioID" mostrarDesasignar sinDireccion sinIcono @asignacionEliminada="cargarLocal")
 										
 			h3 Apoderados Disponibles
 			.apoderades
