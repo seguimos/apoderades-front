@@ -8,23 +8,24 @@
 		:title="comuna.nombre"
 		sub-title="Comuna")
 
+	.filtros
+		a-input(v-model="busqueda" allow-clear placeholder='Nombre o dirección')
 	.locales
-		.local(v-for="local in _.orderBy(_.values(locales), l => l.nombre)")
-			
-				.zonaIcono
-					.icono 🗳
-				.info
-					n-link.nombre(:to="`/app/Chile/${regionID}/${comunaID}/${local.localID}`") {{local.nombre}}
-					.direccion {{local.direccion.split(', ').slice(0, -2).join(', ')}}
-
-
-	h1 Proto
-	div comunaID {{comunaID}}
-	
+		.local(v-for="local in _.orderBy(_.values(localesFiltrados), l => l.nombre)")
+			.zonaIcono
+				.icono 🗳
+			.info
+				n-link.nombre(:to="`/app/Chile/${regionID}/${comunaID}/${local.localID}`") {{local.nombre}}
+				.direccion {{local.direccion.split(', ').slice(0, -2).join(', ')}}
 
 </template>
 <script>
 export default {
+	data () {
+		return {
+			busqueda: ''
+		}
+	},
 	computed: {
 		rutas () { 
 			const _ = this._

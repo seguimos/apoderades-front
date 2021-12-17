@@ -8,8 +8,24 @@
 		:title="local.nombre"
 		sub-title="Local de votación")
 
+
+
 	.local
-		p aca va la info del local
+		//- b Local
+		//div {{local}}
+
+		.zonaApoderades
+			h3 Apoderados
+			.apoderades
+				.apoderade(v-for="apoderade in local.apoderades")
+					.esApoderadoGeneral(v-if="apoderade.esApoderadoGeneral") Apoderado general
+					.usuarioID {{apoderade.usuarioID}}
+
+		.zonaMesas
+			h3 Mesas
+			.mesas
+				.mesa(v-for="(mesa, mesaID) in local.mesas")
+					b {{mesa.mesa}}
 
 
 </template>

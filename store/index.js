@@ -20,6 +20,7 @@ export const mutations = {
 				direccion: _.get(l, 'ubicacion.direccion'),
 				latitud: _.get(l, 'ubicacion.latitud'),
 				longitud: _.get(l, 'ubicacion.longitud'),
+				...l
 			}
 			res[localID] = local
 			return res
@@ -38,6 +39,7 @@ export const mutations = {
 			direccion: _.get(l, 'ubicacion.direccion'),
 			latitud: _.get(l, 'ubicacion.latitud'),
 			longitud: _.get(l, 'ubicacion.longitud'),
+			...l
 		}
 		const r = {}
 		r[localID] = local
