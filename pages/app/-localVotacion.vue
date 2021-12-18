@@ -94,7 +94,7 @@ export default {
 
 				if (_.isEmpty(comunasCalzantes)) return resultado
 
-				resultado.push(Object.assign({regionID, nombre: region.nombre}, {comunas: comunasCalzantes}))
+				resultado.push(_.assignIn({regionID, nombre: region.nombre}, {comunas: comunasCalzantes}))
 				return resultado
 			}, [])
 		},

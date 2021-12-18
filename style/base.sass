@@ -76,19 +76,6 @@ a
 .wf
 	width: 100%
 
-.boton
-	display: block
-	margin: 0 auto
-	cursor: pointer
-	text-transform: uppercase
-	padding: .5em 1.3em
-	border-radius: 4px
-	background-color: black
-	color: white
-	font-weight: 900
-	+compu
-		padding: .7em 1.5em
-
 h1, h2, h3, h4, h5
 	color: $azul2
 	margin-top: 20px
@@ -98,12 +85,18 @@ h1, h2, h3, h4, h5
 	text-overflow: unset!important
 	white-space: break-spaces!important
 
+.boton
+	&.w100
+		display: block !important
+
 .ant-btn
 	&.w100
 		width: 100%
 	//&.casiBpStyle
 	+bold
 	//font-size: 1.2em
+	&:disabled
+		display: block !important
 	&:not(disabled)
 		&.ant-btn-primary,
 		&.azul
@@ -113,6 +106,21 @@ h1, h2, h3, h4, h5
 			color: $petroleo1
 			background-color: $verde3
 
+		// margin: 0 auto
+		// cursor: pointer
+		// text-transform: uppercase
+		// padding: .5em 1.3em
+		// border-radius: 4px
+		// background-color: black
+		// color: white
+		// font-weight: 900
+		// +compu
+		// 	padding: .7em 1.5em
+
+.acciones
+	.boton
+		display: block
+		margin-top: 1rem
 .ant-form
 	+compu
 		.ant-form-item
@@ -124,7 +132,36 @@ h1, h2, h3, h4, h5
 		.ant-btn
 			margin-top: 1rem
 
+.ant-page-header
+	padding: 0
+	margin: 1em 0 3em 0
+	.ant-page-header-heading
+		display: flex
+		flex-flow: column nowrap
+		.ant-page-header-heading-title,
+		.ant-page-header-heading-sub-title
+			display: block
+			float: none
+		.ant-page-header-heading-sub-title
+			order: -1
+		//.ant-page-header-heading-title
+			display: block
+		//.ant-page-header-heading-sub-title
+			display: block
+
 .anchoMovil
 	width: 400px
 	max-width: 100%
 	margin: 0 auto
+
+.WIP
+	display: flex
+	flex-flow: column nowrap
+	align-items: center
+	justify-content: center
+	text-align: center
+	margin: 2em 0
+	.icono
+		font-size: 2em
+	.texto
+		margin-top: 2em

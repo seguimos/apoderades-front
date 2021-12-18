@@ -15,14 +15,14 @@
 				li Dar nivel de acceso de comuna a cualquier apoderado
 				li Asignar local de votación a un apoderado para que ejerza como apoderado general o de mesa
 				
-		.asignaciones
+		.zonaAsignaciones
 			.microCabecera
 				h4 Territorios que se me han encargado
 			div(v-if="_.isEmpty($apoderade.territoriosAsignados)") 
 				.info Nada aún.
-			div(v-else) 
-				div(v-for="terr in $apoderade.territoriosAsignados")
-					miniTarjetaAsignacion(:territorioAsignado="terr")
+			.asignaciones(v-else) 
+				.asignacion(v-for="terr in $apoderade.territoriosAsignados")
+					miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="$apoderade.usuarioID" mostrarDesasignar)
 				
 		.localVotacion
 			.microCabecera
@@ -110,7 +110,7 @@ export default {
 	h4 
 		margin: 0
 
-.asignaciones,
+.zonaAsignaciones,
 .localVotacion
 	// border: 1px solid red
 	margin-top: 2em
@@ -144,5 +144,10 @@ export default {
 				color: black
 			+ .item
 				margin-top: 0.5rem
+
+.asignaciones
+	.asignacion
+		+ .asignacion
+			margin-top: 1em
 
 </style>

@@ -15,6 +15,10 @@
 	//- div
 		strong localesSugeridosPorBusqueda
 		div(v-for="local in localesSugeridosPorBusqueda") {{local}}
+	//div
+		strong busquedaLocal
+		div {{busquedaLocal}}
+
 
 	.asignadores
 		a-form-model.asignadores(ref="nuevaAsignacion" :model="nuevaAsignacion" :rules="reglasFormAsignacionTerritorial")
@@ -95,7 +99,6 @@
 				a-button.w100.casiBpStyle(@click="$emit('cancelar')" type="dashed") Cancelar
 </template>
 <script>
-import parameterize from '@lib/parameterize'
 export default {
 	props: {
 		usuarioID: {
@@ -113,7 +116,6 @@ export default {
 				regionID: undefined,
 				comunaID: undefined,
 				localID: undefined,
-				esApoGeneral: undefined,
 			},
 			localesPorComuna: {},
 			busquedaComuna: '',
@@ -180,31 +182,42 @@ export default {
 		},
 		sugerenciasLocales () {
 			const busquedaLocal = this.busquedaLocal
-			console.log('sugerenciasLocales', busquedaLocal)
+			// console.log('sugerenciasLocales', busquedaLocal)
 			const _ = this._
-			const q = busquedaLocal && parameterize(busquedaLocal)
-			console.log('sugerenciasLocales q', q)
+			const q = busquedaLocal && this.$p(busquedaLocal)
+			// console.log('sugerenciasLocales q', q)
 			if (!this.nuevaAsignacion.comunaID) return []
-			if (this.$apoderade.tieneAccesoNacional) return this.$chile.localesPorComunaID(this.nuevaAsignacion.comunaID)
+			// if (this.$apoderade.tieneAccesoNacional) return this.$chile.localesPorComunaID(this.nuevaAsignacion.comunaID)
 			const comunasAsignablesIDs = this.comunasAsignablesIDs
 			const localesAsignables = _.reduce(comunasAsignablesIDs, (pais, comunaID) => {
 				const localesComuna = this.$chile.localesPorComunaID(comunaID)
-				return Object.assign({}, pais, localesComuna)
+				return _.assignIn({}, pais, localesComuna)
 			}, {})
 			const localesAsignablesIDs = _.uniq(Object.keys(localesAsignables))
 	
 
 			const locales = this.$chile.localesPorComunaID(this.nuevaAsignacion.comunaID)
 			const asignables = this.$apoderade.tieneAccesoNacional? locales : _.filter(locales, local => localesAsignablesIDs.includes(local.localID))
-			console.log('%c asignables', 'color: yellow', asignables)
-
-			return _.reduce(asignables, (resultado, local) => {
+			// console.log('%c asignables', 'color: yellow', asignables)
+			const filtrados = _.filter(asignables, local => {
 				// Incluir si no se está buscando por texto o si es que hay match
-				if (_.isEmpty(q)) resultado.push(local)
-				if (parameterize(local.nombre).includes(q)) resultado.push(local)
-				if (parameterize(local.direccion).includes(q)) resultado.push(local)
-				return resultado
+				if (_.isEmpty(q)) return true
+				// console.log('local.nombre', local.nombre)
+				// console.log('local.direccion', local.direccion)
+				if (local.nombre && this.$p(local.nombre).includes(q)) return true
+				if (local.direccion && this.$p(local.direccion).includes(q)) return true
 			}, [])
+			console.log('%c asignables', 'color: green', 'filtrados', filtrados)
+			return filtrados
+		}
+	},
+	watch: {
+		tipoAsignacion () {
+			this.nuevaAsignacion = {
+				regionID: undefined,
+				comunaID: undefined,
+				localID: undefined,
+			}
 		}
 	},
 	mounted () {
@@ -216,7 +229,7 @@ export default {
 			this.busquedaComuna = buscado
 
 			const _ = this._
-			const q = parameterize(buscado)
+			const q = this.$p(buscado)
 			console.log('query:', q)
 			const asignables = this.$chile.todasLasRegionesYsusComunas()
 
@@ -225,15 +238,15 @@ export default {
 				const comunasCalzantes = _.pickBy(region.comunas, comuna => {
 					if (!this.comunasAsignablesIDs.includes(comuna.comunaID)) return false
 					if (!_.isEmpty(q)) {
-						console.log(`parameterize(${comuna.nombre}).includes(${q})`, parameterize(comuna.nombre).includes(q))
-						return parameterize(comuna.nombre).includes(q)
+						console.log(`this.$p(${comuna.nombre}).includes(${q})`, this.$p(comuna.nombre).includes(q))
+						return this.$p(comuna.nombre).includes(q)
 					}
 					return comuna
 				})
 
 				if (_.isEmpty(comunasCalzantes)) return resultado
 				region.regionID = regionID
-				resultado[regionID] = Object.assign({}, region, {comunas: comunasCalzantes})
+				resultado[regionID] = _.assignIn({}, region, {comunas: comunasCalzantes})
 
 				return resultado
 			}, {})

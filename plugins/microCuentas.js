@@ -640,10 +640,10 @@ const cuenta = {
 	},
 
 
-	async datosPersonalesTerceros (autorizacion) {
-		const fx = 'microCuentas>datosPersonalesTerceros'
+	async datosPersonalesOtrosUsuarios (autorizacion) {
+		const fx = 'microCuentas>datosPersonalesOtrosUsuarios'
 		try {
-			consolo.log(fx, JSON.stringify({autorizacion}))
+			// consolo.log(fx, JSON.stringify({autorizacion}))
 			if (!cuenta.token) {
 				if (cuenta.usuario !== null) cuenta.usuario = null
 				consolo.log(fx, 'abortado por no haber token')
@@ -656,6 +656,11 @@ const cuenta = {
 			// Desencriptar secreto
 			const tokenDecodificado = tokenDecoder(autorizacion)
 			const secretoDecriptado = await miLlavero.desencriptar(tokenDecodificado.secretoFront)
+			// console.log(fx, 'tokenDecodificado', tokenDecodificado)
+			if (_.isEmpty(tokenDecodificado.usuarioIDs)) {
+				consolo.info(fx, 'saltada por falta de usuariosIDs')
+				return { ok: 1, usuarios: []}
+			}
 
 			const r = await solicitar.call(this, {
 				url: `${cuenta.cuentasURL}/leerOtros`,
@@ -663,12 +668,12 @@ const cuenta = {
 				headers: { Authorization: `Bearer ${cuenta.token}` },
 				method: 'post',
 			})
-			consolo.log(`${fx} r`, r)
 			if (!r || !r.ok) throw r
 			const decriptado = await miLlavero.desencriptar(r.encriptado)
-			consolo.log(`${fx} decriptado`, decriptado)
-			const usuarios = JSON.parse(decriptado)
-			consolo.log(`${fx} usuarios`, usuarios)
+			// console.log(fx, 'decriptado', decriptado)
+			const objetoDecriptado = JSON.parse(decriptado)
+			const {usuarios} = objetoDecriptado
+			// console.log(fx, 'usuarios', usuarios)
 			return {ok: 1, usuarios}
 		} catch (e) {
 			console.error(fx, e)
@@ -687,7 +692,7 @@ async function solicitar (request, errorHandler) {
 		defaultHeaders.Authorization = `Bearer ${cuenta.token}`
 		defaultHeaders['Token-Autofirmado'] = await cuenta.mantenerTokenAutorizado()
 	}
-	const ops = _.merge({ headers: defaultHeaders }, request)
+	const ops = _.assignIn({ headers: defaultHeaders }, request)
 
 	const data = await axios(ops)
 		.then(r => {

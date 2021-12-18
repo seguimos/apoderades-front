@@ -56,6 +56,7 @@ export default {
 		'@/plugins/fechas',
 		'@/plugins/microCuentas',
 		'@/plugins/cuentaBack',
+		'@/plugins/utilidades',
 		{ src: '@/plugins/leaflet', mode: 'client' },
 		'plugins/localforage.js'
 	],

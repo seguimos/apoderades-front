@@ -6,11 +6,11 @@
             a-col(:span="8")
                 b {{ resumen.numeroLocales }} locales
             a-col(:span="8")
-                | {{ resumen.numeroApoderados }} apoderados
+                | {{ resumen.apoderades }} apoderados
             a-col(:span="8")
                 | X sin apoderado
             a-col(:span="8")
-                b {{ resumen.numeroMesas }} mesas
+                b {{ resumen.mesas }} mesas
             a-col(:span="8")
                 | X abiertas
             a-col(:span="8")
@@ -31,7 +31,7 @@ export default {
 	},
 	methods: {
 		getColor (resumen) {
-			const porcentaje = resumen.numeroApoderados / resumen.numeroMesas * 100
+			const porcentaje = resumen.apoderades / resumen.mesas * 100
 			if (porcentaje < 25) {
 				return 'red'
 			} else if (porcentaje < 50) {

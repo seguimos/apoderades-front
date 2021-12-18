@@ -38,7 +38,7 @@
 
 						.asignaciones(v-if="!_.isEmpty(datosApoderade.territoriosAsignados)")
 							.elementoAsignacion(v-for="terr in datosApoderade.territoriosAsignados" )
-								miniTarjetaAsignacion(:territorioAsignado="terr" @desasignarTerritorio="desasignarTerritorio(datosApoderade, terr)" mostrarDesasignar activable)
+								miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="datosApoderade.usuarioID" mostrarDesasignar @asignacionEliminada="asignacionEliminada")
 								a-divider.separador
 
 
@@ -178,11 +178,9 @@ export default {
 			const rut = this.rut
 			this.cargarApoderade({rut, usuarioID, nombre, apellido})
 		},
-		async desasignarTerritorio (datosApoderade, terr) {
-			const { usuarioID, nombre, apellido } = datosApoderade
-			const { regionID, comunaID, localID } = this.$cuentaBack.territorioAasignacion(terr)
-			const r = await this.$cuentaBack.desasignarTerritorio({ usuarioID, regionID, comunaID, localID })
-			console.log('apoderades/index desasignarTerritorio', r)
+		asignacionEliminada () {
+			console.log('asignacionEliminada')
+			const { usuarioID, nombre, apellido} = this.datosApoderade
 			const rut = this.rut
 			this.cargarApoderade({rut, usuarioID, nombre, apellido})
 		}
@@ -226,7 +224,6 @@ export default {
 			margin: .5em 0
 			&:last-child
 				display: none
-		
 
 
 .pasoAsignacionTerritorial

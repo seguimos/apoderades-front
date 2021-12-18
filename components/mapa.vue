@@ -23,7 +23,7 @@ div.wrapper-mapa
 						h3 {{marcador.nombre}}
 						i {{marcador.ubicacion.direccion}}
 						p
-							b {{marcador.estadisticas.numeroApoderados}}/{{marcador.estadisticas.numeroMesas}} mesas
+							b {{marcador.estadisticas.apoderades}}/{{marcador.estadisticas.mesas}} mesas
 
 </template>
 
@@ -54,8 +54,8 @@ export default {
 					let apoderados = 0
 					for (let i = 0; i < markers.length; i++) {
 						const metadata = that.marcadores[parseInt(markers[i].options.className)]
-						mesas += metadata.estadisticas.numeroMesas
-						apoderados += metadata.estadisticas.numeroApoderados
+						mesas += metadata.estadisticas.mesas
+						apoderados += metadata.estadisticas.apoderades
 					}
 					const proporcion = apoderados / mesas * 100
 					let c = ' marker-cluster-'
@@ -119,7 +119,7 @@ export default {
 	},
 	methods: {
 		getColor (resumen) {
-			const porcentaje = resumen.numeroApoderados / resumen.numeroMesas * 100
+			const porcentaje = resumen.apoderades / resumen.mesas * 100
 			if (porcentaje < 25) {
 				return 'rgba(200,0,0,0.5)'
 			} else if (porcentaje < 50) {
