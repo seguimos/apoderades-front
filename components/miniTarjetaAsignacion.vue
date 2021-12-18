@@ -25,7 +25,7 @@
 		.zonaAcciones.f00(v-if="!sinMenu")
 			a-button(@click="cambiarVisibilidad"
 				shape="circle" 
-				:icon="activa ? 'close' : 'more'")
+				:icon="activa ? 'up' : 'more'")
 
 	transition
 		.contenido(v-if="activa") 

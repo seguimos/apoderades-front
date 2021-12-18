@@ -46,7 +46,7 @@
 						.zonaAcciones.f00
 							a-button(@click="switchDelColapso(usuarioID)"
 								shape="circle" 
-								:icon="apoderadeExtendide === usuarioID ? 'close' : 'more'")
+								:icon="apoderadeExtendide === usuarioID ? 'up' : 'more'")
 
 
 					transition.elColapso
@@ -87,7 +87,7 @@
 						.zonaAcciones.f00
 							a-button(@click="switchDelColapso(usuarioID)"
 								shape="circle" 
-								:icon="apoderadeExtendide === usuarioID ? 'close' : 'more'")
+								:icon="apoderadeExtendide === usuarioID ? 'up' : 'more'")
 
 					transition.elColapso
 						.colapsable(v-if="apoderadeExtendide === usuarioID")
