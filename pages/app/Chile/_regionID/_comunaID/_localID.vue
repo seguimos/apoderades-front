@@ -51,60 +51,6 @@
 								br
 								.asignacion(v-for="terr in apoderade.territoriosAsignados")
 									miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="usuarioID" mostrarDesasignar sinDireccion sinIcono @asignacionEliminada="cargarLocal")
-				.tac(v-if="_.isEmpty(apoderadesAsignados)")
-					| --- Vacío ---
-				
-				.apoderade(v-else v-for="(apoderade, usuarioID) in apoderadesAsignados" :class="{ extendide: apoderadeExtendide === usuarioID }" :key="`apo-${usuarioID}`")
-					.contenido
-						.zonaAvatar.f00
-							.avatar(@click="switchDelColapso(usuarioID)"
-								:class="{ esApoGeneral: apoderade.esApoGeneral}") {{_.get(apoderade, ['nombre', 0])}}
-						.zonaInfo.f11
-							.esApoderadoGeneral(v-if="_.some(apoderade.asignaciones, a => a.capa === 'general' && a.localID === localID)") Apoderado general
-							span.nombre {{apoderade.nombre}} {{apoderade.apellido}}
-						.zonaAcciones.f00
-							a-button(@click="switchDelColapso(usuarioID)"
-								shape="circle" 
-								:icon="apoderadeExtendide === usuarioID ? 'close' : 'more'")
-
-
-					transition.elColapso
-						.colapsable(v-if="apoderadeExtendide === usuarioID")
-							
-							.asignaciones
-								.fwb Participa como:
-								br
-								.asignacion(v-for="terr in apoderade.territoriosAsignados")
-									miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="usuarioID" mostrarDesasignar sinDireccion sinIcono @asignacionEliminada="cargarLocal")
-				.tac(v-if="_.isEmpty(apoderadesAsignados)")
-					| --- Vacío ---
-				
-				.apoderade(v-else v-for="(apoderade, usuarioID) in apoderadesAsignados" :class="{ extendide: apoderadeExtendide === usuarioID }" :key="`apo-${usuarioID}`")
-					.contenido
-						.zonaAvatar.f00
-							.avatar(@click="switchDelColapso(usuarioID)"
-								:class="{ esApoGeneral: apoderade.esApoGeneral}") {{_.get(apoderade, ['nombre', 0])}}
-						.zonaInfo.f11
-							.esApoderadoGeneral(v-if="_.some(apoderade.asignaciones, a => a.capa === 'general' && a.localID === localID)") Apoderado general
-							span.nombre {{apoderade.nombre}} {{apoderade.apellido}}
-						.zonaAcciones.f00
-							a-button(@click="switchDelColapso(usuarioID)"
-								shape="circle" 
-								:icon="apoderadeExtendide === usuarioID ? 'close' : 'more'")
-
-
-					transition.elColapso
-						.colapsable(v-if="apoderadeExtendide === usuarioID")
-							
-							.asignaciones
-								.fwb Participa como:
-								br
-								.asignacion(v-for="terr in apoderade.territoriosAsignados")
-									miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="usuarioID" mostrarDesasignar sinDireccion sinIcono @asignacionEliminada="cargarLocal")
-										
-
-
-
 
 
 
