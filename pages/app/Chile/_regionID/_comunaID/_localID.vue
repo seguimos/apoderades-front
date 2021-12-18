@@ -104,26 +104,25 @@
 
 								.accion(v-if="puedeDesignarYHabilitarApoderadoMesa")
 									a-button.boton.w100(type="dashed" @click="$cuentaBack.obtenerDatosDeContacto({regionID, comunaID, localID, usuarioID})") Contactar 💬
-								
-
-		br
-		br
-		br
-		br
-		br
-		.zonaMesas(v-if="!$dev")
-			h3 Mesas
-			.WIP
-				.icono 🦌🌾🌳 🚴🏽🌻🌳🚴🏽🐧
-				.texto Pronto disponible
-
-		.zonaMesas(v-if="$dev")
-			h3 Mesas
 			
+			
+		h2 Mesas
 
+		.zonaMesas.anchoComun
+			.WIP
+				.icono 🌱
+				.texto Pronto disponible
 			.mesas
-				.mesa(v-for="(mesa, mesaID) in local.mesas")
-					b {{mesa.mesa}}
+				.mesa(v-for="mesa in mesas")
+					.info.flex.jcsb.aic
+						.nombre {{mesa.nombre}}
+						a-button.bw0(shape="circle" icon="more" ghost)
+					.conteo
+						.boric 🌳 1000
+						.kk 💩 0
+						.nulos ␀ 0 
+						.blancos ◽️ 0
+
 
 
 </template>
@@ -208,6 +207,16 @@ export default {
 				this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID) || 
 				this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID)
 		},
+		mesas () {
+			const _ = this._
+			const mesas = this.local.mesas || {}
+			return _.orderBy(_.map(mesas, (mesa, mesaID) => {
+				mesa.mesaID = mesaID
+				mesa.nombre = mesa.mesa
+				mesa.orden = _.padStart(mesa.nombre, 6, '0')
+				return mesa
+			}), m => m.orden)
+		}
 	},
 	mounted () {
 		// if (this._.isEmpty(this.local)) 
@@ -333,4 +342,37 @@ export default {
 						padding: 1em
 						.acciones
 							width: 100%
+
+
+
+
+	.zonaMesas
+		background-color: #F8f8f8
+		+radio
+		.mesas
+			display: flex
+			flex-flow: row wrap
+			justify-content: center
+			.mesa
+				flex: 10em 1 0
+				max-width: 12em
+				// border: 1px solid #777
+				margin: 0.5em
+				+radio
+				text-align: center
+				background-color: transparentize(white, .0)
+				.info
+					padding: .5em .5em .5em 1em
+					background-color: transparentize(black, .5)
+					color: white
+					+radio
+					.nombre
+						font-size: 1.2em
+						+fwb
+				.conteo
+					padding: .5em
+				.conteox
+					display: flex
+					justify-content: center
+					align-items: center
 </style>
