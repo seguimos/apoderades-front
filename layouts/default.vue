@@ -10,6 +10,10 @@ a-config-provider(:locale='esEs')
 				a-col( :xs="{ span: 24, offset: 0}", :sm="{span: 18, offset: 3}", :md="{span: 16, offset: 4}", :lg="{span: 10, offset: 7}")
 		Nuxt.ElContenido
 		Navbar.barraInferior(esFooter)
+
+		.modalesGlobales
+			intentaContactar(v-if="$cuentaBack.intentaContactar")
+			
 </template>
 
 <script>

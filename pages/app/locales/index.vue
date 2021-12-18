@@ -4,8 +4,8 @@
 	.resumenterritorial(v-if="territorioActual")
 		a(@click="subirUnNivel()")
 			locales-resumenTerritorial(:titulo="`Territorio actual: ${territorioActual.nombre}`", :resumen="territorioActual.estadisticas", @click="console.log('hola!')")
-		a-button(class="button-red" block size="large" v-if="puedeAsignarCoordinador")
-			| Asignar Coordinador a esta zona
+		a-button(class="button-red" block size="large" v-if="puedeDesignarCoordinador")
+			| Designar Coordinador a esta zona
 		h2 Territorios internos
 		mapa(:marcadores="marcadoresLocales", v-if="mapa")
 		div(v-else)
@@ -48,7 +48,7 @@ export default {
 			})
 			return locales
 		},
-		puedeAsignarCoordinador () {
+		puedeDesignarCoordinador () {
 			let response = false
 			if(this.region) response = this.$apoderade.tieneAccesoNacional
 			if(this.comuna) response = response || this.$apoderade.regionesAdministradas.includes(this.region)

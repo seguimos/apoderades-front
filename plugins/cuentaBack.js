@@ -265,23 +265,30 @@ const cuentaBack = {
 		}
 	},
 
-	async obtenerDatosPersonalesOtrosUsuarios (usuarioIDs, campos) {
-		const fx = 'cuentaBack>obtenerDatosPersonalesOtrosUsuarios'
+	intentaContactar: null,
+	async obtenerDatosDeContacto ({regionID, comunaID, localID, usuarioID}) {
+		const fx = 'cuentaBack>obtenerDatosDeContacto'
 		try {
-			console.log(fx, JSON.stringify({usuarioIDs, campos}))
+			console.log(fx, JSON.stringify({regionID, comunaID, localID, usuarioID}))
 			// Primero obtener autorización del back
+			const territorio = cuentaBack.territorioIDsATerritorio({regionID, comunaID, localID})
 			const r = await solicitar({
 				method: 'post',
 				// TODO: establecer una URL en el back para obtener autorizacion
-				url: `${cuentaBack.backURL}/autorizarAccesoDatosPersonalesTerceros`,
-				data: {usuarioIDs, campos}
+				url: `${cuentaBack.backURL}/autorizarLecturaDatosDeContacto`,
+				data: {usuarioID, ...territorio}
 			})
-			if (!r || !r.ok) throw ['No se pudo autorizar obtenerDatosPersonalesOtrosUsuarios', r]
+			if (!r || !r.ok) throw ['No se pudo autorizar obtenerDatosDeContacto', r]
 
 			const { autorizacion } = r
 			const s = await cuentaBack.cuenta.datosPersonalesOtrosUsuarios(autorizacion)
-			if (!s || !s.ok) throw ['No se pudo obtenerDatosPersonalesOtrosUsuarios', r]
+			consolo.log(fx, 'DATOS', s)
+			if (!s || !s.ok) throw ['No se pudo obtenerDatosDeContacto', r]
 			// TODO: hacer cosas con los datos
+			const usuario = s.usuarios && s.usuarios[0]
+			consolo.log(fx, 'USUARIO', usuario)
+			const apoderade = cuentaBack.vm.$store.state.apoderades[usuario.usuarioID]
+			cuentaBack.intentaContactar = _.assignIn(usuario, apoderade)
 			return s
 		} catch (e) {
 			if (!(e instanceof Error) && _.isArray(e)) console.error(fx, ...e)
@@ -531,6 +538,24 @@ const cuentaBack = {
 		return asig
 	},
 
+	asignacionATerritorio (asignacion) {
+		const territorio = {
+			region: asignacion.regionID,
+			comunaCodigo: asignacion.comunaID,
+			localId: asignacion.localID,
+			esApoderadoGeneral: asignacion.general
+		}
+		return territorio
+	},
+
+	territorioIDsATerritorio (territorioIDs) {
+		return {
+			region: territorioIDs.regionID,
+			comunaCodigo: territorioIDs.comunaID,
+			localId: territorioIDs.localID
+		}
+	},
+
 	reinstanciarAsignacion (asignacion) {
 		const chile = cuentaBack.vm.$chile
 		const asig = {
@@ -634,6 +659,7 @@ Vue.util.defineReactive(cuentaBack, 'apoderade', cuentaBack.apoderade)
 Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
 Vue.util.defineReactive(cuentaBack, 'territorios', cuentaBack.territorios)
 Vue.util.defineReactive(cuentaBack, 'preferenciaSaltada', cuentaBack.preferenciaSaltada)
+Vue.util.defineReactive(cuentaBack, 'intentaContactar', cuentaBack.intentaContactar)
 // Vue.util.defineReactive(cuentaBack, 'sinConexion', cuentaBack.sinConexion)
 
 export default function ({ app }, inject) {

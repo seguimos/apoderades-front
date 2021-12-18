@@ -23,7 +23,7 @@
 				a-icon(type="team")
 				span.texto Apoderados
 
-		a-sub-menu(v-if="$usuario")
+		a-sub-menu(v-if="$usuario && $dev")
 			n-link.submenu-title-wrapper(slot="title" to="/app/locales")
 				a-icon(type="book")
 				span.texto Por integrar
@@ -41,7 +41,7 @@
 			a-menu-item(key="resumen-territorial")
 				n-link.link(to="/app/locales") Resumen Territorial
 			a-menu-item(key="asignar-apoderades")
-				n-link.link(to="/app/locales/asignar") Asignar Apoderades
+				n-link.link(to="/app/locales/asignar") Designar Apoderades
 
 </template>
 
@@ -128,11 +128,11 @@ $alturaMenu: 5em
 				.iconoAprueboDignidad
 					+bgcon
 					background-image: url('/logos/apruebo dignidad icono.svg')
-					$lado: 3.8em
+					$lado: 2.8em
 					height: $lado
 					width: $lado
 					position: relative
-					top: 400%
+					top: 310%
 					left: 50%
 					transform: translateX(-50%, -50%)
 					animation: rotar 30s linear infinite

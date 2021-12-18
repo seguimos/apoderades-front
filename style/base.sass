@@ -4,8 +4,6 @@
 @import '@style/paleta'
 @import '@style/utils'
 // ANT Reset
-.ant-btn-primary
-	border-width: 0
 *
 	margin: 0
 	padding: 0
@@ -42,6 +40,13 @@ a
 .black
 	+fwbb
 
+.db
+	display: block
+.dn
+	display: none
+.dib
+	display: inline-block
+
 =flexCombinaciones
 	&.ffrn
 		flex-flow: row nowrap
@@ -72,13 +77,52 @@ a
 	flex: auto 1 1
 .f00
 	flex: auto 0 0
+.f01
+	flex: auto 0 1
+.f10
+	flex: auto 1 0
+
+.tac
+	text-align: center
+.tal
+	text-align: left
+.tar
+	text-align: right
+
+.mt1em
+	margin-top: 1em
+.mb1em
+	margin-bottom: 1em
+.my1em
+	margin-top: 1em
+	margin-bottom: 1em
+.ml1em
+	margin-left: 1em
+.mr1em
+	margin-right: 1em
+.mx1em
+	margin-left: 1em
+	margin-right: 1em
+
+.mt05em
+	margin-top: .5em
+.mb05em
+	margin-bottom: .5em
+.ml05em
+	margin-left: .5em
+.mr05em
+	margin-right: .5em
+
+.usn
+	user-select: none
 
 .wf
 	width: 100%
 
-h1, h2, h3, h4, h5
-	color: $azul2
-	margin-top: 20px
+h1, h2, h3, h4, h5, h6
+	// color: $azul2
+	// margin-top: 20px
+	margin: 0
 
 // ant-style dropdown hack
 .ant-select-dropdown-menu-item
@@ -89,9 +133,15 @@ h1, h2, h3, h4, h5
 	&.w100
 		display: block !important
 
+.pointerNone
+	pointer-events: none
+
 .ant-btn
 	&.w100
 		width: 100%
+	&.multilinea
+		white-space: normal
+		height: auto
 	//&.casiBpStyle
 	+bold
 	//font-size: 1.2em
@@ -102,20 +152,10 @@ h1, h2, h3, h4, h5
 		&.azul
 			color: white
 			background-color: $azul1
+			border-color: darken($azul1, 3%)
 		&.verde
 			color: $petroleo1
 			background-color: $verde3
-
-		// margin: 0 auto
-		// cursor: pointer
-		// text-transform: uppercase
-		// padding: .5em 1.3em
-		// border-radius: 4px
-		// background-color: black
-		// color: white
-		// font-weight: 900
-		// +compu
-		// 	padding: .7em 1.5em
 
 .acciones
 	.boton
@@ -165,3 +205,11 @@ h1, h2, h3, h4, h5
 		font-size: 2em
 	.texto
 		margin-top: 2em
+
+.estadisticas
+	background-color: white
+	+radio
+	padding: .5em
+	text-align: center
+	.ant-statistic
+		flex: auto 0 0
