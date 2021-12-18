@@ -8,29 +8,44 @@
 				.item Mesas local {{ mesasLen }}
 				.item Mesas cerradas {{ mesasCerradasLen }}
 		.mesasCerradas
-			table.contenedorMesas(v-if="local.mesasCerradas")
-				tr.mesa(v-for="(mesa, i) in local.mesasCerradas" v-if='mesa')
-					tr.titulo Mesa {{ mesa.mesa }}
-					tr.contenedorGrupo
-						th.grupomesa
-							td.item Apod
-							td.item Boric
-							td.item Kast
-							td.item Nulos
-							td.item Blancos
-							td.item Acta
-							td.item Confirm
+			.contenedorMesas(v-if="local.mesasCerradas")
 
-						tr.grupomesa(v-for="(conteo, index) in mesa.conteo")
-							td.item {{ index }}
-							td.item {{ conteo.votos.Boric }} 
-							td.item {{ conteo.votos.Kast }}
-							td.item {{ conteo.votos.nulos }}
-							td.item {{ conteo.votos.blancos }}
-							td.item #[a.acta(:href="conteo.votos.actaURL" 	target="_blank") Ver acta]
+				.mesa(v-for="(mesa, i) in local.mesasCerradas" v-if='mesa')
+					.titulo Mesa {{ mesa && mesa.mesa }}
 
-							.item(@click="confirmarCierre({ conteo, index, mesaID: mesa.id })") Confirmar
+					.tabla(v-if='mesa.conteo' v-for="(conteo, usuarioID) in mesa.conteo")
+						.seleccionada(v-if="cierresSeleccionados, usuarioID") incluidooo
+						.contenedorGrupo.flex.jcsa
+							.item 
+								.tipo.fwb Boric
+								.valor {{ conteo.votos.Boric }} 
+							.item 
+								.tipo.fwb Kast
+								.valor {{ conteo.votos.Kast }}
+							.item 
+								.tipo.fwb Nulos
+								.valor {{ conteo.votos.nulos }}
+							.item 
+								.tipo.fwb Blancos
+								.valor {{ conteo.votos.blancos }}
+							
+						.contenedorGrupo.flex.jcsb
+							.item 
+								//- .tipo  Apod
+								.valor {{ usuarioID }}
+							.item 
+								//- .tipo  Acta
+								.valor(@click="verActa(conteo.votos.actaURL)") Ver acta
+							.item 
+								//- .tipo  Confirm
+								.valor(@click="confirmarCierre({ conteo, usuarioID, mesaID: mesa.id })") seleccionar
+								//.valor 
+									a-radio
+						
 
+	a-modal.modal( v-model="visible" @ok="handleOk")
+		.contenido(v-if="actaURL")
+			img(:src="actaURL")
 
 
 		
@@ -47,11 +62,13 @@ export default {
 				mesas: [],
 				apoderados: [],
 				apoderadoGeneral: '',
-				mesasCerradas: []
+				mesasCerradas: [],
 			},
-
+			cierresSeleccionados: [],
 			abrirModalReportes: null,
-			modificandoAvatar: null
+			modificandoAvatar: null,
+			visible: null,
+			actaURL: null
 		}
 	},
 	
@@ -78,22 +95,49 @@ export default {
 			const region = this.$route.params.region
 			const localId = this.$route.params.localId
 			const response = await this.$cuentaBack.obtenerLocal({ region, localId })
-			this.local.nombre = response.local.nombre
-			this.local.apoderadoGeneral = 'Gabriel Boric'
-			this.local.mesas = response.local.mesas
+			const {local} = response
+			local.mesasCerradas = this._.filter(response.local.mesas, m => !this._.isEmpty(m.conteo))
 
-			this.local.mesasCerradas = this._.filter(response.local.mesas, 'conteo')
-			console.log('mesasCerradas', this.local.mesasCerradas)
-
-			this.local.apoderados = response.local.apoderades.map(apo => ({
-				...apo,
-				nombre: `usuarioID: ${apo.usuarioID}`
-			}))
+			this.local = local
 		},
-		confirmarCierre ({ conteo, index, mesaID }) {
-			console.log('confirmarCierre', {  conteo, index, mesaID })
+		confirmarCierre ({ conteo, usuarioID, mesaID }) {
+			console.log('confirmarCierre', {  conteo, usuarioID, mesaID })
+			this.cierresSeleccionados[mesaID] = usuarioID
+		},
+		confirmarCierrex ({ conteo, usuarioID, mesaID }) {
+			console.log('confirmarCierre', {  conteo, usuarioID, mesaID })
+			const seleccionado = { usuarioID, mesaID }
+			const cierre = this.cierresSeleccionados
+			const incluido = this._.find(cierre, ['mesaID', mesaID])
+			if (!incluido || this._.isEmpty(incluido)) {
+				console.log('No esta incluido')
+				cierre.push(seleccionado)
+				return
+			}
+			if (incluido.mesaID === mesaID && incluido.usuarioID === usuarioID) { console.log('Está incluido', incluido)
+			 return}
+			else {
+				const index = this._.findIndex(cierre, { mesaID })
+				console.log('index', index)
+				const eliminado = cierre.slice(index + 1)
+				const nuevoscierresSeleccionados = eliminado.push(seleccionado)
+				this.cierresSeleccionados = nuevoscierresSeleccionados
+				
+				console.log('eliminado', eliminado)
+				console.log('eliminado-cierre', cierre)
+			}
+			console.log('cierresSeleccionados', this.cierresSeleccionados)
 			
-		}
+		},
+		verActa (url) {
+			this.actaURL = url
+			this.visible = !this.visible
+		},
+		handleOk (e) {
+			console.log(e);
+			this.visible = false;
+		},
+
 		 
 	}
 }
@@ -109,11 +153,12 @@ export default {
 		.contenedorMesas
 			// display: flex
 			// flex-flow: row wrap
-			width: 100%
+			// width: 100%
+
 			.mesa
-				border: 1px solid rgba(0, 0, 0, .5)
+				border: 1px dotted rgba(0, 0, 0, .5)
 				border-radius: 10px
-				margin: 1em
+				margin: 1em 0
 				padding: .3em
 				.titulo
 					font-size: 1.1rem
@@ -124,35 +169,31 @@ export default {
 					display: flex
 					flex-flow: column nowrap
 					width: 100%
-					.grupomesa
-						// border: 1px solid rgba(0, 0, 0, .5)
-						// border-radius: 10px
-						// padding: .5em
-						// margin: 1.3em 0
-						display: flex
-						flex-flow: row wrap
-						width: 100%
-						justify-content: space-between
-						align-items: center
-						position: relative
-						.fecha
-							position: absolute
-							top: -1.4em
-							right: 1em
-							font-size: 1.1rem
-						.item
-							padding: .5em
-							flex: 14.28% 0 1
-							.acta
-								font-weight: 700
-								font-size: 1rem
-								padding-bottom: .5em
-						.confirmar
-							text-align: center
-							color: rgba(186, 0, 0, 1)
-							font-size: 1.1rem
+				.tabla
+					border-top: 1px solid rgba(0, 0, 0, .4)
+					// &:nth-child(1)
+					// 	border-top: 3px solid green 
+						
+				.contenedorGrupo
+					// padding: .2em 0
+
+					.item
+						padding: .5em
+						flex: 14.28% 0 1
+						.acta
+							font-weight: 700
+							font-size: 1rem
+							padding-bottom: .5em
+					.confirmar
+						text-align: center
+						color: rgba(186, 0, 0, 1)
+						font-size: 1.1rem
 				
-				
+.modal
+	.contenido
+		img
+			width: 100%
+			padding-top: 1em
 
 	
 </style>
