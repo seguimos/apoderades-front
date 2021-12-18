@@ -128,11 +128,11 @@ $alturaMenu: 5em
 				.iconoAprueboDignidad
 					+bgcon
 					background-image: url('/logos/apruebo dignidad icono.svg')
-					$lado: 3.8em
+					$lado: 2.8em
 					height: $lado
 					width: $lado
 					position: relative
-					top: 400%
+					top: 310%
 					left: 50%
 					transform: translateX(-50%, -50%)
 					animation: rotar 30s linear infinite
