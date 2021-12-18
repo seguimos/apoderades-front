@@ -22,7 +22,7 @@
 			.local(v-if="['general', 'mesa'].includes(asignacion.capa)")
 				.nombre {{_.get(asignacion, ['local','nombre'], '').toLowerCase()}}
 				.direccion(v-if="!sinDireccion") {{_.get(asignacion, ['local', 'direccion'])}}
-		.zonaAcciones.f00
+		.zonaAcciones.f00(v-if="!sinMenu")
 			a-button(@click="cambiarVisibilidad"
 				shape="circle" 
 				:icon="activa ? 'close' : 'more'")
@@ -78,6 +78,7 @@ export default {
 		activada: { type: Boolean },
 		sinDireccion: { type: Boolean },
 		sinIcono: { type: Boolean },
+		sinMenu: { type: Boolean },
 		usuarioID: {
 			type: String,
 			required: false,

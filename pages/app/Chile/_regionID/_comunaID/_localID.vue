@@ -18,6 +18,8 @@
 		//- b Local
 		//div {{local}}
 
+		b puedeDesignarYHabilitarApoderadoMesa {{puedeDesignarYHabilitarApoderadoMesa}}
+
 		h2 Apoderados
 		.zonaApoderades
 			h3 Asignados
@@ -52,6 +54,10 @@
 								.asignacion(v-for="terr in apoderade.territoriosAsignados")
 									miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="usuarioID" mostrarDesasignar sinDireccion sinIcono @asignacionEliminada="cargarLocal")
 
+							.acciones(v-if="puedeDesignarYHabilitarApoderadoMesa")
+								.accion
+									a-button.boton.w10(type="dashed" @click="$cuentaBack.obtenerDatosDeContacto({regionID, comunaID, localID, usuarioID})") Contactar 💬
+
 
 
 			h3 Votan aquí y no son apoderados en otro local
@@ -85,6 +91,9 @@
 										type="info" @click="$message.warning('Pronto')") Designar Apoderado General
 								div.accion(v-if="puedeDesignarYHabilitarApoderadoMesa")
 									a-button.boton.w100(type="primary" @click="designarApoderadeMesa(usuarioID)") Designar Apoderado de mesa
+
+								.accion(v-if="puedeDesignarYHabilitarApoderadoMesa")
+									a-button.boton.w100(type="dashed" @click="$cuentaBack.obtenerDatosDeContacto({regionID, comunaID, localID, usuarioID})") Contactar 💬
 								
 
 
@@ -174,7 +183,16 @@ export default {
 				})
 				return !tieneAlgunaAsignacion
 			})
-		}
+		},
+		puedeDesignarApoderadoGeneral () {
+			return this.$apoderade.tieneAccesoNacional || this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID) || this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID)
+		},
+		puedeDesignarYHabilitarApoderadoMesa () {
+			return this.$apoderade.tieneAccesoNacional || 
+				this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID) ||
+				this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID) || 
+				this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID)
+		},
 	},
 	mounted () {
 		// if (this._.isEmpty(this.local)) 
@@ -188,12 +206,6 @@ export default {
 		switchDelColapso (usuarioID) {
 			if (this.apoderadeExtendide === usuarioID) this.apoderadeExtendide = false
 			else this.apoderadeExtendide = usuarioID
-		},
-		puedeDesignarApoderadoGeneral () {
-			return this.$apoderade.tieneAccesoNacional || this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID) || this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID)
-		},
-		puedeDesignarYHabilitarApoderadoMesa () {
-			return this.$apoderade.tieneAccesoNacional || this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID) || this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID) || this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID)
 		},
 		async designarApoderadeMesa (usuarioID) {
 			const fx = 'designarApoderadeMesa'
