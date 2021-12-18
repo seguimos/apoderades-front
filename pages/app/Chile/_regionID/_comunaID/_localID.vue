@@ -118,10 +118,18 @@
 						.nombre {{mesa.nombre}}
 						a-button.bw0(shape="circle" icon="more" ghost)
 					.conteo
-						.boric 🌳 1000
-						.kk 💩 0
-						.nulos ␀ 0 
-						.blancos ◽️ 0
+							.item.boric
+								.nombre Boric 
+								.valor -
+							.item.kk
+								.nombre Kast 
+								.valor -
+							.item.nulos
+								.nombre Nulos 
+								.valor -
+							.item.blancos
+								.nombre Blancos 
+								.valor -
 
 
 
@@ -371,6 +379,15 @@ export default {
 						+fwb
 				.conteo
 					padding: .5em
+					.item
+						display: flex
+						align-items: center
+						.nombre
+							text-align: right
+							flex: 5em 0 0
+						.valor	
+							flex: auto 1 1
+							text-align: center
 				.conteox
 					display: flex
 					justify-content: center

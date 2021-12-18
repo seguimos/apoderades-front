@@ -154,6 +154,7 @@ const cuenta = {
 			return tokenAutofirmado
 		} catch (e) {
 			console.error(fx, e)
+			cuenta.salir()
 		}
 	},
 
