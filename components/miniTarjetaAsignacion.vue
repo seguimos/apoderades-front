@@ -1,14 +1,9 @@
 <template lang="pug">
 .miniTarjetaAsignacion.asignacion(v-if="asignacion" :class="{activa}")
-	.encabezado(@click="cambiarVisibilidad")
-		.acciones(v-if="!sinIcono")
-			//.paraMapa(v-if="['mesa', 'general'].includes(asignacion.capa)")
+	.encabezado.flex.aic.jcsb
+		.acciones.f11(v-if="!sinIcono")
 			.icono 🔖
-			
-			//a-popconfirm(v-if="mostrarDesasignar &&puedeEliminarAsignacion" title="Eliminar asignación?" ok-text="Eliminar" cancel-text="No" placement="topRight" @confirm="$emit('desasignarTerritorio')")
-				.icono ❌
-				div(slot="content")
-		.info
+		.info.f11
 			.rol
 				span(v-if="asignacion.capa === 'regional'") Coordinación Regional
 				span(v-else-if="asignacion.capa === 'comunal'") Coordinación Comunal
@@ -27,11 +22,13 @@
 			.local(v-if="['general', 'mesa'].includes(asignacion.capa)")
 				.nombre {{_.get(asignacion, ['local','nombre'], '').toLowerCase()}}
 				.direccion(v-if="!sinDireccion") {{_.get(asignacion, ['local', 'direccion'])}}
+		.zonaAcciones.f00
+			a-button(@click="cambiarVisibilidad"
+				shape="circle" 
+				:icon="activa ? 'close' : 'more'")
+
 	transition
 		.contenido(v-if="activa") 
-
-			.iconoCerrador.flex.jcc.aic
-				.icono.cerrar(@click="cambiarVisibilidad") 𐢫
 
 			.irATerritorio
 
@@ -183,12 +180,14 @@ export default {
 					order: -1
 					+fwn
 					// font-size: 1.1em
+	.zonaAcciones
+		padding-left: 1em
 	.local
 		.nombre
 			opacity: 1
 			text-transform: capitalize
 			+fwn
-			font-size: 1.1em
+			// font-size: 1.1em
 		.direccion
 			opacity: .8
 			+fwl
@@ -198,11 +197,10 @@ export default {
 	border-radius: 4px
 	transition: all .3s ease
 	padding: 0
+	.encabezado
+		transition: all .3s ease
 	.contenido
-		// margin: 0.3em
-		border-radius: inherit
-		background-color: white
-		padding: 1em
+		padding: .5em
 		transition: all .3s ease
 		margin-top: .3em
 		+saliendo
@@ -222,9 +220,11 @@ export default {
 	.ant-btn
 		margin-top: .5em
 	&.activa
-		padding: .3em
+		// padding: .5em
 		background-color: transparentize($azul1, .7)
 		margin-bottom: 0.5em
+		.encabezado
+			padding: 1em
 		// color: white
 		//border-color: #566
 </style>

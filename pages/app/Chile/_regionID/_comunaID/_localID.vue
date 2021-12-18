@@ -22,14 +22,23 @@
 		.zonaApoderades
 			h3 Asignados
 			.apoderades
+				.tac(v-if="_.isEmpty(apoderadesAsignados)")
+					| --- Vacío ---
 				
-				.apoderade(v-for="(apoderade, usuarioID) in apoderadesAsignados" :class="{ extendide: apoderadeExtendide === usuarioID }" )
-					.contenido(@click="switchDelColapso(usuarioID)")
-						.zonaAvatar
-							.avatar(:class="{ esApoGeneral: apoderade.esApoGeneral}") {{_.get(apoderade, ['nombre', 0])}}
-						.zonaInfo
+				.apoderade(v-else v-for="(apoderade, usuarioID) in apoderadesAsignados" :class="{ extendide: apoderadeExtendide === usuarioID }" :key="`apo-${usuarioID}`")
+					.contenido
+						.zonaAvatar.f00
+							.avatar(@click="switchDelColapso(usuarioID)"
+								:class="{ esApoGeneral: apoderade.esApoGeneral}") {{_.get(apoderade, ['nombre', 0])}}
+						.zonaInfo.f11
 							.esApoderadoGeneral(v-if="_.some(apoderade.asignaciones, a => a.capa === 'general' && a.localID === localID)") Apoderado general
 							span.nombre {{apoderade.nombre}} {{apoderade.apellido}}
+						.zonaAcciones.f00
+							a-button(@click="switchDelColapso(usuarioID)"
+								shape="circle" 
+								:icon="apoderadeExtendide === usuarioID ? 'close' : 'more'")
+
+
 					transition.elColapso
 						.colapsable(v-if="apoderadeExtendide === usuarioID")
 							
@@ -41,28 +50,27 @@
 										
 			h3 Votan aquí y no son apoderados en otro local
 			.apoderades
+				.tac(v-if="_.isEmpty(apoderadesDisponibles)")
+					| --- Vacío ---
 				
-				.apoderade(v-for="(apoderade, usuarioID) in apoderadesDisponibles" :class="{ extendide: apoderadeExtendide === usuarioID }" )
-					.contenido(@click="switchDelColapso(usuarioID)")
-						.zonaAvatar
-							.avatar() {{_.get(apoderade, ['nombre', 0])}}
-						.zonaInfo
+				.apoderade(v-else v-for="(apoderade, usuarioID) in apoderadesDisponibles" :class="{ extendide: apoderadeExtendide === usuarioID }" :key="`apo-${usuarioID}`")
+					.contenido
+						.zonaAvatar.f00
+							.avatar(@click="switchDelColapso(usuarioID)") {{_.get(apoderade, ['nombre', 0])}}
+						.zonaInfo.f11
 							.cercania(v-if="apoderade.territorioPreferencia.localID === localID") Vota en el local
 							.cercania(v-else-if="apoderade.territorioPreferencia.comunaCodigo === comunaID") Vota en la comuna
 							.cercania(v-else-if="apoderade.territorioPreferencia.region === regionID") Vota en la región
 							span.nombre {{apoderade.nombre}} {{apoderade.apellido}}
+						.zonaAcciones.f00
+							a-button(@click="switchDelColapso(usuarioID)"
+								shape="circle" 
+								:icon="apoderadeExtendide === usuarioID ? 'close' : 'more'")
+
 					transition.elColapso
 						.colapsable(v-if="apoderadeExtendide === usuarioID")
-
-
-							//.asignaciones(v-if="!_.isEmpty(apoderade.territoriosAsignados)")
-								.fwb Participa como:
-								br
-								.asignacion(v-for="terr in apoderade.territoriosAsignados")
-									miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="usuarioID" mostrarDesasignar sinDireccion sinIcono @asignacionEliminada="cargarLocal")
 						
 							.acciones
-
 								a-popconfirm.accion(v-if="puedeDesignarApoderadoGeneral" title="Designar apoderado general?" ok-text="Si, A. General" okType="info" cancelType="primary" cancel-text="No" placement="topRight" @confirm="designarApoderadeGeneral(usuarioID)")
 									a-button.boton.w100(type="info") Designar Apoderado General
 									div(slot="content")
@@ -265,6 +273,8 @@ export default {
 				.contenido
 					+radio
 					transition: all .3s ease
+					.zonaAcciones
+						transition: all .3s ease
 				.colapsable
 					width: 100%
 					padding: 0 1em
@@ -281,6 +291,8 @@ export default {
 						background-color: #eee
 						box-shadow: 0 0 .3em rgba(0,0,0,.3)
 						padding: .2em 0
+						.zonaAcciones
+							padding-right: .5em
 					.colapsable
 						// background-color: #ddd
 						padding: 1em
