@@ -60,7 +60,7 @@
 
 							.acciones(v-if="puedeDesignarYHabilitarApoderadoMesa")
 								.accion
-									a-button.boton.w10(type="dashed" @click="$cuentaBack.obtenerDatosDeContacto({regionID, comunaID, localID, usuarioID})") Contactar 💬
+									a-button.boton.w100(type="dashed" @click="$cuentaBack.obtenerDatosDeContacto({regionID, comunaID, localID, usuarioID})") Contactar 💬
 
 
 
