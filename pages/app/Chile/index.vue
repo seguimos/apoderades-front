@@ -1,11 +1,11 @@
 <template lang="pug">
-.root
+.root.anchoComun
 	a-page-header.headerPagina(
 		title="Chile"
 		Xsub-title="País")
 
 
-	.filtros
+	.filtros.mt1em
 		a-input(v-model="busqueda" allow-clear placeholder='Nombre')
 	.regiones
 		.region(v-for="region in regionesFiltradas")

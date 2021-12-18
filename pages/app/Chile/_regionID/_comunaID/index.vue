@@ -1,24 +1,26 @@
 <template lang="pug">
 .root
-	a-breadcrumb(:routes='rutas')
-		template(slot='itemRender' slot-scope='{route, params, routes, paths}')
-			n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
+	.wrapperEncabezado
+		.anchoComun
+			a-breadcrumb(:routes='rutas')
+				template(slot='itemRender' slot-scope='{route, params, routes, paths}')
+					n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
 
-	a-page-header.headerPagina(
-		:title="comuna.nombre"
-		sub-title="Comuna")
+			a-page-header.headerPagina(
+				:title="comuna.nombre"
+				sub-title="Comuna")
 
-		.estadisticas.flex.aic.jcsb(v-if="estadisticas")
-			a-statistic(decimalSeparator="," groupSeparator="." title="Locales" :value="estadisticas.locales")
-			a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" :value="estadisticas.mesas")
-			a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="estadisticas.apoderades")
-
-
+				.estadisticas.flex.aic.jcsb(v-if="estadisticas")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Locales" :value="estadisticas.locales")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" :value="estadisticas.mesas")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="estadisticas.apoderades")
 
 
-	.zonaLocales
+
+
+	.zonaLocales.anchoComun
 		h2 Locales de votación
-		.filtros
+		.filtros.mt1em
 			a-input(v-model="busqueda" allow-clear placeholder='Nombre o dirección')
 		.locales
 			n-link.local(:to="`/app/Chile/${regionID}/${comunaID}/${local.localID}`" 

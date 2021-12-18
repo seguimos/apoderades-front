@@ -1,5 +1,5 @@
 <template lang="pug">
-.appApoderadesIndex
+.appApoderadesIndex.anchoComun
 
 	.wrapperConPasos
 		a-steps(progress-dot :current='paso' direction='vertical')

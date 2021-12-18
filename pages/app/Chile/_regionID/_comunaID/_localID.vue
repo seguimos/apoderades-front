@@ -1,20 +1,22 @@
 <template lang="pug">
 .root(v-if="regionID && comunaID && localID")
-	a-breadcrumb(:routes='rutas')
-		template(slot='itemRender' slot-scope='{route, params, routes, paths}')
-			n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
+	.wrapperEncabezado
+		.anchoComun
+			a-breadcrumb(:routes='rutas')
+				template(slot='itemRender' slot-scope='{route, params, routes, paths}')
+					n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
 
-	a-page-header.headerPagina(
-		:title="local.nombre"
-		sub-title="Local de votación")
+			a-page-header.headerPagina(
+				:title="local.nombre"
+				sub-title="Local de votación")
 
-		.estadisticas.flex.aic.jcsb(v-if="local.estadisticas")
-			a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" :value="local.estadisticas.mesas")
-			a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="local.estadisticas.apoderades")
+				.estadisticas.flex.aic.jcsb(v-if="local.estadisticas")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" :value="local.estadisticas.mesas")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="local.estadisticas.apoderades")
 
 
 
-	.local
+	.local.anchoComun
 		//- b Local
 		//div {{local}}
 
@@ -24,14 +26,16 @@
 		.zonaApoderades
 			h3 Asignados
 
-
-
+			.filtros.mt1em
+				a-input(v-if="!_.isEmpty(apoderadesAsignados)" v-model="busquedaAsignados" allow-clear placeholder='Nombre o apellido')
 
 			.apoderades
 				.tac(v-if="_.isEmpty(apoderadesAsignados)")
 					| --- Vacío ---
+				.tac(v-else-if="_.isEmpty(apoderadesAsignadosFiltrados)" @click="busquedaAsignados = ''")
+					| --- Sin resultados ---
 				
-				.apoderade(v-else v-for="(apoderade, usuarioID) in apoderadesAsignados" :class="{ extendide: apoderadeExtendide === usuarioID }" :key="`apo-${usuarioID}`")
+				.apoderade(v-else v-for="(apoderade, usuarioID) in apoderadesAsignadosFiltrados" :class="{ extendide: apoderadeExtendide === usuarioID }" :key="`apo-${usuarioID}`")
 					.contenido
 						.zonaAvatar.f00
 							.avatar(@click="switchDelColapso(usuarioID)"
@@ -61,16 +65,22 @@
 
 
 			h3 Votan aquí y no son apoderados en otro local
+
+			.filtros.mt1em
+				a-input(v-if="!_.isEmpty(apoderadesDisponibles)" v-model="busquedaDisponibles" allow-clear placeholder='Nombre o apellido')
+
 			.apoderades
 				.tac(v-if="_.isEmpty(apoderadesDisponibles)")
 					| --- Vacío ---
+				.tac(v-else-if="_.isEmpty(apoderadesDisponiblesFiltrados)" @click="busquedaAsignados = ''")
+					| --- Sin resultados ---
 				
-				.apoderade(v-else v-for="(apoderade, usuarioID) in apoderadesDisponibles" :class="{ extendide: apoderadeExtendide === usuarioID }" :key="`apo-${usuarioID}`")
+				.apoderade(v-else v-for="(apoderade, usuarioID) in apoderadesDisponiblesFiltrados" :class="{ extendide: apoderadeExtendide === usuarioID }" :key="`apo-${usuarioID}`")
 					.contenido
 						.zonaAvatar.f00
 							.avatar(@click="switchDelColapso(usuarioID)") {{_.get(apoderade, ['nombre', 0])}}
 						.zonaInfo.f11
-							.cercania(v-if="apoderade.territorioPreferencia.localID === localID") Vota en el local
+							.cercania(v-if="apoderade.territorioPreferencia.localId === localID") Vota en el local
 							.cercania(v-else-if="apoderade.territorioPreferencia.comunaCodigo === comunaID") Vota en la comuna
 							.cercania(v-else-if="apoderade.territorioPreferencia.region === regionID") Vota en la región
 							span.nombre {{apoderade.nombre}} {{apoderade.apellido}}
@@ -96,30 +106,22 @@
 									a-button.boton.w100(type="dashed" @click="$cuentaBack.obtenerDatosDeContacto({regionID, comunaID, localID, usuarioID})") Contactar 💬
 								
 
-
-
-			//h4 Apoderados apoderadesQueVotanAqui
-			//.apoderades
-				.apoderade(v-for="apoderade in apoderadesQueVotanAqui")
-					.contenido
-						.zonaAvatar
-							.avatar() {{_.get(apoderade, ['nombre', 0])}}
-						.zonaInfo
-							.esApoderadoGeneral(v-if="apoderade.territorioPreferencia.localID === localID") Apoderado general
-							span.nombre {{apoderade.nombre}} {{apoderade.apellido}}
-					.colapsado
-
 		br
 		br
 		br
 		br
 		br
-		.zonaMesas
+		.zonaMesas(v-if="!$dev")
 			h3 Mesas
 			.WIP
 				.icono 🦌🌾🌳 🚴🏽🌻🌳🚴🏽🐧
 				.texto Pronto disponible
-			.mesas(v-if="$dev")
+
+		.zonaMesas(v-if="$dev")
+			h3 Mesas
+			
+
+			.mesas
 				.mesa(v-for="(mesa, mesaID) in local.mesas")
 					b {{mesa.mesa}}
 
@@ -129,7 +131,10 @@
 export default {
 	data () {
 		return {
-			apoderadeExtendide: null
+			apoderadeExtendide: null,
+			busquedaAsignados: '',
+			busquedaDisponibles: '',
+			busquedaMesa: ''
 		}
 	},
 	computed: {
@@ -166,13 +171,14 @@ export default {
 				_.some(apoderade.territoriosAsignados || [], terr => terr.localId === this.local.localID)
 			)
 		},
-		apoderadesQueVotanAqui () {
+		apoderadesAsignadosFiltrados () {
 			const _ = this._
-			if (_.isEmpty(this.apoderades)) return {}
-			return _.pickBy(this.apoderades, apoderade => {
-				const localVotacion = _.get(apoderade, 'territorioPreferencia.localId')
-				return localVotacion && localVotacion === this.local.localID
-			})
+			const busqueda = this.$p(this.busquedaAsignados)
+			if (_.isEmpty(busqueda)) return this.apoderadesAsignados
+			return _.pickBy(this.apoderadesAsignados, apoderade => 
+				this.$p(apoderade.nombre).includes(busqueda) ||
+				this.$p(apoderade.apellido).includes(busqueda)
+			)
 		},
 		apoderadesDisponibles () {
 			const _ = this._
@@ -183,6 +189,15 @@ export default {
 				})
 				return !tieneAlgunaAsignacion
 			})
+		},
+		apoderadesDisponiblesFiltrados () {
+			const _ = this._
+			const busqueda = this.$p(this.busquedaDisponibles)
+			if (_.isEmpty(busqueda)) return this.apoderadesDisponibles
+			return _.pickBy(this.apoderadesDisponibles, apoderade => 
+				this.$p(apoderade.nombre).includes(busqueda) ||
+				this.$p(apoderade.apellido).includes(busqueda)
+			)
 		},
 		puedeDesignarApoderadoGeneral () {
 			return this.$apoderade.tieneAccesoNacional || this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID) || this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID)

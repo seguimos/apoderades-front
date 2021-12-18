@@ -1,5 +1,5 @@
 <template lang="pug">
-.paginaMiPerfil.anchoMovil
+.paginaMiPerfil.anchoComun
 
 	.apoderade(v-if="$apoderade")
 		.miniCabecera

@@ -72,12 +72,18 @@ export default {
 .icono
 	font-size: 4em
 .conectado
-	width: 900px
-	max-width: 100%
-	margin: 0 auto
-	.contenido
-		flex: auto 1 1
-		padding: 2em
+	// .contenido
+	&::v-deep
+		.anchoComun
+			width: 600px
+			max-width: 100%
+			margin: 0 auto
+			flex: auto 1 1
+			padding: 2em
+
+		.wrapperEncabezado
+			background-color: #f5f5f5
+			//.anchoComun
 
 .transicionesDentro
 	> div

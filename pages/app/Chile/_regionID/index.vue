@@ -1,24 +1,26 @@
 <template lang="pug">
 .root
-	a-breadcrumb(:routes='rutas')
-		template(slot='itemRender' slot-scope='{route, params, routes, paths}')
-			n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
+	.wrapperEncabezado
+		.anchoComun
+			a-breadcrumb(:routes='rutas')
+				template(slot='itemRender' slot-scope='{route, params, routes, paths}')
+					n-link(:to="`/${paths.join('/')}`") {{route.breadcrumbName}}
 
-	a-page-header.headerPagina(
-		:title="region.nombreCompleto"
-		sub-title="Región")
-		
-		.estadisticas(v-if="estadisticas")
-			a-statistic(decimalSeparator="," groupSeparator="." title="Locales" :value="estadisticas.locales")
-			a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" :value="estadisticas.mesas")
-			a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="estadisticas.apoderades")
+			a-page-header.headerPagina(
+				:title="region.nombreCompleto"
+				sub-title="Región")
+				
+				.estadisticas(v-if="estadisticas")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Locales" :value="estadisticas.locales")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" :value="estadisticas.mesas")
+					a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="estadisticas.apoderades")
 
 	//div
 		a-button.w100(@click="$cuentaBack.localesXRegion(regionID)") Cargar locales de región
 
-	.zonaComunas
+	.zonaComunas.anchoComun
 		h2 Comunas
-		.filtros
+		.filtros.mt1em
 			a-input(v-model="busqueda" allow-clear placeholder='Busca comuna por nombre')
 		.comunas
 			.comuna(v-for="comuna in comunasFiltradas")

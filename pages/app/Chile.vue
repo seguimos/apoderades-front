@@ -9,7 +9,7 @@ export default {
 <style lang="sass" scoped>
 @import '@style/vars'
 .Chile::v-deep
-	.filtros
+	.filtros.mt1em
 		margin-bottom: 2em
 
 </style>
