@@ -8,24 +8,28 @@
 				.item Mesas local {{ mesasLen }}
 				.item Mesas cerradas {{ mesasCerradasLen }}
 		.mesasCerradas
-			.contenedorMesas(v-if="local.mesasCerradas")
-				.mesa(v-for="(mesa, i) in local.mesasCerradas")
-					.titulo Mesa {{ mesa.mesa }}
-					.contenedorGrupo
-						.grupomesa(v-for="(conteo, index) in mesa.conteo")
-							.titulo Cierre:  {{ index }}
-							.conteo
-								.votos Boric 
-									.contador {{ conteo.votos.Boric }}
-								.votos Kast 
-									.contador {{ conteo.votos.Kast }}
-								.votos nulos 
-									.contador {{ conteo.votos.nulos }}
-								.votos blancos
-									.contador {{ conteo.votos.blancos }}
-							.acta Acta de Cierre: #[a.nVotos(:href="conteo.votos.actaURL" 	target="_blank") Ver acta]
-							.fecha Fecha: {{ conteo.fecha}}
-							.confirmar(@click="confirmarCierre({ index, mesaID: mesa.id })") Confirmar cierre
+			table.contenedorMesas(v-if="local.mesasCerradas")
+				tr.mesa(v-for="(mesa, i) in local.mesasCerradas" v-if='mesa')
+					tr.titulo Mesa {{ mesa.mesa }}
+					tr.contenedorGrupo
+						th.grupomesa
+							td.item Apod
+							td.item Boric
+							td.item Kast
+							td.item Nulos
+							td.item Blancos
+							td.item Acta
+							td.item Confirm
+
+						tr.grupomesa(v-for="(conteo, index) in mesa.conteo")
+							td.item {{ index }}
+							td.item {{ conteo.votos.Boric }} 
+							td.item {{ conteo.votos.Kast }}
+							td.item {{ conteo.votos.nulos }}
+							td.item {{ conteo.votos.blancos }}
+							td.item #[a.acta(:href="conteo.votos.actaURL" 	target="_blank") Ver acta]
+
+							.item(@click="confirmarCierre({ conteo, index, mesaID: mesa.id })") Confirmar
 
 
 
@@ -86,8 +90,9 @@ export default {
 				nombre: `usuarioID: ${apo.usuarioID}`
 			}))
 		},
-		confirmarCierre ({ index, mesaID }) {
-			console.log({  index, mesaID })
+		confirmarCierre ({ conteo, index, mesaID }) {
+			console.log('confirmarCierre', {  conteo, index, mesaID })
+			
 		}
 		 
 	}
@@ -102,8 +107,8 @@ export default {
 			font-size: 1.2rem
 	.mesasCerradas
 		.contenedorMesas
-			display: flex
-			flex-flow: row wrap
+			// display: flex
+			// flex-flow: row wrap
 			width: 100%
 			.mesa
 				border: 1px solid rgba(0, 0, 0, .5)
@@ -111,36 +116,42 @@ export default {
 				margin: 1em
 				padding: .3em
 				.titulo
-					font-size: 1rem
+					font-size: 1.1rem
+					font-weight: 700
 					font-style: italic
 					padding-left: .5em
-				.contenedorGrupo
+				//.contenedorGrupo
 					display: flex
-					flex-flow: row wrap
-				.grupomesa
-					border: 1px solid rgba(0, 0, 0, .5)
-					border-radius: 10px
-					padding: .3em
-					margin: 1em
-					.conteo
+					flex-flow: column nowrap
+					width: 100%
+					.grupomesa
+						// border: 1px solid rgba(0, 0, 0, .5)
+						// border-radius: 10px
+						// padding: .5em
+						// margin: 1.3em 0
 						display: flex
 						flex-flow: row wrap
+						width: 100%
 						justify-content: space-between
-						width: 200px
-						padding: 0 1em
-						.votos
-							margin: .2em .5em
+						align-items: center
+						position: relative
+						.fecha
+							position: absolute
+							top: -1.4em
+							right: 1em
+							font-size: 1.1rem
+						.item
 							padding: .5em
-							font-size: 1rem
-							.contador
-								padding: 0 .2em
-								text-align: center
-								font-size: 1.7rem
-					.nVotos 
-						font-weight: 700
-					.acta
-						font-size: 1rem
-						padding-bottom: .5em
+							flex: 14.28% 0 1
+							.acta
+								font-weight: 700
+								font-size: 1rem
+								padding-bottom: .5em
+						.confirmar
+							text-align: center
+							color: rgba(186, 0, 0, 1)
+							font-size: 1.1rem
+				
 				
 
 	

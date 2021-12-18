@@ -6,10 +6,13 @@
 				.iconoAprueboDignidad
 
 	.mensaje
-		h1 Ups!
-		p Este contenido ahora está en otra ubicación
+		h1(v-if="error.statusCode === 404") 404!
+		h1(v-else) Ups!
+
+		div(v-if='$dev') {{error.message}}
+
 		.botones
-			n-link.boton(to='/app') Volver
+			n-link.boton(to='/') Inicio
 </template>
 <script>
 export default {
