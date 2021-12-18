@@ -6,10 +6,10 @@
 				.iconoAprueboDignidad
 
 	.mensaje
-		h1(v-if="error.statusCode === 404") 404!
+		h1(v-if="error && error.statusCode === 404") 404!
 		h1(v-else) Ups!
 
-		div(v-if='$dev') {{error.message}}
+		div(v-if='$dev') {{(error && error.message) || ''}}
 
 		.botones
 			n-link.boton(to='/') Inicio
