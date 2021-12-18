@@ -86,7 +86,7 @@
 
 
 			a-form-model-item.acciones
-				a-button.w100.casiBpStyle(type="primary" @click="asignarTerritorio") Asignar
+				a-button.w100.casiBpStyle(type="primary" @click="asignarTerritorio") Designar
 				a-button.w100.casiBpStyle(@click="$emit('cancelar')" type="dashed") Cancelar
 </template>
 <script>

@@ -2,7 +2,7 @@
 .asignadorTerritorio.anchoMovil
 	.cabecera
 		b Antes de continuar, por favor, indica
-		h1 Tu local de votación 
+		h1 Local en el que votas
 
 	.modosAsignacion
 
@@ -32,10 +32,6 @@
 								//- span.certain-search-item-count {{ comuna.count }} people
 						a-input(ref="local")
 							//a-icon.certain-category-icon(slot='suffix' type='search')
-
-
-				a-form-model-item(has-feedback prop="localID" label="Local de votación")
-					a-input(ref="mesa" v-model="localVotacion.mesa")
 
 				a-form-model-item.acciones
 					a-button.w100.casiBpStyle.verde(type="primary" @click="guardarLocalDeVotacion") Guardar

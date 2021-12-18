@@ -41,7 +41,7 @@
 			a-menu-item(key="resumen-territorial")
 				n-link.link(to="/app/locales") Resumen Territorial
 			a-menu-item(key="asignar-apoderades")
-				n-link.link(to="/app/locales/asignar") Asignar Apoderades
+				n-link.link(to="/app/locales/asignar") Designar Apoderades
 
 </template>
 

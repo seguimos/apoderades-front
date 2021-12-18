@@ -63,7 +63,7 @@ export default {
 			const busqueda = this.$p(this.busqueda)
 			return _.orderBy(_.filter(Object.values(this.comunas), c => p(c.nombre).includes(busqueda)), c => c.nombre)
 		},
-		puedeAsignarCoordinacionRegional () {
+		puedeDesignarCoordinacionRegional () {
 			return this.$apoderade.tieneAccesoNacional
 		},
 	},
@@ -122,7 +122,7 @@ export default {
 		margin-top: 2em
 		background-color: #eee
 		+radio
-		padding: .5em 1em
+		padding: .5em
 		.nombre
 			+fwb
 			color: black

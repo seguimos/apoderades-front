@@ -8,7 +8,7 @@
 		:title="comuna.nombre"
 		sub-title="Comuna")
 
-		.estadisticas(v-if="estadisticas")
+		.estadisticas.flex.aic.jcsb(v-if="estadisticas")
 			a-statistic(decimalSeparator="," groupSeparator="." title="Locales" :value="estadisticas.locales")
 			a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" :value="estadisticas.mesas")
 			a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="estadisticas.apoderades")
@@ -26,7 +26,7 @@
 				.info
 					h3.nombre 🗳 {{local.nombre}}
 					.direccion {{local.direccion.split(', ').slice(0, -2).join(', ')}}
-				.estadisticas(v-if="local.estadisticas")
+				.estadisticas.flex.aic.jcsa(v-if="local.estadisticas")
 					a-statistic(decimalSeparator="," groupSeparator="." title="Mesas" 
 					:value="_.get(local, ['estadisticas', 'mesas'])")
 					a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" 
@@ -70,7 +70,7 @@ export default {
 				if (p(l.direccion).includes(busqueda)) return true
 			})
 		},
-		puedeAsignarCoordinacionComunal () {
+		puedeDesignarCoordinacionComunal () {
 			return this.$apoderade.tieneAccesoNacional || this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID)
 		}
 	},
@@ -114,10 +114,7 @@ export default {
 </script>
 <style lang="sass" scoped>
 @import '@style/vars'
-.estadisticas
-	display: flex
-	align-items: center
-	justify-content: space-between
+
 
 .comunas
 	.comuna
@@ -137,14 +134,15 @@ export default {
 		margin-top: 2em
 		background-color: #eee
 		+radio
-		padding: .5em 1em
+		padding: .5em
 		.info
-			margin-bottom: .5em
+			margin-bottom: 1em
 			.nombre
 				display: inline-block
 				color: black
 				+fwb
 				margin: 0
 			.direccion
-				opacity: .7
+				opacity: 1
+				
 </style>
