@@ -18,7 +18,7 @@
 		//- b Local
 		//div {{local}}
 
-		b puedeDesignarYHabilitarApoderadoMesa {{puedeDesignarYHabilitarApoderadoMesa}}
+		//- b puedeDesignarYHabilitarApoderadoMesa {{puedeDesignarYHabilitarApoderadoMesa}}
 
 		h2 Apoderados
 		.zonaApoderades
