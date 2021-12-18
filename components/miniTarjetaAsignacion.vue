@@ -33,20 +33,28 @@
 			.irATerritorio
 
 				div(v-if="asignacion.capa === 'regional'" title="Coordinación regional") 
-					a-button.w100(type="info" @click="$router.push(`/app/Chile/${asignacion.regionID}`)") 
-						| Ir a {{_.get(asignacion, 'region.nombre', '').substring(0, 15)}}
+					n-link.db.w100(:to="`/app/Chile/${asignacion.regionID}`" 
+						v-if="$route.path !== `/app/Chile/${asignacion.regionID}`") 
+						a-button.multilinea.w100.pointerNone(type="info" @click.prevent) 
+							| Ir a {{_.get(asignacion, 'region.nombre', '')}}
 				
 				div(v-else-if="asignacion.capa === 'comunal'" title="Coordinación comunal") 
-					a-button.w100(type="info" @click="$router.push(`/app/Chile/${asignacion.regionID}/${asignacion.comunaID}`)")
-						| Ir a {{_.get(asignacion, 'comuna.nombre', '').substring(0, 15)}}
+					n-link.db.w100(:to="`/app/Chile/${asignacion.regionID}/${asignacion.comunaID}`"
+						v-if="$route.path !== `/app/Chile/${asignacion.regionID}/${asignacion.comunaID}`") 
+						a-button.multilinea.w100.pointerNone(type="info" @click.prevent)
+							| Ir a {{_.get(asignacion, 'comuna.nombre', '')}}
 				
 				div(v-else-if="asignacion.capa === 'general'" title="Apoderado general") 
-					a-button.w100(type="info" @click="$router.push(`/app/Chile/${asignacion.regionID}/${asignacion.comunaID}/${asignacion.localID}`)")
-						| Ir a {{_.get(asignacion, 'local.nombre', 'de otro local').substring(0, 15)}}
+					n-link.db.w100(:to="`/app/Chile/${asignacion.regionID}/${asignacion.comunaID}/${asignacion.localID}`"
+						v-if="$route.path !== `/app/Chile/${asignacion.regionID}/${asignacion.comunaID}/${asignacion.localID}`") 
+						a-button.multilinea.w100.pointerNone(type="info" @click.prevent)
+							| Ir a {{_.get(asignacion, 'local.nombre', 'de otro local')}}
 				
 				div(v-else-if="asignacion.capa === 'mesa'" title="Apoderado de mesa") 
-					a-button.w100(type="info" @click="$router.push(`/app/Chile/${asignacion.regionID}/${asignacion.comunaID}/${asignacion.localID}`)")
-						| Ir a {{_.get(asignacion, 'local.nombre', 'de otro local').substring(0, 15)}}
+					n-link.db.w100(:to="`/app/Chile/${asignacion.regionID}/${asignacion.comunaID}/${asignacion.localID}`"
+						v-if="$route.path !== `/app/Chile/${asignacion.regionID}/${asignacion.comunaID}/${asignacion.localID}`") 
+						a-button.multilinea.w100.pointerNone(type="info" @click.prevent)
+							| Ir a {{_.get(asignacion, 'local.nombre', 'de otro local')}}
 
 			a-popconfirm(v-if="mostrarDesasignar && puedeEliminarAsignacion" title="Eliminar asignación?" ok-text="Eliminar" okType="danger" cancel-text="No" placement="topRight" @confirm="desasignarTerritorio()")
 				a-button.boton.w100(type="danger") Desasignar
@@ -217,8 +225,8 @@ export default {
 				font-size: 2em
 				margin-bottom: 1em
 				opacity: .5
-	.ant-btn
-		margin-top: .5em
+	.irATerritorio .ant-btn
+		margin-bottom: .5em
 	&.activa
 		// padding: .5em
 		background-color: transparentize($azul1, .7)

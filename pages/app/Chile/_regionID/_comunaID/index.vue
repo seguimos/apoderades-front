@@ -22,7 +22,8 @@
 			a-input(v-model="busqueda" allow-clear placeholder='Nombre o dirección')
 		.locales
 			n-link.local(:to="`/app/Chile/${regionID}/${comunaID}/${local.localID}`" 
-				v-for="local in _.orderBy(_.values(localesFiltrados), l => l.nombre)")
+				v-for="local in _.orderBy(_.values(localesFiltrados), l => l.nombre)"
+				:key="`local-${local.localID}`")
 				.info
 					h3.nombre 🗳 {{local.nombre}}
 					.direccion {{local.direccion.split(', ').slice(0, -2).join(', ')}}

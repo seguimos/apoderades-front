@@ -42,6 +42,13 @@ a
 .black
 	+fwbb
 
+.db
+	display: block
+.dn
+	display: none
+.dib
+	display: inline-block
+
 =flexCombinaciones
 	&.ffrn
 		flex-flow: row nowrap
@@ -101,9 +108,15 @@ h1, h2, h3, h4, h5, h6
 	&.w100
 		display: block !important
 
+.pointerNone
+	pointer-events: none
+
 .ant-btn
 	&.w100
 		width: 100%
+	&.multilinea
+		white-space: normal
+		height: auto
 	//&.casiBpStyle
 	+bold
 	//font-size: 1.2em
