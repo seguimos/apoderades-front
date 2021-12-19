@@ -144,7 +144,7 @@ export default {
 		},
 
 		async buscarLocales (regionID, comunaID) {
-			await this.$cuentaBack.localesXComuna({ region: regionID, comunaCodigo: comunaID })
+			await this.$cuentaBack.localesXComuna({ regionID, comunaID })
 			this.$nextTick(() => { this.filtrarSugerenciasLocales(this.busquedaLocal) })
 			setTimeout(() => { this.filtrarSugerenciasLocales(this.busquedaLocal) }, 500)
 		},

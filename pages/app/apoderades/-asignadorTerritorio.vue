@@ -304,7 +304,7 @@ export default {
 		},
 
 		async buscarLocales (regionID, comunaID) {
-			await this.$cuentaBack.localesXComuna({ region: regionID, comunaCodigo: comunaID })
+			await this.$cuentaBack.localesXComuna({ regionID, comunaID })
 		},
 		buscarOtroLocal () {
 			this.nuevaAsignacion.localID = null
