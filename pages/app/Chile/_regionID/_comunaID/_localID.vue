@@ -504,7 +504,7 @@ export default {
 				this.mesaExtendida = false
 				return
 			}
-			if (!(this.esApoderadeDelLocal && this.esApoderadeDelLocalYHabilitade)) {
+			if (!this.puedeDesignarYHabilitarApoderadoMesa && !(this.esApoderadeDelLocal && this.esApoderadeDelLocalYHabilitade)) {
 				this.mesaExtendida = false
 				return
 			}
