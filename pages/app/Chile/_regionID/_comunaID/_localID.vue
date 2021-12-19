@@ -148,20 +148,44 @@
 						.valor {{_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length}}
 						.texto Con conteo definitivo
 
-				.accionesAGeneral.mw100.mt1em.pt1em(v-if="esApoderadeGeneralDelLocal")
+				.localCerrado.mt1em(v-if="local.cerrado")
+					.tac.flex.jcc.aic.my1em
+						h3 Local cerrado
+
+					.resultadosLocal.p1em(v-if="resultados")
+						h2.my1rem.tac Resultados
+						.resumenResultados.mt1em
+
+							.item.f11
+								.valor {{resultados.Boric}}
+								.texto Boric
+
+							.item.f11
+								.valor {{resultados.Kast}}
+								.texto Kast
+
+							.item.f11
+								.valor {{resultados.nulos}}
+								.texto Nulos
+
+							.item.f11
+								.valor {{resultados.blancos}}
+								.texto Blancos
+
+				.accionesAGeneral.mw100.mt1em.pt1em(v-else-if="esApoderadeGeneralDelLocal")
 					.p1em
 						h3 Cierre de local
 						p Una vez cerrado no se pueden realizar más modificaciones
 					div.p1em(v-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length === mesas.length ")
-						a-button.db.w100.verde(size="large" type="primary") Cerrar local
+						a-button.db.w100.verde(size="large" type="primary" @click="intentarCerrarLocal") Cerrar local
 
 					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length === mesas.length ")
 						i.db.mb05rem.tac Cada mesa debe tener un conteo marcado válido para cerrar local
-						a-button.db.w100(size="large" type="primary" disabled ) No se puede cerrar local
+						a-button.db.w100(size="large" type="info"  @click="intentarCerrarLocal" ) No se puede cerrar local
 
 					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteos)).length === mesas.length ")
 						i.db.mb05rem.tac Cada mesa debe tener un conteo y además elegir uno en cada mesa
-						a-button.db.w100(size="large" type="primary" disabled ) No se puede cerrar local
+						a-button.db.w100(size="large" type="info"  @click="intentarCerrarLocal" ) No se puede cerrar local
 						
 
 
@@ -207,7 +231,7 @@
 											.nombre nul
 											.valor() {{conteo.votos.nulos}}
 
-						.botones
+						.botones(v-if="!local.cerrado")
 							a-button(
 								@click="switchDelColapsoDeMesa(mesa.mesaID)"
 								shape="circle" 
@@ -268,7 +292,7 @@ export default {
 			busquedaDisponibles: '',
 			busquedaMesa: '',
 
-			mesaExtendida: this.$dev ? "ser72020091" : null
+			mesaExtendida: null
 		}
 	},
 	computed: {
@@ -378,6 +402,25 @@ export default {
 				mesa.orden = _.padStart(mesa.nombre, 6, '0')
 				return mesa
 			}), m => m.orden)
+		},
+		resultados () {
+			const _ = this._
+			const mesas = this.local.mesas || {}
+			return _.reduce(mesas, (resultado, mesa, mesaID) => {
+				const conteoSeleccionado = mesa.conteoSeleccionado
+				const conteoValido = conteoSeleccionado && mesa.conteos && mesa.conteos[conteoSeleccionado]
+
+				if (!conteoValido) return resultado
+				const votos = conteoValido.votos
+				resultado.Boric = resultado.Boric + (votos.Boric || 0)
+				resultado.Kast = resultado.Kast + (votos.Kast || 0)
+				resultado.nulos = resultado.nulos + (votos.nulos || 0)
+				resultado.blancos = resultado.blancos + (votos.blancos || 0)
+
+				resultado.mesasContadas += 1
+
+				return resultado
+			}, {Boric: 0, Kast: 0, nulos: 0, blancos: 0, mesasContadas: 0})
 		}
 	},
 	mounted () {
@@ -408,30 +451,44 @@ export default {
 			this.cargarLocal()
 		},
 		switchDelColapsoDeMesa (mesaID) {
+			if (this.local.cerrado) {
+				this.mesaExtendida = false
+				return
+			}
 			if (this.mesaExtendida === mesaID) this.mesaExtendida = false
 			else this.mesaExtendida = mesaID
 		},
 		async intentarCerrarLocal () {
-			const _ = this._
-			await this.cargarLocal()
-			const mesas = this.mesas()
-			const algunaSinContar = _.some(mesas, mesa => _.isEmpty(mesa.conteos))
-			if (algunaSinContar) {
-				const sinContar = _.filter(mesas, mesa => _.isEmpty(mesa.conteos))
-				const nombres = _.map(sinContar, mesa => mesa.nombre)
-				this.$info({
-					title: 'Hay mesas que no han sido cargadas:',
-					content: `Mesas: ${nombres.join(', ')}`,
-				})
-			}
-			const algunaSinSeleccionar = _.some(mesas, mesa => _.isEmpty(mesa.conteoSeleccionado))
-			if (algunaSinSeleccionar) {
-				const sinSeleccionar = _.filter(mesas, mesa => _.isEmpty(mesa.conteoSeleccionado))
-				const nombres = _.map(sinSeleccionar, mesa => mesa.nombre)
-				this.$info({
-					title: 'Hay mesas cuyo conteo no ha sido validado',
-					content: `Mesas: ${nombres.join(', ')}`,
-				})
+			const fx = 'intentarCerrarLocal'
+			try {
+				const _ = this._
+				await this.cargarLocal()
+				const mesas = this.local.mesas
+				const algunaSinContar = _.some(mesas, mesa => _.isEmpty(mesa.conteos))
+				if (algunaSinContar) {
+					const sinContar = _.filter(mesas, mesa => _.isEmpty(mesa.conteos))
+					const nombres = _.map(sinContar, mesa => mesa.nombre)
+					this.$info({
+						title: 'Hay mesas que no han sido cargadas:',
+						content: `Mesas: ${nombres.join(', ')}`,
+					})
+				}
+				const algunaSinSeleccionar = _.some(mesas, mesa => _.isEmpty(mesa.conteoSeleccionado))
+				if (algunaSinSeleccionar) {
+					const sinSeleccionar = _.filter(mesas, mesa => _.isEmpty(mesa.conteoSeleccionado))
+					const nombres = _.map(sinSeleccionar, mesa => mesa.nombre)
+					this.$info({
+						title: 'Hay mesas cuyo conteo no ha sido validado',
+						content: `Mesas: ${nombres.join(', ')}`,
+					})
+				}
+				const { regionID, comunaID, localID } = this.local
+				const r  = await this.$cuentaBack.cerrarLocal({regionID, comunaID, localID})
+				this.$consolo.log(fx, r)
+				this.cargarLocal()
+			} catch (e) {
+				console.error(fx, e)
+				this.cargarLocal()
 			}
 		},
 		async elegirConteoParaMesa (mesaID, conteoID) {
@@ -544,6 +601,16 @@ export default {
 						.acciones
 							width: 100%
 
+	.resumenResultados
+		display: flex
+		background-color: white
+		padding: 1em
+		+radio
+		.item
+			flex: 5em 1 1
+			text-align: center
+			.valor
+				font-size: 2em
 
 
 	.zonaResumenMesas
@@ -553,17 +620,17 @@ export default {
 			padding: 1em
 			.resumenMesas
 				display: flex
-				align-items: center
+				// align-items: center
 				justify-content: space-around
 				.item
 					display: flex
 					flex-flow: column nowrap
-					justify-content: center
+					// justify-content: center
 					align-items: center
 					text-align: center
 					width: 6em
 					.valor
-						font-size: 3em
+						font-size: 2em
 					// .texto
 			.acciones
 				margin: 2em 0

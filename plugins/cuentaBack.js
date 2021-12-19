@@ -454,7 +454,6 @@ const cuentaBack = {
 			cuentaBack.vm.$message.error('Algo falló')
 		}
 	},
-
 	async localPorID (regionID, localID) {
 		const fx = 'cuentaBack>localPorID'
 		try {
@@ -628,6 +627,24 @@ const cuentaBack = {
 				method: 'post',
 				url: `${cuentaBack.backURL}/conteoSeleccionado/${regionID}/${comunaID}/${localID}/${mesaID}`,
 				data: { conteoID }
+			})
+			if (!r || !r.ok) throw r
+			// cuentaBack.vm.$message.success('Local cargado')
+			consolo.log(fx, 'r', r)
+
+			return r
+		} catch (e) {
+			console.error(fx, e)
+			return e
+		}
+	},
+
+	async cerrarLocal ({regionID, comunaID, localID}) {
+		const fx = 'cerrarLocal'
+		try {
+			const r = await solicitar({
+				method: 'post',
+				url: `${cuentaBack.backURL}/cierreLocal/${regionID}/${comunaID}/${localID}`,
 			})
 			if (!r || !r.ok) throw r
 			// cuentaBack.vm.$message.success('Local cargado')
