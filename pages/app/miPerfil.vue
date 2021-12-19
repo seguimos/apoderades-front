@@ -79,6 +79,9 @@ export default {
 			return this.$cuentaBack.territorioAasignacion(datosApoderade)
 		}
 	},
+	mounted () {
+		window.scrollTo(0, 0)
+	},
 	methods: {
 		async mostrarDatosPersonales () {
 			this.decriptados = await this.$cuenta.decriptarDatosPersonales()

@@ -111,6 +111,9 @@ export default {
 			return alternativas
 		},
 	},
+	mounted () {
+		window.scrollTo(0, 0)
+	},
 	methods: {
 		pasarAEtapa (etapa) { 
 			this.etapa = etapa

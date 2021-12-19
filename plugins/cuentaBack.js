@@ -598,7 +598,7 @@ const cuentaBack = {
 			return r.url
 		} catch (e) {
 			console.error(fx, e)
-			throw `No se ${fx}`
+			return e
 		}
 	},
 
@@ -617,7 +617,26 @@ const cuentaBack = {
 			return r
 		} catch (e) {
 			console.error(fx, e)
-			throw 'No se pudo guardar votos'
+			return e
+		}
+	},
+
+	async elegirConteoParaMesa ({regionID, comunaID, localID, mesaID, conteoID}) {
+		const fx = 'guardarVotos'
+		try {
+			const r = await solicitar({
+				method: 'post',
+				url: `${cuentaBack.backURL}/conteoSeleccionado/${regionID}/${comunaID}/${localID}/${mesaID}`,
+				data: { conteoID }
+			})
+			if (!r || !r.ok) throw r
+			// cuentaBack.vm.$message.success('Local cargado')
+			consolo.log(fx, 'r', r)
+
+			return r
+		} catch (e) {
+			console.error(fx, e)
+			return e
 		}
 	}
 

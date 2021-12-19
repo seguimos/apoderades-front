@@ -20,7 +20,7 @@
 		:confirmLoading="subiendo || modificandoAvatar"
 		:maskClosable="false"
 		dialogClass="editorImagen"
-		:okText="modificandoAvatar ? $t('guardando') : subiendo ? $t('subiendoImagen') : $t('subirImagen')"
+		:okText="modificandoAvatar ? $t('autorizando') : subiendo ? $t('subiendoImagen') : $t('subirImagen')"
 		:okButtonProps="{ props: { disabled: !objectUrl, size: 'large' } }"
 		:cancelButtonProps="{ props: { size: 'large' } }"
 		@cancel="cancelar"
@@ -211,6 +211,7 @@ export default {
 		cancelar () { this.modal = null }
 	},
 	traducciones: {
+		autorizando: { es: 'Autorizando..' },
 		subiendoImagen: { es: 'Subiendo imagen' },
 		seleccionarImagen: { es: 'Seleccionar imagen' },
 		editorImagen: { es: 'Editor imagen' },

@@ -80,6 +80,8 @@ export default {
 			margin: 0 auto
 			flex: auto 1 1
 			padding: 2em
+			+movil
+				padding: 1em
 
 		.wrapperEncabezado
 			background-color: #f5f5f5

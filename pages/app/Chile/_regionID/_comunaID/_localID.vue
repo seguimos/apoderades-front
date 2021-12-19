@@ -102,87 +102,152 @@
 									a-button.boton.w100(type="dashed" @click="$cuentaBack.obtenerDatosDeContacto({regionID, comunaID, localID, usuarioID})") Contactar 💬
 			
 			
-		h2 Mesas
-
-		.zonaMesas
+		.zonaResumenMesas
 			//.WIP(v-if="!$dev")
 				.icono 🌱
 				.texto Pronto disponible
 			.resumenMesasLocal
+				
+				.info.flex.ffcn.aic.jcc.tac.my1em(v-if="$ahora.isBefore($fechaApertura)")
+					a-alert.my1em.tac(type="warning")
+						div(slot="message") 
+							.icono.fz2em.mb05rem 🕖
+							div Esperando hora de apertura de mesas
+							div
+								b {{$fechaApertura.from($ahora)}}
+
+				.info.flex.ffcn.aic.jcc.tac.my1em(v-else-if="$ahora.isBefore($fechaCierre)")
+					a-alert.my1em.tac(type="warning")
+						div(slot="message") 
+							.icono.fz2em.mb05rem 🕠
+							div Cierre de mesas estará disponible
+							div
+								b {{$fechaCierre.from($ahora)}}
+
+				.info.flex.ffcn.aic.jcc.tac.my1em(v-else)
+					a-alert.my1em.tac(type="success")
+						div(slot="message")
+							.icono.fz2em.mb05rem 🗳
+							.fwb.mb05rem Cierre de mesas disponible
+
+							p Los apoderados del local están habilitados para cargar conteos de votos, cargar foto del acta y marcar la mesa cerrada.
+							p Apoderados #[b generales] pueden, una vez contabilizadas las mesas, marcar el local como cerrado. Una vez cerrado no se podrá realizar modificaciones.
+
+
 				.resumenMesas
 
-					.item 
+					.item.f11
 						.valor {{mesas.length}}
 						.texto Mesas
 
-					.item
-						.valor {{_.filter(mesas, m => m.tieneConteo).length}}
+					.item.f11
+						.valor {{_.filter(mesas, m => !_.isEmpty(m.conteos)).length}}
 						.texto Mesas con conteo
-				
-				.info.flex.ffcn.aic.jcc.tac.my1em
-					div(v-if="$ahora.isBefore($fechaApertura)") Esperando apertura de mesas
-						div
-							b {{$fechaApertura.from($ahora)}}
 
-					div(v-if="$ahora.isBefore($fechaCierre)") Cierre de mesas estará disponible
-						div
-							b {{$fechaCierre.from($ahora)}}
-							
-					div.fwb(v-else) Cierre de mesas ya disponible
+					.item.f11
+						.valor {{_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length}}
+						.texto Con conteo definitivo
 
-				.acciones
-					a-button(type="primary") Finalizar jornada electoral
+				.accionesAGeneral.mw100.mt1em.pt1em(v-if="esApoderadeGeneralDelLocal")
+					.p1em
+						h3 Cierre de local
+						p Una vez cerrado no se pueden realizar más modificaciones
+					div.p1em(v-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length === mesas.length ")
+						a-button.db.w100.verde(size="large" type="primary") Cerrar local
+
+					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length === mesas.length ")
+						i.db.mb05rem.tac Cada mesa debe tener un conteo marcado válido para cerrar local
+						a-button.db.w100(size="large" type="primary" disabled ) No se puede cerrar local
+
+					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteos)).length === mesas.length ")
+						i.db.mb05rem.tac Cada mesa debe tener un conteo y además elegir uno en cada mesa
+						a-button.db.w100(size="large" type="primary" disabled ) No se puede cerrar local
+						
+
+
+		.p1em
+		.p1em
+		.zonaMesas
+			h2 Mesas
 
 
 
-			.ejemplos.mesas.mt1em
+			.filtros.mt1em
+				a-input(v-if="!_.isEmpty(mesas)" v-model="busquedaMesa" allow-clear placeholder='Numero')
 
-				.mesa(v-for="mesa in [{mesaID: 'eje000100', mesa: 'Ej100', nombre: 'Ej100'}, {mesaID: 'eje000101', mesa: 'Ej101', nombre: 'Ej101'}, {mesaID: 'eje000102', mesa: 'Ej102', nombre: 'Ej102'}]"
-					:class="{ extendida: mesaExtendida === mesa.mesaID }" :key="`mesa-${mesa.mesaID}`")
+			.mesas.mt1em
+				.mesa(v-for="mesa in mesasFiltradas"
+					:class="{ extendida: mesaExtendida === mesa.mesaID, cerrada: !_.isEmpty(mesa.conteoSeleccionado), conConteo: !_.isEmpty(mesa.conteos) }" :key="`mesa-${mesa.mesaID}`")
 					.contenido.flex.jcsb.aic
-						.info
-							b.nombre {{mesa.nombre}}
-						.estados
-							.estado Tiene conteo
+						.zonaAvatar.f00
+							.avatar(@click="switchDelColapsoDeMesa(mesa.mesaID)") {{mesa.nombre}}
+
+						.estados.f11.mx1rem
+							.aunNo(v-if="$ahora.isBefore($fechaCierre)") Esperando hora de cierre
+							.estado.atencion(v-else-if="_.isEmpty(mesa.conteos)") Aún no se carga conteo
+							.estado.atencion(v-else-if="_.isEmpty(mesa.conteoSeleccionado)") 
+								div.exito Conteo cargado
+								div.atencion Apoderada/o general debe elegir/marcar conteo valido.
+							.estado.atencion(v-else-if="Object.keys(mesa.conteos).length > 1") Conflicto por varios conteos
+							.estado.exito(v-else) Mesa cerrada
+
+							.conteoSeleccionado(v-if="mesa.conteoSeleccionado")
+								.conteo(v-for="conteo in [mesa.conteos[mesa.conteoSeleccionado]]")
+									.votos
+										.item
+											.nombre Bor
+											.valor() {{conteo.votos.Boric}}
+										.item
+											.nombre Kas
+											.valor() {{conteo.votos.Kast}}
+										.item
+											.nombre bla
+											.valor() {{conteo.votos.blancos}}
+										.item
+											.nombre nul
+											.valor() {{conteo.votos.nulos}}
 
 						.botones
-
-							a-button(type="primary"
+							a-button(
 								@click="switchDelColapsoDeMesa(mesa.mesaID)"
 								shape="circle" 
+								:type="mesaExtendida === mesa.mesaID ? 'default' : 'info'"
 								:icon="mesaExtendida === mesa.mesaID ? 'up' : 'down'")
 
 					transition.elColapso
 						.colapsable(v-if="mesaExtendida === mesa.mesaID")
-							CargadorConteoMesa(v-if="esApoderadeDelLocal" :mesa="mesa" :local="local")
-								a-button.w100(slot-scope="{ abrir }" type="primary" @click="abrir") Cargar conteo y cierre de mesa
-							a-button.w100.disabled(v-else type="primary" @click="$message.error('Sólo las/os apoderadas/os del local pueden cargar conteos')") Cargar conteo y cierre de mesa
+
+							.apoGeneral(v-if="esApoderadeGeneralDelLocal")
+								.conteosDeVotos
+									.conteo(v-for="(conteo, usuarioID) in mesa.conteos")
+										.flex.jcsb.aic.w100
+											.votos.f00
+												.item
+													.nombre Bor
+													.valor() {{conteo.votos.Boric}}
+												.item
+													.nombre Kas
+													.valor() {{conteo.votos.Kast}}
+												.item
+													.nombre bla
+													.valor() {{conteo.votos.blancos}}
+												.item
+													.nombre nul
+													.valor() {{conteo.votos.nulos}}
+											.acta.f00
+												a.db.fwb.mx1em(:href="conteo.votos.actaURL" target="_blank") Acta
+											.accion
+												.icono(v-if="mesa.conteoSeleccionado === usuarioID") ✅
+												a-button.p05em.df.aic.jcc.tac.verde(v-else type="primary"
+													@click="elegirConteoParaMesa(mesa.mesaID, usuarioID)") Elegir
 
 
 
+							CargadorConteoMesa(v-if="esApoderadeDelLocal" :mesa="mesa" :local="local" @yaTieneConteo="cargarLocal" @conteoGuardado="cargarLocal")
+								div(slot-scope="{ abrir }")
+									a-button.w100.my1em(v-if="_.isEmpty(mesa.conteos)" type="primary" @click="abrir") Cargar conteo y cierre de mesa
+									a-button.w100.my1em(v-else-if="_.isEmpty(mesa.conteoSeleccionado)" @click="abrir") Cargar otro conteo (Solo si hubo error)
 
-
-
-			//.mesas.anchoComun
-				.mesa(v-for="mesa in mesas")
-					.encabezado.flex.jcsb.aic
-						.info
-							.nombre {{mesa.nombre}}
-						.estados
-							.estado(v-if="$ahora.isBefore($fechaApertura)")
-							.estado(v-else-if="$ahora.isBefore($fechaCierre)") En espera de hora de cierre
-							.estado(v-else-if="mesa.tieneConteo") Tiene conteo
-							.estado(v-else-if="$ahora.isBefore($fechaCierre)") En espera de hora de cierre
-
-						//.botones
-							a-button.db(disabled) Cierre
-							a-button.db(disabled) Cerrada
-							a-button.db(type="primary") Cerrar mesa {{mesa.nombre}}
-
-						.botones
-							a-button.db(v-if="$ahora.isBefore($fechaCierre)" disabled) Cerrar mesa {{mesa.nombre}}
-							a-button.db(v-else-if="!_.isEmpty(mesa.conteos)" disabled) {{mesa.nombre}} Cerrada
-							a-button.db(v-if="$ahora.isBefore($fechaCierre)" type="primary") Cerrar mesa {{mesa.nombre}}
 
 
 	.my1em
@@ -203,7 +268,7 @@ export default {
 			busquedaDisponibles: '',
 			busquedaMesa: '',
 
-			mesaExtendida: 'eje000100'
+			mesaExtendida: this.$dev ? "ser72020091" : null
 		}
 	},
 	computed: {
@@ -281,6 +346,9 @@ export default {
 			return this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID) ||
 				this._.some(this.$apoderade.asignaciones, a => a.capa === 'mesa' && a.localID === this.localID)
 		},
+		esApoderadeGeneralDelLocal () {
+			return this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID)
+		},
 		mesas () {
 			const _ = this._
 			const mesas = this.local.mesas || {}
@@ -291,6 +359,15 @@ export default {
 				mesa.tieneConteo = !_.isEmpty(mesa.conteos)
 				return mesa
 			}), m => m.orden)
+		},
+		mesasFiltradas () {
+			const _ = this._
+			const busqueda = this.$p(this.busquedaMesa)
+			const mesas = this.local.mesas || {}
+			const filtradas = _.filter(mesas, mesa => 
+				this.$p(mesa.nombre).includes(busqueda)
+			)
+			return _.orderBy(filtradas, m => m.orden)
 		},
 		mesasCerradas () {
 			const _ = this._
@@ -334,11 +411,59 @@ export default {
 			if (this.mesaExtendida === mesaID) this.mesaExtendida = false
 			else this.mesaExtendida = mesaID
 		},
+		async intentarCerrarLocal () {
+			const _ = this._
+			await this.cargarLocal()
+			const mesas = this.mesas()
+			const algunaSinContar = _.some(mesas, mesa => _.isEmpty(mesa.conteos))
+			if (algunaSinContar) {
+				const sinContar = _.filter(mesas, mesa => _.isEmpty(mesa.conteos))
+				const nombres = _.map(sinContar, mesa => mesa.nombre)
+				this.$info({
+					title: 'Hay mesas que no han sido cargadas:',
+					content: `Mesas: ${nombres.join(', ')}`,
+				})
+			}
+			const algunaSinSeleccionar = _.some(mesas, mesa => _.isEmpty(mesa.conteoSeleccionado))
+			if (algunaSinSeleccionar) {
+				const sinSeleccionar = _.filter(mesas, mesa => _.isEmpty(mesa.conteoSeleccionado))
+				const nombres = _.map(sinSeleccionar, mesa => mesa.nombre)
+				this.$info({
+					title: 'Hay mesas cuyo conteo no ha sido validado',
+					content: `Mesas: ${nombres.join(', ')}`,
+				})
+			}
+		},
+		async elegirConteoParaMesa (mesaID, conteoID) {
+			const fx = 'elegirConteoParaMesa'
+			try {
+				const { regionID, comunaID, localID } = this.local
+				const r = await this.$cuentaBack.elegirConteoParaMesa({regionID, comunaID, localID, mesaID, conteoID})
+				this.$consolo.log(fx, r)
+				this.cargarLocal()
+			} catch (e) {
+				console.error(fx, e)
+			}
+		}
 	}
 }
 </script>
 <style lang="sass" scoped>
 @import '@style/vars'
+
+.avatar
+	background-color: #eee
+	font-size: 1.4em
+	$lado: 2rem
+	width: $lado
+	height: $lado
+	border-radius: 10rem
+	border: 2px solid transparent
+
+	display: flex
+	justify-content: center
+	align-items: center
+	text-align: center
 .local
 	h2
 		margin-bottom: 1rem
@@ -354,19 +479,6 @@ export default {
 
 				.zonaAvatar
 					margin-right: 1em
-					.avatar
-						background-color: #eee
-						font-size: 1.4em
-						$lado: 2rem
-						width: $lado
-						height: $lado
-						border-radius: 10rem
-						border: 2px solid transparent
-
-						display: flex
-						justify-content: center
-						align-items: center
-						text-align: center
 					&.esApoGeneral
 						border-color: $azul1
 				.zonaInfo
@@ -434,9 +546,7 @@ export default {
 
 
 
-
-	.zonaMesas
-		// +radio
+	.zonaResumenMesas
 		.resumenMesasLocal
 			background-color: #F8f8f8
 			+radio
@@ -451,6 +561,7 @@ export default {
 					justify-content: center
 					align-items: center
 					text-align: center
+					width: 6em
 					.valor
 						font-size: 3em
 					// .texto
@@ -459,22 +570,40 @@ export default {
 				display: flex
 				justify-content: center
 
-
+	.zonaResumenMesas,
+	.zonaMesas
 		.mesas
-			// display: flex
-			// flex-flow: row wrap
-			// justify-content: center
-
-
+			// width: 300px
+			// max-width: 100%
+			// margin: 0 auto
 			.mesa
 				+radio
 				+ .mesa
-					margin-top: 1em
+					margin-top: 2em
+
 				.contenido
 					display: flex
 					align-items: center
 					+radio
 					transition: all .3s ease
+
+					.avatar
+						background-color: #eee
+						font-size: 1.4em
+						$lado: 4rem
+						width: $lado
+						height: $lado
+						border-radius: 10rem
+						border: 2px solid transparent
+
+						display: flex
+						justify-content: center
+						align-items: center
+						text-align: center
+					.atencion
+						color: orangered
+					.exito
+						color: seagreen
 					.zonaAcciones
 						transition: all .3s ease
 				.colapsable
@@ -501,38 +630,36 @@ export default {
 							width: 100%
 
 
+				&.conConteo
+					.avatar
+						border: 2px solid seagreen
+						color: seagreen
+				&.cerrada
+					.avatar
+						background-color: seagreen
+						background-image: none
+						color: white
 
-			//.mesa
-				// flex: 10em 1 0
-				// max-width: 12em
-				// border: 1px solid #777
-				margin: 1em 0
-				+radio
-				text-align: center
-				background-color: transparentize(black, .95)
-				.encabezado
-					padding: .5em 1em
-					// background-color: transparentize(black, .5)
-					// color: white
-					+radio
-					.nombre
-						font-size: 1.2em
-						+fwb
-				.botones
-					border: 1px solid #eee
-				.conteo
-					padding: .5em
-					.item
-						display: flex
-						align-items: center
-						.nombre
-							text-align: right
-							flex: 5em 0 0
-						.valor	
-							flex: auto 1 1
-							text-align: center
-				.conteox
-					display: flex
-					justify-content: center
-					align-items: center
+
+.apoGeneral .conteosDeVotos,
+.conteoSeleccionado
+	.conteo
+		+ .conteo
+			margin-top: 1em
+		.votos
+			display: flex
+			align-items: center
+			.item
+				margin-left: 1em
+				&:first-child
+					margin-left: 0
+				.nombre	
+					+fwb
+					text-transform: uppercase
+				.valor
+					text-align: center
+		.acta
+			display: flex
+			align-items: center
+
 </style>

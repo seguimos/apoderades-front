@@ -79,6 +79,7 @@ export default {
 	},
 	mounted () {
 		if (!this.estadisticas) this.cargarComuna()
+		window.scrollTo(0, 0)
 		// this.cargarLocalesComuna()
 	},
 	methods: {

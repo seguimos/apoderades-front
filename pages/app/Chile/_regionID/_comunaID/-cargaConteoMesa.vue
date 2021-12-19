@@ -1,6 +1,6 @@
 <template lang="pug">
 .rootConteo(v-if="local")
-	slot(v-bind:abrir="()=>(mostrarCargador = true)")
+	slot(v-bind:abrir="()=>(mostrarCargador = true)" maskClosable="false")
 		a-button.w100(@click="()=>(mostrarCargador = true)") Cargar cierre de mesa
 
 	a-modal(v-model="mostrarCargador" centered @cancel="mostrarCargador = false")
@@ -9,8 +9,37 @@
 			h2.titulo.my05rem Mesa {{mesa.nombre}}
 			.subtitulo Conteo de votos 
 
-			.warning(v-if="aceptaIngresarNuevoCierre") Estas editando los #[br]resultados de esta mesa
-		.conteoDeVotos
+
+
+		.conteosDeVotos(v-if="hayConteos && !reescritura")
+			.conteo.p1em(v-for="(conteo, usuarioID) in mesa.conteos")
+				.flex.jcsb.w100
+					.votos.f00
+						.item
+							.nombre Boric
+							.valor() {{conteo.votos.Boric}}
+						.item
+							.nombre Kast
+							.valor() {{conteo.votos.Kast}}
+						.item
+							.nombre blancos
+							.valor() {{conteo.votos.blancos}}
+						.item
+							.nombre nulos
+							.valor() {{conteo.votos.nulos}}
+
+				.pt1em.flex.aic.jcsa
+					.acta.flex.ffcn.jcc.aic
+						.fotoActa(:style="`background-image: url('${conteo.votos.actaURL}')`")
+						a.linkFoto.db.mt05rem(:href="conteo.votos.actaURL" target="_blank") 
+							a-button.db.pointerNone Ver acta
+					.subidor.pl1em(v-for="apoderade in [_.get($store.state.apoderades, [usuarioID])]")
+						.apoderade(v-if="apoderade") 
+							.texto Conteo cargado por 
+							.fwb {{apoderade.nombre}} {{apoderade.apellido}}
+
+
+		.conteoDeVotos(v-else)
 			a-form-model(
 				ref="formulario",
 				:model="formulario"
@@ -52,6 +81,7 @@
 					//- a-input.input(type='text' v-model="formulario.actaURL")
 					.actaCierre.mt1rem
 						CargaImagenS3.zonaCarga.mt-xs(:altura="900" :anchura="600"
+							:modificandoAvatar="obteniendoURLFirmada"
 							ref="cargadorImagen"
 							value="PMprensa"
 							:firmarCarga="firmarCargaActa"
@@ -65,8 +95,22 @@
 										.icono.fz2em 📄
 										.texto Acta cargada correctamente
 
-		.footer.p1em(slot="footer")
-			a-button.w100(type="primary" size="large" @click="enviarFormulario") Enviar cierre de mesa
+		.footer(slot="footer")
+			div(v-if="hayConteos && !reescritura")
+				a-button.w100.db.ha.p05em(type="danger" ghost size="large" @click="reescritura = true") 
+					.fwn Hay un error y 
+					.fwb quiero subir otro conteo
+
+			div(v-else-if="hayConteos")
+				a-button.w100.db.ha.p05em(type="danger" size="large" @click="enviarFormulario") 
+					.fwn Enviar otro cierre de mesa 
+					.fwb de todos modos
+
+			div(v-else)
+				a-button.w100.db(type="primary" size="large" @click="enviarFormulario") Enviar cierre de mesa
+
+			a-button.w100.db.mt1em(type=danger @click="mostrarCargador = false") Salir
+
 
 </template>
 <script>
@@ -79,11 +123,6 @@ export default {
 		mesa: {
 			required: true,
 			type: Object
-		},
-		reescritura: {
-			required: false,
-			type: Boolean,
-			default: false
 		}
 	},
 	data () {
@@ -103,34 +142,16 @@ export default {
 				actaURL: null
 			},
 
-			mesaRecibida: null,
-			votosMesa: null,
-			aceptaIngresarNuevoCierre: null,
-			mensajeError: null,
-			confirmLoading: null,
+			obteniendoURLFirmada: null,
+			urlFirmada: null,
 
-			verActa: null,
-			abrirModal: false,
-			modificandoAvatar: null,
+			reescritura: false
 		}
 	},
 	
 	computed: {
 		regionID () { return this.local.regionID },
 		localID () { return this.local.localID },
-		yaSeCerroLen () { return this.yaSeCerro.length },
-		mesaRecibidaLen () { return this.mesaRecibida.length },
-		yaSeCerro () {
-			const seleccionada = this.formulario.mesaid
-			const cerrada = this._.filter(this.local.mesasCerradas, {'id': seleccionada})
-			const simple = this._.map(cerrada, c => {
-				c.conteo = Object.values(c.conteo)
-			})
-			console.log('cierres', simple)
-
-			if (cerrada === []) return
-			return cerrada
-		},
 		validaCierre () {
 			console.log("validaCierre")
 			return { 
@@ -140,6 +161,9 @@ export default {
 				nulos: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'change', required: true }],
 				actaURL: [{ type: "url", message: 'Debes subir un acta de cierre', trigger: 'change', required: true }],
 			}
+		},
+		hayConteos () {
+			return !this._.isEmpty(this.mesa.conteos)
 		}
 	},
 	methods: {
@@ -158,10 +182,12 @@ export default {
 		async firmarCargaActa () {
 			const { regionID, comunaID, localID } = this.local
 			const mesaID = this.mesa.mesaID
+			this.obteniendoURLFirmada = true
 			const url = await this.$cuentaBack.firmarCargaActa({regionID, comunaID, localID, mesaID})
+			this.urlFirmada = url
 			console.log('urlFirmada', url)
 
-			this.modificandoAvatar = false
+			this.obteniendoURLFirmada = false
 			return url
 		},
 
@@ -174,6 +200,7 @@ export default {
 			this.$refs.formulario.validate()
 		},
 		enviarFormulario () {
+			const reescritura = !!this.reescritura
 			console.log("enviarFormulario", this.formulario)
 			this.$refs.formulario.validate(async valid => {
 				console.log('valid', valid)
@@ -186,37 +213,22 @@ export default {
 				const { regionID, comunaID, localID } = this.local
 				const mesaID = this.mesa.mesaID
 				const votos = this.formulario
-				const enviado = await this.$cuentaBack.guardarVotos({regionID, comunaID, localID, mesaID, votos})
+				const datos = {regionID, comunaID, localID, mesaID, votos}
+				if (reescritura) datos.reescritura = reescritura
+				
+				const enviado = await this.$cuentaBack.guardarVotos(datos)
 
 				if (enviado.ok === 0) {
-					this.mensajeError = this._.get(enviado, "yaContado.mensaje")
-					const mesaRecibida = this._.get(enviado, "yaContado.mesaSeleccionada")
-					this.mesaRecibida = Object.values(mesaRecibida)
-					console.log('this.mesaRecibida', this.mesaRecibida)
-					this.votosMesa = this._.get(this.mesaRecibida, "votos")
-
-					this.abrirModal = true
-				}
-				else {
-					this.aceptaIngresarNuevoCierre = null
-				}
+					if (enviado.error === 'ya tiene conteo') {
+						this.$emit('yaTieneConteo')
+						return
+					}
+					return
+				} 
+				this.$message.success('Conteo guardado')
+				this.$emit('conteoGuardado')
+				this.mostrarCargador = false
 			})	
-		},
-		siQuieroEditar () {
-			this.aceptaIngresarNuevoCierre = true
-			this.handleOk()
-		},
-		handleOk (e) {
-			this.confirmLoading = true;
-			setTimeout(() => {
-				this.abrirModal = false;
-				this.confirmLoading = false;
-			}, 300);
-		},
-		handleCancel (e) {
-			this.abrirModal = false;
-			this.aceptaIngresarNuevoCierre = false
-			this.formulario.mesaid = undefined
 		},
 	}
 }
@@ -341,5 +353,39 @@ export default {
 				background-color: #fff
 				color: rgba(0, 0, 0, 0.5)
 				border: 1px solid rgba(0, 0, 0, 0.5)
+
+
+
+.ant-modal-root::v-deep
+	.conteosDeVotos
+
+		.conteo
+			+ .conteo
+				margin-top: 1em
+			.votos
+				display: flex
+				align-items: center
+				.item
+					margin-left: 1em
+					&:first
+						margin-left: 0
+					.nombre	
+						+fwb
+						text-transform: uppercase
+					.valor
+						text-align: center
+			.acta
+				.fotoActa
+					+bgcov
+					width: .66667em
+					height: 1em
+					font-size: 3em
+					background-color: #eee
+				.linkFoto
+					margin-left: 1em
+
+
+
+
 
 </style>

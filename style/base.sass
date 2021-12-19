@@ -288,13 +288,15 @@ h1, h2, h3, h4, h5, h6
 	text-overflow: unset!important
 	white-space: break-spaces!important
 
+.pointerNone
+	pointer-events: none
+.w100
+	width: 100%
+.mw100
+	max-width: 100%
 .boton
 	&.w100
 		display: block !important
-
-.pointerNone
-	pointer-events: none
-
 .ant-btn
 	&.w100
 		width: 100%
@@ -318,6 +320,7 @@ h1, h2, h3, h4, h5, h6
 	&.verde
 		color: $petroleo1
 		background-color: $verde3
+		border-color: darken($verde3, 3%)
 
 .acciones
 	.boton

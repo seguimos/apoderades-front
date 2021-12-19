@@ -58,7 +58,9 @@ const reloj = {
 	timezone: moment.tz.guess(),
 	fechaCierre,
 	fechaApertura,
-	tiempoParaCierre: moment(fechaCierre).fromNow()
+	tiempoParaCierre: moment(fechaCierre).fromNow(),
+	minutosParaCierre: Math.max(moment(fechaCierre).diff(moment(), 'm'), 0),
+	minutosParaApertura: Math.max(moment(fechaApertura).diff(moment(), 'm'), 0)
 }
 
 function actualizar () {
@@ -66,7 +68,10 @@ function actualizar () {
 	if (!reloj.hoy.isSame(reloj.ahora, 'day')) reloj.hoy = reloj.ahora.startOf('day')
 	const proxMinuto = moment().seconds(0).add(1, 'minute')
 
-	reloj.tiempoParaCierre = moment(fechaCierre).isBefore(reloj.ahora) ? 0 : moment(fechaCierre).fromNow()
+	reloj.tiempoParaCierre = moment(fechaCierre).isBefore(reloj.ahora) ? null : moment(fechaCierre).fromNow()
+	reloj.minutosParaCierre = Math.max(moment(fechaCierre).diff(reloj.ahora, 'm'), 0)
+	reloj.minutosParaApertura = Math.max(moment(fechaApertura).diff(reloj.ahora, 'm'), 0)
+
 	setTimeout(function () { actualizar() }, proxMinuto.diff(reloj.ahora))
 }
 if (process.client) actualizar()
@@ -74,6 +79,8 @@ if (process.client) actualizar()
 Vue.util.defineReactive(reloj, 'ahora', reloj.ahora)
 Vue.util.defineReactive(reloj, 'fechaCierre', reloj.fechaCierre)
 Vue.util.defineReactive(reloj, 'tiempoParaCierre', reloj.tiempoParaCierre)
+Vue.util.defineReactive(reloj, 'minutosParaCierre', reloj.minutosParaCierre)
+Vue.util.defineReactive(reloj, 'minutosParaApertura', reloj.minutosParaApertura)
 Vue.util.defineReactive(reloj, 'hoy', reloj.hoy)
 Vue.util.defineReactive(reloj, 'timezone', reloj.timezone)
 // Vue.prototype.$ahora = reloj.ahora
@@ -90,6 +97,8 @@ export default function () {
 		Object.defineProperty(Vue.prototype, '$fechaApertura', { get () { return reloj.fechaApertura } })
 		Object.defineProperty(Vue.prototype, '$ahora', { get () { return reloj.ahora } })
 		Object.defineProperty(Vue.prototype, '$tiempoParaCierre', { get () { return reloj.tiempoParaCierre } })
+		Object.defineProperty(Vue.prototype, '$minutosParaCierre', { get () { return reloj.minutosParaCierre } })
+		Object.defineProperty(Vue.prototype, '$minutosParaApertura', { get () { return reloj.minutosParaApertura } })
 		Object.defineProperty(Vue.prototype, '$hoy', { get () { return reloj.hoy } })
 		Object.defineProperty(Vue.prototype, '$timezone', { get () { return reloj.timezone } })
 	}
