@@ -50,21 +50,30 @@ Vue.prototype.$moment = moment
 
 // RELOJ
 
+const fechaApertura = moment('2021-12-19T07:00:00-03:00')
+const fechaCierre = moment('2021-12-19T18:00:00-03:00')
 const reloj = {
 	ahora: moment(),
 	hoy: moment().startOf('day'),
-	timezone: moment.tz.guess()
+	timezone: moment.tz.guess(),
+	fechaCierre,
+	fechaApertura,
+	tiempoParaCierre: moment(fechaCierre).fromNow()
 }
 
 function actualizar () {
 	reloj.ahora = moment()
 	if (!reloj.hoy.isSame(reloj.ahora, 'day')) reloj.hoy = reloj.ahora.startOf('day')
 	const proxMinuto = moment().seconds(0).add(1, 'minute')
+
+	reloj.tiempoParaCierre = moment(fechaCierre).isBefore(reloj.ahora) ? 0 : moment(fechaCierre).fromNow()
 	setTimeout(function () { actualizar() }, proxMinuto.diff(reloj.ahora))
 }
 if (process.client) actualizar()
 
 Vue.util.defineReactive(reloj, 'ahora', reloj.ahora)
+Vue.util.defineReactive(reloj, 'fechaCierre', reloj.fechaCierre)
+Vue.util.defineReactive(reloj, 'tiempoParaCierre', reloj.tiempoParaCierre)
 Vue.util.defineReactive(reloj, 'hoy', reloj.hoy)
 Vue.util.defineReactive(reloj, 'timezone', reloj.timezone)
 // Vue.prototype.$ahora = reloj.ahora
@@ -77,14 +86,11 @@ export {
 export default function () {
 	if (!Vue.__reloj__) {
 		Vue.__reloj__ = true
-		Object.defineProperty(Vue.prototype, '$ahora', {
-			get () { return reloj.ahora }
-		})
-		Object.defineProperty(Vue.prototype, '$hoy', {
-			get () { return reloj.hoy }
-		})
-		Object.defineProperty(Vue.prototype, '$timezone', {
-			get () { return reloj.timezone }
-		})
+		Object.defineProperty(Vue.prototype, '$fechaCierre', { get () { return reloj.fechaCierre } })
+		Object.defineProperty(Vue.prototype, '$fechaApertura', { get () { return reloj.fechaApertura } })
+		Object.defineProperty(Vue.prototype, '$ahora', { get () { return reloj.ahora } })
+		Object.defineProperty(Vue.prototype, '$tiempoParaCierre', { get () { return reloj.tiempoParaCierre } })
+		Object.defineProperty(Vue.prototype, '$hoy', { get () { return reloj.hoy } })
+		Object.defineProperty(Vue.prototype, '$timezone', { get () { return reloj.timezone } })
 	}
 }

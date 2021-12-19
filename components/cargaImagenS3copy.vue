@@ -1,45 +1,45 @@
 <template lang="pug">
 .rootCargaImagen
-	slot(v-bind:src="value" v-bind:cargar="seleccionarImagen")
-		a-button(@click="$refs.etiqueta.click()") {{ t('seleccionarImagen') }}
 	.oculto
-		label.conBoton(ref="etiqueta")
+		label.conBoton(ref='etiqueta')
 			input(
-				ref="cargador"
-				type="file"
-				@change="presetupCropper"
-				accept="image/png, image/jpeg"
+				ref='cargador',
+				type='file',
+				@change='presetupCropper',
+				accept='image/*;capture=camera'
 			)
 
+	slot(v-bind:src='value', v-bind:cargar='seleccionarImagen')
+		a-button(color, @click='$refs.etiqueta.click()', dark) Subir acta de cierre
 
 	a-modal(
-		:title="t('editarImagen')"
-		:visible="modal"
-		@ok="cargarImagen"
-		centered
-		:confirmLoading="subiendo || modificandoAvatar"
-		:maskClosable="false"
-		dialogClass="editorImagen"
-		:okText="modificandoAvatar ? t('guardando') : subiendo ? t('subiendoImagen') : t('subirImagen')"
-		:okButtonProps="{ props: { disabled: !objectUrl } }"
-		@cancel="cancelar"
+		title='Cargar pase de movilidad',
+		:visible='modal',
+		@ok='cargarImagen',
+		centered,
+		:confirmLoading='subiendo || modificandoAvatar',
+		:maskClosable='false',
+		dialogClass='editorImagen',
+		:okText='modificandoAvatar ? "Guardando" : subiendo ? "Subiendo Imagen" : "subir Imagen"',
+		:okButtonProps='{ props: { disabled: !objectUrl } }',
+		@cancel='cancelar'
 	)
-		.contenido(:class="{ bloqueado: subiendo }")
-			.mw-100.d-flex.justify-center(v-if="objectUrl")
+		.contenido(:class='{ bloqueado: subiendo }')
+			.mw-100.d-flex.justify-center(v-if='objectUrl')
 				.image-container.elevation-4
-					img.image-preview(ref="source" :src="objectUrl")
+					img.image-preview(ref='source', :src='objectUrl')
 
-			.botonera(v-if="objectUrl")
+			.botonera(v-if='objectUrl')
 				a-button-group
-					a-button(icon @click="resetCropper")
+					a-button(icon, @click='resetCropper')
 						.oicono.resetear
-					a-button(icon @click="girarX")
+					a-button(icon, @click='girarX')
 						.oicono.flipY
-					a-button(icon @click="girarY")
+					a-button(icon, @click='girarY')
 						.oicono.flipX
-					a-button(icon @click="rotateLeft")
+					a-button(icon, @click='rotateLeft')
 						.oicono.girarIzq
-					a-button(icon @click="rotateRight")
+					a-button(icon, @click='rotateRight')
 						.oicono.girarDer
 </template>
 
@@ -97,17 +97,29 @@ export default {
 	mounted () {
 		const vm = this
 		this.valor = this.value || null
-		this.$on('guardado', () => { vm.cerrarModal() })
+		this.$on('guardado', () => {
+			vm.cerrarModal()
+		})
 	},
 	methods: {
 		t (key) {
 			return this.$t(`paginas.perfil.${key}`)
 		},
-		cerrarModal () { this.modal = false },
-		seleccionarImagen () { this.$refs.etiqueta.click() },
-		resetCropper () { this.cropper.reset() },
-		rotateLeft () { this.cropper.rotate(-90) },
-		rotateRight () { this.cropper.rotate(90) },
+		cerrarModal () {
+			this.modal = false
+		},
+		seleccionarImagen () {
+			this.$refs.etiqueta.click()
+		},
+		resetCropper () {
+			this.cropper.reset()
+		},
+		rotateLeft () {
+			this.cropper.rotate(-90)
+		},
+		rotateRight () {
+			this.cropper.rotate(90)
+		},
 		girarX () {
 			this.escalaX = this.escalaX * -1
 			this.cropper.scaleX(this.escalaX)
@@ -165,16 +177,22 @@ export default {
 				imageSmoothingQuality: 'high'
 			})
 			return new Promise(resolve => {
-				canvas.toBlob(blob => { resolve(blob) }, 'image/jpeg', 0.80)
+				canvas.toBlob(
+					blob => {
+						resolve(blob)
+					},
+					'image/jpeg',
+					0.8
+				)
 			})
 		},
 		confirmarImagen () {
-			this.$consolo.log('confirmarImagen')
+			console.log('confirmarImagen')
 			if (!this.canvas) return console.error('No hay canvas')
 			this.$emit('AwsReq', this)
 		},
 		descargarImagen () {
-			this.$consolo.log('descargarImagen')
+			this.$console.log('descargarImagen')
 			return this.blobear().then(blob => {
 				this.$downBlob(blob, 'imagen.jpg')
 			})
@@ -184,29 +202,38 @@ export default {
 				const blob = await this.blobear()
 				if (!blob) throw 'Falta blob!'
 				this.subiendo = true
-				const url = await this.firmarCarga()
+				const url = await this.$cuentaBack.firmarCarga()
 				if (!url) throw 'Falta url!'
 				this.$consolo.log('URL de carga obtenida', url)
 				return fetch(url, {
 					method: 'put',
-					headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'max-age=604800' },
+					headers: {
+						'Content-Type': 'image/jpeg',
+						'Cache-Control': 'max-age=604800'
+					},
 					body: blob
-				}).then(r => {
-					this.$consolo.log('respuesta del put', r)
-					this.valor = `${new URL(url).origin}${new URL(url).pathname}?${Math.round((new Date()).getTime() / 1000)}`
-					this.$emit('subido', this.valor)
-
-					this.subiendo = false
-				}).catch(e => {
-					throw e
 				})
+					.then(r => {
+						this.$consolo.log('respuesta del put', r)
+						this.valor = `${new URL(url).origin}${
+							new URL(url).pathname
+						}?${Math.round(new Date().getTime() / 1000)}`
+						this.$emit('subido', this.valor)
+
+						this.subiendo = false
+					})
+					.catch(e => {
+						throw e
+					})
 			} catch (e) {
 				console.error('Error al cargar imagen')
 				this.$consolo.log(e)
 				this.subiendo = false
 			}
 		},
-		cancelar () { this.modal = null }
+		cancelar () {
+			this.modal = null
+		}
 	}
 }
 </script>
@@ -251,5 +278,5 @@ export default {
 //
 </style>
 <style>
-@import "cropperjs/dist/cropper.css";
+@import 'cropperjs/dist/cropper.css';
 </style>

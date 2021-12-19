@@ -38,7 +38,7 @@
 					a.db.mt1em(:href="`tel:${usuario.telefono}`" target="_blank") 
 						a-button.pointerNone.w100(size="large" type="info") 📞 Llamar por teléfono
 
-					a.db.mt1em(:href="`https://wa.me/${usuario.telefono}?text=Hola, soy ${$usuario.nombre || ''} ${$usuario.apellido || ''}`") 
+					a.db.mt1em(:href="`https://wa.me/${usuario.telefono}?text=Hola, soy ${$usuario.nombre || ''} ${$usuario.apellido || ''}`" target="_blank") 
 						a-button.pointerNone.w100(size="large" type="info") 📱 Whatsapp
 
 		.footer(slot="footer")
@@ -48,7 +48,7 @@
 export default {
 	data () {
 		return {
-			abierto: null
+			abierto: null,
 		}
 	},
 	computed: {

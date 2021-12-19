@@ -582,6 +582,19 @@ const cuentaBack = {
 
 		return url
 	},
+	
+	async firmarCargaActa ({regionID, comunaID, localID, mesaID}) {
+		const url = await solicitar({
+			method: 'post',
+			url: `${cuentaBack.backURL}/actas/acta`,
+			data: {regionID, comunaID, localID, mesaID}
+		})
+			.then(r => r.urlFirmada)
+			.catch(e => console.error('fallo respuesta', e))
+		console.log('firmarCarga', url)
+
+		return url
+	},
 
 	async guardarVotos (region, localID, votos, mesaID, aceptaIngresarNuevoCierre) {
 		const res = await solicitar({

@@ -1,55 +1,73 @@
 <template lang="pug">
-.rootConteo
-	.contenido
-		.conteoDeVotos
-			.titulo Conteo de votos
+.rootConteo(v-if="local")
+	slot
+		a-button(@click="mostrarCargador = true") Cargar cierre de mesa
+	a-modal(v-model="mostrarCargador" centered)
+		div(slot="title")
+			.local {{local.nombre}}
+			h2.titulo.my05rem Mesa {{mesa.nombre}}
+			.subtitulo Conteo de votos 
+
 			.warning(v-if="aceptaIngresarNuevoCierre") Estas editando los #[br]resultados de esta mesa
-			a-form-model.suscribirse(
+		.conteoDeVotos
+			a-form-model(
 				ref="formulario",
-				:model="formulario",
-				:rules="validaCierre"
-			)
-				.grupo 
-					.tipo Selecciona una mesa:
-					a-form-model-item(has-feedback, prop="mesaid")
-						a-select.select(placeholder="Selecciona una mesa" @select="seleccionarMesa")
-							a-select-option(v-for="mesa in local.mesas" :key="mesa.id" :value="mesa.id") {{ mesa.	mesa}}
-				.grupo2(v-if="formulario.mesaid")
-					.grupo
-						.tipo Gabriel Boric:
-						a-form-model-item(has-feedback, prop="boric")
-							a-input-number.input(placeholder='N° Votos Boric', type='number' v-model="formulario.Boric")
-					.grupo
-						.tipo Jose Antonio Kast:
-						a-form-model-item(has-feedback, prop="kast")
-							a-input-number.input(placeholder='N° Votos Kast', type='number' v-model="formulario.Kast")
-					.grupo
-						.tipo Blancos:
-						a-form-model-item(has-feedback, prop="blancos")
-							a-input-number.input(placeholder='N° Blancos', type='number' v-model="formulario.blancos")
-					.grupo
-						.tipo Nulos:
-						a-form-model-item(has-feedback, prop="nulos")
-							a-input-number.input(placeholder='N° Nulos', type='number' v-model="formulario.nulos")
-					.grupo.grupoActa
-						a-form-model-item(has-feedback, prop="actaURL")
-							//- a-input.input(type='text' v-model="formulario.actaURL")
-							.actaCierre
-								cargaImagenS3.zonaCarga.mt-xs(:altura="900" :anchura="600"
-								ref="cargadorImagen"
-								:archivo="`actasDeCierre/region-${region}/local-${local.nombre}/local-${formulario.id}.	jpg`"
-								value="PMprensa"
-								:firmarCarga="firmarCarga"
-								:modificandoAvatar="modificandoAvatar"
-								@subido="guardarUrl($event)")
-								.interior(slot-scope="{ value, cargar }")
-									a-button.cambioImagen(@click="cargar" :disabled="bloquearBoton" title="")
-										div(v-if="!bloquearBoton") Cargar acta de cierre
-										div(v-else) Acta cargada correctamente
+				:model="formulario"
+				:rules="validaCierre")
 
-					.contenedorBoton
-						.boton(@click="enviarFormulario") Enviar cierre de mesa
+				a-form-model-item.linea(prop="Boric")
+					.flex.aic
+						.etiqueta G. Boric
+						.f11.flex.aic.jcsa.ml1em
+							a-input-number.input(size="large" :default='0' :min="0" v-model="formulario.Boric")
+							a-button(size="large" type="danger" icon="minus" @click="restar('Boric')")
+							a-button(size="large" type='primary' icon="plus" @click="sumar('Boric')")
 
+				a-form-model-item.linea(prop="Kast")
+					.flex.aic
+						.etiqueta J.A. Kast
+						.f11.flex.aic.jcsa.ml1em
+							a-input-number.input(size="large" :default='0' :min="0" v-model="formulario.Kast")
+							a-button(size="large" type="danger" icon="minus" @click="restar('Kast')")
+							a-button(size="large" type='primary' icon="plus" @click="sumar('Kast')")
+
+				a-form-model-item.linea(prop="blancos")
+					.flex.aic
+						.etiqueta Blancos
+						.f11.flex.aic.jcsa.ml1em
+							a-input-number.input(size="large" :default='0' :min="0" v-model="formulario.blancos")
+							a-button(size="large" type="danger" icon="minus" @click="restar('blancos')")
+							a-button(size="large" type='primary' icon="plus" @click="sumar('blancos')")
+
+				a-form-model-item.linea(prop="nulos")
+					.flex.aic
+						.etiqueta Nulos
+						.f11.flex.aic.jcsa.ml1em
+							a-input-number.input(size="large" :default='0' :min="0" v-model="formulario.nulos")
+							a-button(size="large" type="danger" icon="minus" @click="restar('nulos')")
+							a-button(size="large" type='primary' icon="plus" @click="sumar('nulos')")
+
+				a-form-model-item.linea.mt1rem(prop="actaURL")
+					//- a-input.input(type='text' v-model="formulario.actaURL")
+					.actaCierre.mt1rem
+						CargaImagenS3.zonaCarga.mt-xs(:altura="900" :anchura="600"
+							ref="cargadorImagen"
+							:archivo="`actasDeCierre/region-${region}/local-${local.nombre}/local-${formulario.id}.	jpg`"
+							value="PMprensa"
+							:firmarCarga="firmarCargaActa"
+							:modificandoAvatar="modificandoAvatar"
+							@subido="guardarUrl($event)")
+							.interior(slot-scope="{ value, cargar }")
+								a-button.cambioImagen.ha.py05em.px1em(size="large" @click="cargar" :disabled="bloquearBoton")
+									.flex.ffcn.jcc.aic.tac(v-if="!bloquearBoton") 
+										.icono.fz2em 📷
+										.texto Cargar acta de cierre
+									.flex.ffcn.jcc.aic.tac(v-else)
+										.icono.fz2em 📄
+										.texto Acta cargada correctamente
+
+		.footer.p1em(slot="footer")
+			a-button.w100(size="large" @click="enviarFormulario") Enviar cierre de mesa
 
 
 	a-modal.modal(:visible="abrirModal" :confirm-loading="confirmLoading" @ok="handleOk" @cancel="handleCancel")
@@ -59,24 +77,7 @@
 			br
 			div
 				a-button.w100(type='danger' ghost @click='siQuieroEditar') EDITAR DE TODOS MODOS
-		//- .contenidoModal(v-if="mesaRecibida")
-		//- 	.titulo La mesa que consultas tiene {{ mesaRecibidaLen }} cierre/s.
-		//- 	.contenedorCajaCierre 
-		//- 		.contenedorMesas
-		//- 			.mesa(v-for="conteo in mesaRecibida")
-		//- 				.titulo {{conteo.mesa}}
-		//- 				.conteo
-		//- 					.votos Boric 
-		//- 						.contador {{ conteo.votos.Boric }}
-		//- 					.votos Kast 
-		//- 						.contador {{ conteo.votos.Kast }}
-		//- 					.votos nulos 
-		//- 						.contador {{ conteo.votos.nulos }}
-		//- 					.votos blancos
-		//- 						.contador {{ conteo.votos.blancos }}
-		//- 	.titulo.warning Si los resultados estan bien, por favor no subas otro cierre, si de todas maneras quieres continuar da click en EDITAR
-		//- 	//.contenedorBoton
-		//- 		.boton(@click="siQuieroEditar") QUIERO EDITAR EL CIERRE
+
 		.contenidoModal
 			.titulo La mesa que consultas tiene {{ yaSeCerroLen }} cierre/s.
 			.contenedorCajaCierre
@@ -100,28 +101,29 @@
 									.fecha Fecha: {{ conteo.fecha}}
 			.titulo.warning Si quieres continuar e ingresar otro cierre a esta mesa da click en EDITAR
 
-
-
-
-	a-modal
 </template>
 <script>
 export default {
-
+	props: {
+		local: {
+			required: true,
+			type: Object
+		},
+		mesa: {
+			required: true,
+			type: Object
+		}
+	},
 	data () {
-
 		return {
+			mostrarCargador: null,
 
-			local: {
-				nombre: '',
-				mesas: [],
-				apoderados: [],
-				apoderadoGeneral: '',
-				mesasCerradas: []
+			layout: {
+				labelCol: { span: 3 },
+				wrapperCol: { span: 4 },
 			},
 		
 			formulario: {
-				mesaid: null,
 				Boric: null,
 				Kast: null,
 				blancos: null,
@@ -168,56 +170,37 @@ export default {
 		validaCierre () {
 			console.log("validaCierre")
 			return { 
-				mesaid: [{ type: "number", message: 'mesa inválido', trigger: 'blur', required: true }],
-				Boric: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'blur', required: true }],
-				Kast: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'blur', required: true }],
-				blancos: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'blur', required: true }],
-				nulos: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'blur', required: true }],
-				actaURL: [{ type: "url", message: 'Debes subir un acta de cierre', trigger: 'blur', required: true }],
+				Boric: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'change', required: true }],
+				Kast: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'change', required: true }],
+				blancos: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'change', required: true }],
+				nulos: [{ type: "number", message: 'Voto inválido', min: 0, trigger: 'change', required: true }],
+				actaURL: [{ type: "url", message: 'Debes subir un acta de cierre', trigger: 'change', required: true }],
 			}
 		}
 	},
-	mounted () {
-		this.getLocal()
-	},
 	methods: {
-		seleccionarMesa (mesaID) {
-			this.formulario.mesaid  = mesaID
-
-			const cerrada = this.yaSeCerro
-			console.log('cerrada', cerrada)
-
-			console.log('if del selecciona')
-			if (!cerrada || this._.isEmpty(cerrada)) return null
-			else {
-				this.abrirModal = true
-			}
-
-
+		sumar (receptor) {
+			if (!('Boric Kast blancos nulos'.split(' ')).includes(receptor)) return
+			const actual = this.formulario[receptor] || 0
+			const nuevo = actual + 1
+			this.formulario[receptor] = nuevo
 		},
-		async firmarCarga () {
-			const url = await this.$cuentaBack.firmarCarga({region: this.region, nombre: this.local.nombre, mesaid: this.formulario.mesaid})
+		restar (receptor) {
+			if (!('Boric Kast blancos nulos'.split(' ')).includes(receptor)) return
+			const actual = this.formulario[receptor] || 0
+			const nuevo = ((actual - 1) >= 0) ? (actual - 1) : 0
+			this.formulario[receptor] = nuevo
+		},
+		async firmarCargaActa () {
+			const { regionID, comunaID, localID } = this.local
+			const mesaID = this.mesa.mesaID
+			const url = await this.$cuentaBack.firmarCargaActa({regionID, comunaID, localID, mesaID})
 			console.log('urlFirmada', url)
 
 			this.modificandoAvatar = false
 			return url
 		},
 
-		async getLocal () {
-			const region = this.$route.params.region
-			const localId = this.$route.params.localId
-			const response = await this.$cuentaBack.obtenerLocal({ region, localId })
-			this.local.nombre = response.local.nombre
-			this.local.apoderadoGeneral = 'Gabriel Boric'
-			this.local.mesas = Object.values(response.local.mesas)
-
-			this.local.mesasCerradas = this._.filter(this.local.mesas, 'conteo')
-
-			this.local.apoderados = response.local.apoderades.map(apo => ({
-				...apo,
-				nombre: `usuarioID: ${apo.usuarioID}`
-			}))
-		},
 		guardarUrl (url) {
 			this.formulario.actaURL = url
 			this.bloquearBoton = true
@@ -279,44 +262,14 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
+@import '@style/vars'
 .rootConteo
 	.contenido
 		display: flex
 		width: 100%
 		flex-flow: column nowrap
 		align-items: center
-		.conteoDeVotos
-			max-width: 500px
-			.titulo
-				color: #767676
-				font-size: 1.3rem
-			.warning
-				color: rgba(255, 0, 0, .8)
-				font-size: 1.1rem
-				font-style: italic
-			.grupo
-				display: flex
-				flex-flow: row wrap
-				align-items: center
-				// justify-content: center
-				padding: .5em 0
-				.select,
-				.input
-					max-width: 150px
-					min-width: 100px
-					// padding: 0 1em
-				.tipo
-					// padding: 0 1em
-					width: 160px
-			.grupoActa
-				display: flex
-				justify-content: center
-				width: 100%
-				.actaCierre
-					display: flex
-					justify-content: center
-					width: 100%
-					padding: 1em
+		
 		.contenedorBoton
 			display: flex
 			justify-content: center
@@ -324,6 +277,32 @@ export default {
 				background-color: #fff
 				color: rgba(0, 0, 0, .5)
 				border: 1px solid rgba(0, 0, 0, .5)
+
+.ant-modal-root::v-deep
+	.conteoDeVotos
+		.linea
+			// border: 1px solid green
+			.etiqueta
+				flex: 100px 0 0
+				text-align: right
+				margin-right: 1rem
+				font-size: 1.4em
+				
+				+fwb	
+			.input
+				width: 70px
+				// border: 1px solid red
+				input
+					text-align: center
+					font-size: 1.4em
+					color: black
+		.actaCierre
+			// border: 1px solid cyan
+			display: flex
+			justify-content: center
+			.cambioImagen
+
+
 
 .modal
 	.contenidoModal

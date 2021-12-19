@@ -89,29 +89,168 @@ a
 .tar
 	text-align: right
 
-.mt1em
-	margin-top: 1em
-.mb1em
-	margin-bottom: 1em
-.my1em
-	margin-top: 1em
-	margin-bottom: 1em
-.ml1em
-	margin-left: 1em
-.mr1em
-	margin-right: 1em
-.mx1em
-	margin-left: 1em
-	margin-right: 1em
+body
 
-.mt05em
-	margin-top: .5em
-.mb05em
-	margin-bottom: .5em
-.ml05em
-	margin-left: .5em
-.mr05em
-	margin-right: .5em
+	// Paddings
+	.p1em
+		padding: 1em
+	.pt1em
+		padding-top: 1em
+	.pb1em
+		padding-bottom: 1em
+	.py1em
+		padding-top: 1em
+		padding-bottom: 1em
+	.pl1em
+		padding-left: 1em
+	.pr1em
+		padding-right: 1em
+	.px1em
+		padding-left: 1em
+		padding-right: 1em
+
+	.p05em
+		padding: .5em
+	.pt05em
+		padding-top: .5em
+	.pb05em
+		padding-bottom: .5em
+	.py05em
+		padding-top: .5em
+		padding-bottom: .5em
+	.pl05em
+		padding-left: .5em
+	.pr05em
+		padding-right: .5em
+	.px05em
+		padding-left: .5em
+		padding-right: .5em
+
+	.p1rem
+		padding: 1rem
+	.pt1rem
+		padding-top: 1rem
+	.pb1rem
+		padding-bottom: 1rem
+	.py1rem
+		padding-top: 1rem
+		padding-bottom: 1rem
+	.pl1rem
+		padding-left: 1rem
+	.pr1rem
+		padding-right: 1rem
+	.px1rem
+		padding-left: 1rem
+		padding-right: 1rem
+
+	.p05rem
+		padding: .5rem
+	.pt05rem
+		padding-top: .5rem
+	.pb05rem
+		padding-bottom: .5rem
+	.py05rem
+		padding-top: .5rem
+		padding-bottom: .5rem
+	.pl05rem
+		padding-left: .5rem
+	.pr05rem
+		padding-right: .5rem
+	.px05rem
+		padding-left: .5rem
+		padding-right: .5rem
+
+	// Margins
+
+	.m1em
+		margin: 1em
+	.mt1em
+		margin-top: 1em
+	.mb1em
+		margin-bottom: 1em
+	.my1em
+		margin-top: 1em
+		margin-bottom: 1em
+	.ml1em
+		margin-left: 1em
+	.mr1em
+		margin-right: 1em
+	.mx1em
+		margin-left: 1em
+		margin-right: 1em
+
+	.m05em
+		margin: .5em
+	.mt05em
+		margin-top: .5em
+	.mb05em
+		margin-bottom: .5em
+	.my05em
+		margin-top: .5em
+		margin-bottom: .5em
+	.ml05em
+		margin-left: .5em
+	.mr05em
+		margin-right: .5em
+	.mx05em
+		margin-left: .5em
+		margin-right: .5em
+
+	.m1rem
+		margin: 1rem
+	.mt1rem
+		margin-top: 1rem
+	.mb1rem
+		margin-bottom: 1rem
+	.my1rem
+		margin-top: 1rem
+		margin-bottom: 1rem
+	.ml1rem
+		margin-left: 1rem
+	.mr1rem
+		margin-right: 1rem
+	.mx1rem
+		margin-left: 1rem
+		margin-right: 1rem
+
+	.m05rem
+		margin: .5rem
+	.mt05rem
+		margin-top: .5rem
+	.mb05rem
+		margin-bottom: .5rem
+	.my05rem
+		margin-top: .5rem
+		margin-bottom: .5rem
+	.ml05rem
+		margin-left: .5rem
+	.mr05rem
+		margin-right: .5rem
+	.mx05rem
+		margin-left: .5rem
+		margin-right: .5rem
+
+	// Font sizes
+	.fz1em
+		font-size: 1em
+	.fz2em
+		font-size: 2em
+	.fz3em
+		font-size: 3em
+	.fz4em
+		font-size: 4em
+
+	.fz1rem
+		font-size: 1rem
+	.fz2rem
+		font-size: 2rem
+	.fz3rem
+		font-size: 3rem
+	.fz4rem
+		font-size: 4rem
+
+	.ha
+		height: auto
 
 .usn
 	user-select: none
@@ -164,6 +303,7 @@ h1, h2, h3, h4, h5, h6
 	.boton
 		display: block
 		margin-top: 1rem
+
 .ant-form
 	+compu
 		.ant-form-item
@@ -174,6 +314,20 @@ h1, h2, h3, h4, h5, h6
 		margin-top: 2rem
 		.ant-btn
 			margin-top: 1rem
+
+	.ant-form-item
+		margin-bottom: .8em
+	.ant-row
+		&:last-child
+			margin-bottom: 0
+
+	.ant-form-item-label
+		label
+			font-size: inherit
+		.ant-form-item-required::before
+			color: #da4a13
+			font-size: inherit
+			display: none
 
 .ant-page-header
 	padding: 0

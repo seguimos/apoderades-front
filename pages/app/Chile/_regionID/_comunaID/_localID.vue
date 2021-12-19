@@ -17,14 +17,10 @@
 
 
 	.local.anchoComun
-		//- b Local
-		//div {{local}}
 
-		//- b puedeDesignarYHabilitarApoderadoMesa {{puedeDesignarYHabilitarApoderadoMesa}}
-
-		h2 Apoderados
+		h2 Apoderadas/os
 		.zonaApoderades
-			h3 Asignados
+			h3 Han sido destinados a este local
 
 			.filtros.mt1em
 				a-input(v-if="!_.isEmpty(apoderadesAsignados)" v-model="busquedaAsignados" allow-clear placeholder='Nombre o apellido')
@@ -108,40 +104,104 @@
 			
 		h2 Mesas
 
-		.zonaMesas.anchoComun
-			.WIP
+		.zonaMesas
+			//.WIP(v-if="!$dev")
 				.icono 🌱
 				.texto Pronto disponible
-			.mesas
+			.resumenMesasLocal
+				.resumenMesas
+
+					.item 
+						.valor {{mesas.length}}
+						.texto Mesas
+
+					.item
+						.valor {{_.filter(mesas, m => m.tieneConteo).length}}
+						.texto Mesas con conteo
+				
+				.info.flex.ffcn.aic.jcc.tac.my1em
+					div(v-if="$ahora.isBefore($fechaApertura)") Esperando apertura de mesas
+						div
+							b {{$fechaApertura.from($ahora)}}
+
+					div(v-if="$ahora.isBefore($fechaCierre)") Cierre de mesas estará disponible
+						div
+							b {{$fechaCierre.from($ahora)}}
+							
+					div.fwb(v-else) Cierre de mesas ya disponible
+
+				.acciones
+					a-button(type="primary") Finalizar jornada electoral
+
+
+
+			.ejemplos.mesas.mt1em
+
+				.mesa(v-for="mesa in [{mesaID: 'eje000100', mesa: 'Ej100', nombre: 'Ej100'}, {mesaID: 'eje000101', mesa: 'Ej101', nombre: 'Ej101'}, {mesaID: 'eje000102', mesa: 'Ej102', nombre: 'Ej102'}]"
+					:class="{ extendida: mesaExtendida === mesa.mesaID }" :key="`mesa-${mesa.mesaID}`")
+					.contenido.flex.jcsb.aic
+						.info
+							b.nombre Ejemplo03
+						.estados
+							.estado Tiene conteo
+
+						.botones
+
+							a-button(type="primary"
+								@click="switchDelColapsoDeMesa(mesa.mesaID)"
+								shape="circle" 
+								:icon="mesaExtendida === mesa.mesaID ? 'up' : 'down'")
+
+					transition.elColapso
+						.colapsable(v-if="mesaExtendida === mesa.mesaID")
+							CargadorConteoMesa(:mesa="mesa" :local="local")
+
+
+
+
+
+
+			//.mesas.anchoComun
 				.mesa(v-for="mesa in mesas")
-					.info.flex.jcsb.aic
-						.nombre {{mesa.nombre}}
-						a-button.bw0(shape="circle" icon="more" ghost)
-					.conteo
-							.item.boric
-								.nombre Boric 
-								.valor -
-							.item.kk
-								.nombre Kast 
-								.valor -
-							.item.nulos
-								.nombre Nulos 
-								.valor -
-							.item.blancos
-								.nombre Blancos 
-								.valor -
+					.encabezado.flex.jcsb.aic
+						.info
+							.nombre {{mesa.nombre}}
+						.estados
+							.estado(v-if="$ahora.isBefore($fechaApertura)")
+							.estado(v-else-if="$ahora.isBefore($fechaCierre)") En espera de hora de cierre
+							.estado(v-else-if="mesa.tieneConteo") Tiene conteo
+							.estado(v-else-if="$ahora.isBefore($fechaCierre)") En espera de hora de cierre
+
+						//.botones
+							a-button.db(disabled) Cierre
+							a-button.db(disabled) Cerrada
+							a-button.db(type="primary") Cerrar mesa {{mesa.nombre}}
+
+						.botones
+							a-button.db(v-if="$ahora.isBefore($fechaCierre)" disabled) Cerrar mesa {{mesa.nombre}}
+							a-button.db(v-else-if="!_.isEmpty(mesa.conteos)" disabled) {{mesa.nombre}} Cerrada
+							a-button.db(v-if="$ahora.isBefore($fechaCierre)" type="primary") Cerrar mesa {{mesa.nombre}}
 
 
-
+	.my1em
+		br
+	.my1em
+		br
+	.my1em
+		br
 </template>
 <script>
+import CargadorConteoMesa from './-cargaConteoMesa.vue'
 export default {
+	components: { CargadorConteoMesa },
 	data () {
 		return {
 			apoderadeExtendide: null,
 			busquedaAsignados: '',
 			busquedaDisponibles: '',
-			busquedaMesa: ''
+			busquedaMesa: '',
+
+			mesaExtendida: null
 		}
 	},
 	computed: {
@@ -222,6 +282,17 @@ export default {
 				mesa.mesaID = mesaID
 				mesa.nombre = mesa.mesa
 				mesa.orden = _.padStart(mesa.nombre, 6, '0')
+				mesa.tieneConteo = !_.isEmpty(mesa.conteos)
+				return mesa
+			}), m => m.orden)
+		},
+		mesasCerradas () {
+			const _ = this._
+			const mesas = this.local.mesas || {}
+			return _.orderBy(_.map(mesas, (mesa, mesaID) => {
+				mesa.mesaID = mesaID
+				mesa.nombre = mesa.mesa
+				mesa.orden = _.padStart(mesa.nombre, 6, '0')
 				return mesa
 			}), m => m.orden)
 		}
@@ -252,7 +323,11 @@ export default {
 			const r = await this.$cuentaBack.asignarTerritorio({ usuarioID, regionID, comunaID, localID, esApoGeneral: true })
 			console.log(fx, 'r', r)
 			this.cargarLocal()
-		}
+		},
+		switchDelColapsoDeMesa (mesaID) {
+			if (this.mesaExtendida === mesaID) this.mesaExtendida = false
+			else this.mesaExtendida = mesaID
+		},
 	}
 }
 </script>
@@ -355,28 +430,90 @@ export default {
 
 
 	.zonaMesas
-		background-color: #F8f8f8
-		+radio
+		// +radio
+		.resumenMesasLocal
+			background-color: #F8f8f8
+			+radio
+			padding: 1em
+			.resumenMesas
+				display: flex
+				align-items: center
+				justify-content: space-around
+				.item
+					display: flex
+					flex-flow: column nowrap
+					justify-content: center
+					align-items: center
+					text-align: center
+					.valor
+						font-size: 3em
+					.texto
+			.acciones
+				margin: 2em 0
+				display: flex
+				justify-content: center
+
+
 		.mesas
-			display: flex
-			flex-flow: row wrap
-			justify-content: center
+			// display: flex
+			// flex-flow: row wrap
+			// justify-content: center
+
+
 			.mesa
-				flex: 10em 1 0
-				max-width: 12em
+				+radio
+				+ .mesa
+					margin-top: 1em
+				.contenido
+					display: flex
+					align-items: center
+					+radio
+					transition: all .3s ease
+					.zonaAcciones
+						transition: all .3s ease
+				.colapsable
+					width: 100%
+					padding: 0 1em
+					+radio
+					+saliendo
+						max-height: 50vh
+						overflow: hidden
+					+salir
+						max-height: 0
+						opacity: 0
+				&.extendida
+					background-color: #ddd
+					.contenido
+						background-color: #eee
+						box-shadow: 0 0 .3em rgba(0,0,0,.3)
+						padding: .5em 1em
+						.zonaAcciones
+							padding-right: .5em
+					.colapsable
+						padding: 1em
+						.acciones
+							width: 100%
+
+
+
+			//.mesa
+				// flex: 10em 1 0
+				// max-width: 12em
 				// border: 1px solid #777
-				margin: 0.5em
+				margin: 1em 0
 				+radio
 				text-align: center
-				background-color: transparentize(white, .0)
-				.info
-					padding: .5em .5em .5em 1em
-					background-color: transparentize(black, .5)
-					color: white
+				background-color: transparentize(black, .95)
+				.encabezado
+					padding: .5em 1em
+					// background-color: transparentize(black, .5)
+					// color: white
 					+radio
 					.nombre
 						font-size: 1.2em
 						+fwb
+				.botones
+					border: 1px solid #eee
 				.conteo
 					padding: .5em
 					.item
