@@ -15,8 +15,8 @@
 					a-statistic(decimalSeparator="," groupSeparator="." title="Apoderados" :value="local.estadisticas.apoderades")
 
 
-
 	.local.anchoComun
+		a-alert.mb2em.tac(v-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
 
 		h2 Apoderadas/os
 		.zonaApoderades
@@ -141,7 +141,7 @@
 					:class="{ extendida: mesaExtendida === mesa.mesaID }" :key="`mesa-${mesa.mesaID}`")
 					.contenido.flex.jcsb.aic
 						.info
-							b.nombre Ejemplo03
+							b.nombre {{mesa.nombre}}
 						.estados
 							.estado Tiene conteo
 
@@ -154,7 +154,9 @@
 
 					transition.elColapso
 						.colapsable(v-if="mesaExtendida === mesa.mesaID")
-							CargadorConteoMesa(:mesa="mesa" :local="local")
+							CargadorConteoMesa(v-if="esApoderadeDelLocal" :mesa="mesa" :local="local")
+								a-button.w100(slot-scope="{ abrir }" type="primary" @click="abrir") Cargar conteo y cierre de mesa
+							a-button.w100.disabled(v-else type="primary" @click="$message.error('Sólo las/os apoderadas/os del local pueden cargar conteos')") Cargar conteo y cierre de mesa
 
 
 
@@ -201,7 +203,7 @@ export default {
 			busquedaDisponibles: '',
 			busquedaMesa: '',
 
-			mesaExtendida: null
+			mesaExtendida: 'eje000100'
 		}
 	},
 	computed: {
@@ -274,6 +276,10 @@ export default {
 				this._.some(this.$apoderade.asignaciones, a => a.capa === 'regional' && a.regionID === this.regionID) ||
 				this._.some(this.$apoderade.asignaciones, a => a.capa === 'comunal' && a.comunaID === this.comunaID) || 
 				this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID)
+		},
+		esApoderadeDelLocal () {
+			return this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID) ||
+				this._.some(this.$apoderade.asignaciones, a => a.capa === 'mesa' && a.localID === this.localID)
 		},
 		mesas () {
 			const _ = this._

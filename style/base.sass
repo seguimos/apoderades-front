@@ -179,6 +179,23 @@ body
 		margin-left: 1em
 		margin-right: 1em
 
+	.m2em
+		margin: 2em
+	.mt2em
+		margin-top: 2em
+	.mb2em
+		margin-bottom: 2em
+	.my2em
+		margin-top: 2em
+		margin-bottom: 2em
+	.ml2em
+		margin-left: 2em
+	.mr2em
+		margin-right: 2em
+	.mx2em
+		margin-left: 2em
+		margin-right: 2em
+
 	.m05em
 		margin: .5em
 	.mt05em
@@ -289,15 +306,18 @@ h1, h2, h3, h4, h5, h6
 	//font-size: 1.2em
 	&:disabled
 		display: block !important
-	&:not(disabled)
-		&.ant-btn-primary,
-		&.azul
-			color: white
-			background-color: $azul1
-			border-color: darken($azul1, 3%)
-		&.verde
-			color: $petroleo1
-			background-color: $verde3
+
+	&.ant-btn-primary,
+	&.azul
+		color: white
+		background-color: $azul1
+		border-color: darken($azul1, 3%)
+		&:disabled,
+		&.disabled
+			filter: saturate(.2) opacity(.7)
+	&.verde
+		color: $petroleo1
+		background-color: $verde3
 
 .acciones
 	.boton

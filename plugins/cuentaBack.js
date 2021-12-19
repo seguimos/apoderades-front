@@ -584,26 +584,38 @@ const cuentaBack = {
 	},
 	
 	async firmarCargaActa ({regionID, comunaID, localID, mesaID}) {
-		const url = await solicitar({
-			method: 'post',
-			url: `${cuentaBack.backURL}/actas/acta`,
-			data: {regionID, comunaID, localID, mesaID}
-		})
-			.then(r => r.urlFirmada)
-			.catch(e => console.error('fallo respuesta', e))
-		console.log('firmarCarga', url)
+		const fx = 'firmarCargaActa'
+		try {
+			const url = await solicitar({
+				method: 'post',
+				url: `${cuentaBack.backURL}/actas/${regionID}/${comunaID}/${localID}/${mesaID}`,
+				data: {}
+			})
+				.then(r => r.urlFirmada)
+				.catch(e => console.error('fallo respuesta', e))
+			console.log('firmarCarga', url)
 
-		return url
+			return url
+		} catch (e) {
+			console.error(fx, e)
+			throw 'No se pudo guardar votos'
+		}
 	},
 
-	async guardarVotos (region, localID, votos, mesaID, aceptaIngresarNuevoCierre) {
-		const res = await solicitar({
-			method: 'post',
-			url: `${cuentaBack.backURL}/locales/${region}/locales/${localID}/mesa/${mesaID}`,
-			data: {votos, aceptaIngresarNuevoCierre}
-		})
-		console.log(res)
-		return res
+	async guardarVotos (regionID, comunaID, localID, mesaID, conteo, reescritura = false) {
+		const fx = 'guardarVotos'
+		try {
+			const res = await solicitar({
+				method: 'post',
+				url: `${cuentaBack.backURL}/conteos/${regionID}/${comunaID}/${localID}/${mesaID}`,
+				data: { conteo, reescritura}
+			})
+			console.log(res)
+			return res
+		} catch (e) {
+			console.error(fx, e)
+			throw 'No se pudo guardar votos'
+		}
 	}
 
 }

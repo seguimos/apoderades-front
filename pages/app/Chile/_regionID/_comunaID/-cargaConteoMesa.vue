@@ -1,8 +1,9 @@
 <template lang="pug">
 .rootConteo(v-if="local")
-	slot
-		a-button(@click="mostrarCargador = true") Cargar cierre de mesa
-	a-modal(v-model="mostrarCargador" centered)
+	slot(v-bind:abrir="()=>(mostrarCargador = true)")
+		a-button.w100(@click="()=>(mostrarCargador = true)") Cargar cierre de mesa
+
+	a-modal(v-model="mostrarCargador" centered @cancel="mostrarCargador = false")
 		div(slot="title")
 			.local {{local.nombre}}
 			h2.titulo.my05rem Mesa {{mesa.nombre}}
@@ -69,38 +70,6 @@
 		.footer.p1em(slot="footer")
 			a-button.w100(size="large" @click="enviarFormulario") Enviar cierre de mesa
 
-
-	a-modal.modal(:visible="abrirModal" :confirm-loading="confirmLoading" @ok="handleOk" @cancel="handleCancel")
-		.footer(slot='footer')
-			div
-				a-button.w100(type='primary' @click='handleCancel') CERRAR
-			br
-			div
-				a-button.w100(type='danger' ghost @click='siQuieroEditar') EDITAR DE TODOS MODOS
-
-		.contenidoModal
-			.titulo La mesa que consultas tiene {{ yaSeCerroLen }} cierre/s.
-			.contenedorCajaCierre
-				.contenedorMesas
-					.mesa(v-for="mesa in yaSeCerro")
-						.titulo Mesa {{ mesa.mesa }}
-							.contenedorGrupo
-								.grupomesa(v-for="(conteo, index) in mesa.conteo")
-									.conteo
-										.lado
-											.votos Boric 
-												.contador {{ conteo.votos.Boric }}
-											.votos Kast 
-												.contador {{ conteo.votos.Kast }}
-										.lado
-											.votos nulos 
-												.contador {{ conteo.votos.nulos }}
-											.votos blancos
-												.contador {{ conteo.votos.blancos }}
-									.acta Acta de Cierre: #[a.nVotos(:href="conteo.votos.actaURL" 	target="_blank") Ver acta]
-									.fecha Fecha: {{ conteo.fecha}}
-			.titulo.warning Si quieres continuar e ingresar otro cierre a esta mesa da click en EDITAR
-
 </template>
 <script>
 export default {
@@ -112,6 +81,11 @@ export default {
 		mesa: {
 			required: true,
 			type: Object
+		},
+		reescritura: {
+			required: false,
+			type: Boolean,
+			default: false
 		}
 	},
 	data () {
@@ -139,7 +113,8 @@ export default {
 
 			verActa: null,
 			abrirModal: false,
-			modificandoAvatar: null
+			modificandoAvatar: null,
+			bloquearBoton: null
 		}
 	},
 	
@@ -215,18 +190,11 @@ export default {
 					console.log('no pasó validacion')
 					return false
 				}
-				const region = this.$route.params.region
-				const localID = this.$route.params.localId
+
+				const { regionID, comunaID, localID } = this.local
+				const mesaID = this.mesa.mesaID
 				const conteo = this.formulario
-				const votos = {
-					Boric: Number(conteo.Boric),
-					Kast: Number(conteo.Kast),
-					blancos: Number(conteo.blancos),
-					nulos: Number(conteo.nulos),
-					actaURL: conteo.actaURL
-				}
-				console.log(region, localID, votos)
-				const enviado = await this.$cuentaBack.guardarVotos(region, localID, votos, this.formulario.mesaid, this.aceptaIngresarNuevoCierre)
+				const enviado = await this.$cuentaBack.guardarVotos({regionID, comunaID, localID, mesaID, conteo})
 
 				if (enviado.ok === 0) {
 					this.mensajeError = this._.get(enviado, "yaContado.mensaje")
@@ -282,6 +250,10 @@ export default {
 	.conteoDeVotos
 		.linea
 			// border: 1px solid green
+			.ant-form-explain
+				text-align: center
+				margin-top: 0.2em
+				margin-bottom: 0.5em
 			.etiqueta
 				flex: 100px 0 0
 				text-align: right
@@ -300,7 +272,6 @@ export default {
 			// border: 1px solid cyan
 			display: flex
 			justify-content: center
-			.cambioImagen
 
 
 

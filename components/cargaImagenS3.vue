@@ -1,7 +1,7 @@
 <template lang="pug">
 .rootCargaImagen
 	slot(v-bind:src="value" v-bind:cargar="seleccionarImagen")
-		a-button(@click="$refs.etiqueta.click()") {{ t('seleccionarImagen') }}
+		a-button(@click="$refs.etiqueta.click()") {{ $t('seleccionarImagen') }}
 	.oculto
 		label.conBoton(ref="etiqueta")
 			input(
@@ -13,17 +13,19 @@
 
 
 	a-modal(
-		:title="t('editarImagen')"
+		:title="$t('editorImagen')"
 		:visible="modal"
 		@ok="cargarImagen"
 		centered
 		:confirmLoading="subiendo || modificandoAvatar"
 		:maskClosable="false"
 		dialogClass="editorImagen"
-		:okText="modificandoAvatar ? t('guardando') : subiendo ? t('subiendoImagen') : t('subirImagen')"
-		:okButtonProps="{ props: { disabled: !objectUrl } }"
+		:okText="modificandoAvatar ? $t('guardando') : subiendo ? $t('subiendoImagen') : $t('subirImagen')"
+		:okButtonProps="{ props: { disabled: !objectUrl, size: 'large' } }"
+		:cancelButtonProps="{ props: { size: 'large' } }"
 		@cancel="cancelar"
 	)
+	
 		.contenido(:class="{ bloqueado: subiendo }")
 			.mw-100.d-flex.justify-center(v-if="objectUrl")
 				.image-container.elevation-4
@@ -31,15 +33,15 @@
 
 			.botonera(v-if="objectUrl")
 				a-button-group
-					a-button(icon @click="resetCropper")
+					a-button.flex.jcc.aic(icon size="large" @click="resetCropper")
 						.oicono.resetear
-					a-button(icon @click="girarX")
+					a-button.flex.jcc.aic(icon size="large" @click="girarX")
 						.oicono.flipY
-					a-button(icon @click="girarY")
+					a-button.flex.jcc.aic(icon size="large" @click="girarY")
 						.oicono.flipX
-					a-button(icon @click="rotateLeft")
+					a-button.flex.jcc.aic(icon size="large" @click="rotateLeft")
 						.oicono.girarIzq
-					a-button(icon @click="rotateRight")
+					a-button.flex.jcc.aic(icon size="large" @click="rotateRight")
 						.oicono.girarDer
 </template>
 
@@ -207,6 +209,14 @@ export default {
 			}
 		},
 		cancelar () { this.modal = null }
+	},
+	traducciones: {
+		subiendoImagen: { es: 'Subiendo imagen' },
+		seleccionarImagen: { es: 'Seleccionar imagen' },
+		editorImagen: { es: 'Editor imagen' },
+		editarImagen: { es: 'Editar imagen' },
+		guardando: { es: 'Guardando..' },
+		subirImagen: { es: 'Subir imagen' }
 	}
 }
 </script>
