@@ -17,7 +17,7 @@
 
 	.local.anchoComun
 		a-alert.mb2em.tac(v-if="esApoderadeGeneralDelLocal" type="success" message="Eres apoderada/o general en este local") 
-		a-alert.mb2em.tac(v-if="esApoderadeDelLocal && !esApoderadeDelLocalYHabilitade" type="warning" message="Para utilizar ingresar información, tu apoderado general debe habilitarte en esta misma página") 
+		a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal && !esApoderadeDelLocalYHabilitade" type="warning" message="Para utilizar ingresar información, tu apoderado general debe habilitarte en esta misma página") 
 		a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
 		//- a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
 
@@ -200,6 +200,10 @@
 					.p1em
 						h3 Cierre de local
 						p Una vez cerrado no se pueden realizar más modificaciones
+
+					div.p1em(v-if="$ahora.isBefore($fechaCierre)")
+						a-button.db.w100.verde(size="large" type="primary" disabled) Aún no se puede cerrar local
+						
 					div.p1em(v-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length === mesas.length ")
 						a-button.db.w100.verde(size="large" type="primary" @click="intentarCerrarLocal") Cerrar local
 
