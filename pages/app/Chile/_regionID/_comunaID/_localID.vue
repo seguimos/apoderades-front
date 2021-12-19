@@ -16,7 +16,8 @@
 
 
 	.local.anchoComun
-		a-alert.mb2em.tac(v-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
+		a-alert.mb2em.tac(v-if="esApoderadeGeneralDelLocal" type="success" message="Eres apoderada/o general en este local") 
+		a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
 
 		h2 Apoderadas/os
 		.zonaApoderades
@@ -115,6 +116,9 @@
 							div Esperando hora de apertura de mesas
 							div
 								b {{$fechaApertura.from($ahora)}}
+							.p1em
+							p A partir de las 17:30 se abrirá el acceso para que los apoderados del local puedan cargar conteos de votos, cargar foto del acta y guardar en la plataforma.
+							p Apoderados #[b generales] podrán entonces, una vez revisado el conteo de cada mesa, marcar el local como cerrado. Una vez cerrado no se podrá realizar modificaciones.
 
 				.info.flex.ffcn.aic.jcc.tac.my1em(v-else-if="$ahora.isBefore($fechaCierre)")
 					a-alert.my1em.tac(type="warning")
@@ -123,15 +127,20 @@
 							div Cierre de mesas estará disponible
 							div
 								b {{$fechaCierre.from($ahora)}}
+							.p1em
+
+							p A partir de las 17:30 se abrirá el acceso para que los apoderados del local puedan cargar conteos de votos, cargar foto del acta y guardar en la plataforma.
+							p Apoderados #[b generales] podrán entonces, una vez revisado el conteo de cada mesa, marcar el local como cerrado. Una vez cerrado no se podrá realizar modificaciones.
 
 				.info.flex.ffcn.aic.jcc.tac.my1em(v-else)
 					a-alert.my1em.tac(type="success")
 						div(slot="message")
 							.icono.fz2em.mb05rem 🗳
 							.fwb.mb05rem Cierre de mesas disponible
+							.p1em
 
 							p Los apoderados del local están habilitados para cargar conteos de votos, cargar foto del acta y marcar la mesa cerrada.
-							p Apoderados #[b generales] pueden, una vez contabilizadas las mesas, marcar el local como cerrado. Una vez cerrado no se podrá realizar modificaciones.
+							p Apoderados #[b generales] pueden, una vez revisado el conteo de cada mesa, marcar el local como cerrado. Una vez cerrado no se podrá realizar modificaciones.
 
 
 				.resumenMesas
@@ -149,7 +158,8 @@
 						.texto Con conteo definitivo
 
 				.localCerrado.mt1em(v-if="local.cerrado")
-					.tac.flex.jcc.aic.my1em
+					.p1em
+					.tac.flex.jcc.aic
 						h3 Local cerrado
 
 					.resultadosLocal.p1em(v-if="resultados")
@@ -207,7 +217,8 @@
 							.avatar(@click="switchDelColapsoDeMesa(mesa.mesaID)") {{mesa.nombre}}
 
 						.estados.f11.mx1rem
-							.aunNo(v-if="$ahora.isBefore($fechaCierre)") Esperando hora de cierre
+							.aunNo(v-if="$ahora.isBefore($fechaApertura)") Esperando hora de apertura y luego cierre
+							.aunNo(v-else-if="$ahora.isBefore($fechaCierre)") Esperando hora de cierre
 							.estado.atencion(v-else-if="_.isEmpty(mesa.conteos)") Aún no se carga conteo
 							.estado.atencion(v-else-if="_.isEmpty(mesa.conteoSeleccionado)") 
 								div.exito Conteo cargado
@@ -232,7 +243,7 @@
 											.valor() {{conteo.votos.nulos}}
 
 						.botones(v-if="!local.cerrado")
-							a-button(
+							a-button(:disabled="$ahora.isBefore($fechaCierre)"
 								@click="switchDelColapsoDeMesa(mesa.mesaID)"
 								shape="circle" 
 								:type="mesaExtendida === mesa.mesaID ? 'default' : 'info'"
@@ -451,6 +462,10 @@ export default {
 			this.cargarLocal()
 		},
 		switchDelColapsoDeMesa (mesaID) {
+			if (this.$ahora.isBefore(this.$fechaCierre)) {
+				this.mesaExtendida = false
+				return
+			}
 			if (this.local.cerrado) {
 				this.mesaExtendida = false
 				return
