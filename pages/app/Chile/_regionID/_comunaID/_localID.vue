@@ -54,7 +54,7 @@
 							div.exito.m1em(v-else-if="local.apoderadesHabilitades && local.apoderadesHabilitades.includes(apoderade.usuarioID)") Habilitada/o
 							.mr05rem(v-else-if="_.some(apoderade.asignaciones, a => a.capa === 'mesa' && a.localID === localID)")
 
-								a-button(v-if="$ahora.isBefore($fechaApertura)" @click="habilitarApoderade(usuarioID)" disabled) Habilitable {{$moment($fechaApertura).fromNow()}}
+								a-button(v-if="$ahora.isBefore($fechaApertura)" disabled) Habilitable {{$moment($fechaApertura).fromNow()}}
 								a-button(v-else-if="esApoderadeGeneralDelLocal" @click="habilitarApoderade(usuarioID)" type="primary") Habilitar
 								div(v-else) 
 									div #[b Por habilitar] 
@@ -164,7 +164,7 @@
 							p Apoderados #[b generales] pueden, una vez revisado el conteo de cada mesa, marcar el local como cerrado. Una vez cerrado no se podrá realizar modificaciones.
 
 
-				.resumenMesas
+				.resumenMesas.estadisticas
 
 					.item.f11
 						.valor {{mesas.length}}
@@ -210,18 +210,20 @@
 
 					div.p1em(v-if="$ahora.isBefore($fechaCierre)")
 						a-button.db.w100.verde(size="large" type="primary" disabled) Aún no se puede cerrar local
-						
-					div.p1em(v-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length === mesas.length ")
-						a-button.db.w100.verde(size="large" type="primary" @click="intentarCerrarLocal") Cerrar local
 
+					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteos)).length !== mesas.length ")
+						i.db.mb05rem.tac.atencion Cada mesa debe tener un conteo y además elegir uno en cada mesa
+						a-button.db.w100.ha.p1em(size="large" type="primary"  @click="intentarCerrarLocal" ) 
+							div Terminar conteos para poder 
+							div cerrar local
+
+					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length !== mesas.length ")
+						i.db.mb05rem.tac.atencion Cada mesa debe tener un conteo marcado válido para cerrar local
+						a-button.db.w100(size="large" type="primary"  @click="intentarCerrarLocal" ) No se puede cerrar local
+						
+						
 					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length === mesas.length ")
-						i.db.mb05rem.tac Cada mesa debe tener un conteo marcado válido para cerrar local
-						a-button.db.w100(size="large" type="info"  @click="intentarCerrarLocal" ) No se puede cerrar local
-
-					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteos)).length === mesas.length ")
-						i.db.mb05rem.tac Cada mesa debe tener un conteo y además elegir uno en cada mesa
-						a-button.db.w100(size="large" type="info"  @click="intentarCerrarLocal" ) No se puede cerrar local
-						
+						a-button.db.w100.verde(size="large" type="primary" @click="intentarCerrarLocal") Cerrar local
 
 
 		.p1em
@@ -280,29 +282,33 @@
 					transition.elColapso
 						.colapsable(v-if="mesaExtendida === mesa.mesaID")
 
-							.apoGeneral(v-if="esApoderadeGeneralDelLocal")
-								.conteosDeVotos
-									.conteo(v-for="(conteo, usuarioID) in mesa.conteos")
-										.flex.jcsb.aic.w100
-											.votos.f00
-												.item
-													.nombre Bor
-													.valor() {{conteo.votos.Boric}}
-												.item
-													.nombre Kas
-													.valor() {{conteo.votos.Kast}}
-												.item
-													.nombre bla
-													.valor() {{conteo.votos.blancos}}
-												.item
-													.nombre nul
-													.valor() {{conteo.votos.nulos}}
-											.acta.f00
-												a.db.fwb.mx1em(:href="conteo.votos.actaURL" target="_blank") Acta
-											.accion
-												.icono(v-if="mesa.conteoSeleccionado === usuarioID") ✅
-												a-button.p05em.df.aic.jcc.tac.verde(v-else type="primary"
-													@click="elegirConteoParaMesa(mesa.mesaID, usuarioID)") Elegir
+							//- .apoGeneral
+							.conteosDeVotos
+								.conteo(v-for="(conteo, usuarioID) in mesa.conteos")
+									.flex.jcsb.aic.w100
+										.votos.f00
+											.item
+												.nombre Bor
+												.valor() {{conteo.votos.Boric}}
+											.item
+												.nombre Kas
+												.valor() {{conteo.votos.Kast}}
+											.item
+												.nombre bla
+												.valor() {{conteo.votos.blancos}}
+											.item
+												.nombre nul
+												.valor() {{conteo.votos.nulos}}
+										.acta.f00
+											a.db.tac.mx1em.linkActa(:href="conteo.votos.actaURL" target="_blank") 
+												a-button.botonActa( shape="circle") 
+													.icono 🧾
+												.miniTexto Acta
+										
+										.accion(v-if="esApoderadeGeneralDelLocal")
+											.icono(v-if="mesa.conteoSeleccionado === usuarioID") ✅
+											a-button.p05em.df.aic.jcc.tac.verde(v-else type="primary"
+												@click="elegirConteoParaMesa(mesa.mesaID, usuarioID)") Elegir
 
 
 
@@ -502,10 +508,10 @@ export default {
 				this.mesaExtendida = false
 				return
 			}
-			if (this.local.cerrado) {
-				this.mesaExtendida = false
-				return
-			}
+			// if (this.local.cerrado) {
+			// 	this.mesaExtendida = false
+			// 	return
+			// }
 			if (this.mesaExtendida === mesaID) this.mesaExtendida = false
 			else this.mesaExtendida = mesaID
 		},
@@ -771,7 +777,7 @@ export default {
 						color: white
 
 
-.apoGeneral .conteosDeVotos,
+.conteosDeVotos,
 .conteoSeleccionado
 	.conteo
 		+ .conteo
@@ -791,5 +797,19 @@ export default {
 		.acta
 			display: flex
 			align-items: center
+
+.atencion
+	color: orangered
+
+
+.linkActa
+	.botonActa
+		background-color: #8070c3
+		display: flex
+		justify-content: center
+		align-items: center
+		text-align: center
+	.miniTexto
+		font-size: .8em
 
 </style>

@@ -51,7 +51,7 @@ Vue.prototype.$moment = moment
 // RELOJ
 
 const fechaApertura = moment('2021-12-19T07:00:00-03:00')
-const fechaCierre = moment('2021-12-19T18:00:00-03:00')
+const fechaCierre = process.env.dev ? moment('2021-12-19T16:00:00-03:00') : moment('2021-12-19T17:30:00-03:00')
 const reloj = {
 	ahora: moment(),
 	hoy: moment().startOf('day'),
