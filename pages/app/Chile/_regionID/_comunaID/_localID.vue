@@ -224,10 +224,10 @@
 
 		.p1em
 		.p1em
-		.zonaMesas(v-if="!esApoderadeDelLocalYHabilitade")
+		.zonaMesas(v-if="esApoderadeDelLocal && !esApoderadeDelLocalYHabilitade")
 			a-alert.mb2em.tac(type="warning" message="Solicita a tu apoderada o apoderado general que te habilite para cargar conteos de votos, actar y más") 
 
-		.zonaMesas(v-if="esApoderadeDelLocalYHabilitade")
+		.zonaMesas()
 			h2 Mesas
 
 
@@ -244,7 +244,7 @@
 
 						.estados.f11.mx1rem
 							.aunNo(v-if="$ahora.isBefore($fechaApertura)") Esperando hora de apertura y luego cierre
-							.aunNo(v-else-if="$ahora.isBefore($fechaCierre)") Esperando hora de cierre
+							.aunNo(v-else-if="$ahora.isBefore($fechaCierre)") Esperando hora de cierre para permitir carga de conteos
 							.estado.atencion(v-else-if="_.isEmpty(mesa.conteos)") Aún no se carga conteo
 							.estado.atencion(v-else-if="_.isEmpty(mesa.conteoSeleccionado)") 
 								div.exito Conteo cargado
@@ -304,7 +304,7 @@
 
 
 
-							CargadorConteoMesa(v-if="esApoderadeDelLocal" :mesa="mesa" :local="local" @yaTieneConteo="cargarLocal" @conteoGuardado="cargarLocal")
+							CargadorConteoMesa(v-if="esApoderadeDelLocal && esApoderadeDelLocalYHabilitade" :mesa="mesa" :local="local" @yaTieneConteo="cargarLocal" @conteoGuardado="cargarLocal")
 								div(slot-scope="{ abrir }")
 									a-button.w100.my1em(v-if="_.isEmpty(mesa.conteos)" type="primary" @click="abrir") Cargar conteo y cierre de mesa
 									a-button.w100.my1em(v-else-if="_.isEmpty(mesa.conteoSeleccionado)" @click="abrir") Cargar otro conteo (Solo si hubo error)
@@ -493,6 +493,10 @@ export default {
 		},
 		switchDelColapsoDeMesa (mesaID) {
 			if (this.$ahora.isBefore(this.$fechaCierre)) {
+				this.mesaExtendida = false
+				return
+			}
+			if (!(this.esApoderadeDelLocal && this.esApoderadeDelLocalYHabilitade)) {
 				this.mesaExtendida = false
 				return
 			}
