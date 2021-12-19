@@ -16,7 +16,10 @@
 
 
 	.local.anchoComun
-		a-alert.mb2em.tac(v-if="esApoderadeGeneralDelLocal" type="success" message="Eres apoderada/o general en este local") 
+		a-alert.mb2em.tac(v-if="esApoderadeGeneralDelLocal" type="success") 
+			div(slot="message")
+				div Eres apoderada/o general en este local
+				div.mt1em Recuerda #[b habilitar sólo a aquellos apoderades que se presenten en persona].
 		a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal && !esApoderadeDelLocalYHabilitade" type="warning" message="Para utilizar ingresar información, tu apoderado general debe habilitarte en esta misma página") 
 		a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
 		//- a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
