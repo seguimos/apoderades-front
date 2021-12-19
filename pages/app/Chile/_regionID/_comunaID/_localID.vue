@@ -56,7 +56,9 @@
 
 								a-button(v-if="$ahora.isBefore($fechaApertura)" @click="habilitarApoderade(usuarioID)" disabled) Habilitable {{$moment($fechaApertura).fromNow()}}
 								a-button(v-else-if="esApoderadeGeneralDelLocal" @click="habilitarApoderade(usuarioID)" type="primary") Habilitar
-								div(v-else) #[b No] habilitada/o
+								div(v-else) 
+									div #[b Por habilitar] 
+									div por A.General
 
 							a-button(@click="switchDelColapso(usuarioID)"
 								shape="circle" 
