@@ -73,7 +73,7 @@
 								.asignacion(v-for="terr in apoderade.territoriosAsignados")
 									miniTarjetaAsignacion(:territorioAsignado="terr" :usuarioID="usuarioID" mostrarDesasignar sinDireccion sinIcono @asignacionEliminada="cargarLocal")
 
-							.acciones(v-if="puedeDesignarYHabilitarApoderadoMesa")
+							.acciones(v-if="esApoderadeDelLocal")
 								.accion
 									a-button.boton.w100(type="dashed" @click="$cuentaBack.obtenerDatosDeContacto({regionID, comunaID, localID, usuarioID})") Contactar 💬
 
