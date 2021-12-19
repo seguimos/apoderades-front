@@ -21,46 +21,44 @@
 						.etiqueta G. Boric
 						.f11.flex.aic.jcsa.ml1em
 							a-input-number.input(size="large" :default='0' :min="0" v-model="formulario.Boric")
-							a-button(size="large" type="danger" icon="minus" @click="restar('Boric')")
-							a-button(size="large" type='primary' icon="plus" @click="sumar('Boric')")
+							a-button.restar(size="large" type="danger" icon="minus" @click="restar('Boric')")
+							a-button.sumar(size="large" type='primary' icon="plus" @click="sumar('Boric')")
 
 				a-form-model-item.linea(prop="Kast")
 					.flex.aic
 						.etiqueta J.A. Kast
 						.f11.flex.aic.jcsa.ml1em
 							a-input-number.input(size="large" :default='0' :min="0" v-model="formulario.Kast")
-							a-button(size="large" type="danger" icon="minus" @click="restar('Kast')")
-							a-button(size="large" type='primary' icon="plus" @click="sumar('Kast')")
+							a-button.restar(size="large" type="danger" icon="minus" @click="restar('Kast')")
+							a-button.sumar(size="large" type='primary' icon="plus" @click="sumar('Kast')")
 
 				a-form-model-item.linea(prop="blancos")
 					.flex.aic
 						.etiqueta Blancos
 						.f11.flex.aic.jcsa.ml1em
 							a-input-number.input(size="large" :default='0' :min="0" v-model="formulario.blancos")
-							a-button(size="large" type="danger" icon="minus" @click="restar('blancos')")
-							a-button(size="large" type='primary' icon="plus" @click="sumar('blancos')")
+							a-button.restar(size="large" type="danger" icon="minus" @click="restar('blancos')")
+							a-button.sumar(size="large" type='primary' icon="plus" @click="sumar('blancos')")
 
 				a-form-model-item.linea(prop="nulos")
 					.flex.aic
 						.etiqueta Nulos
 						.f11.flex.aic.jcsa.ml1em
 							a-input-number.input(size="large" :default='0' :min="0" v-model="formulario.nulos")
-							a-button(size="large" type="danger" icon="minus" @click="restar('nulos')")
-							a-button(size="large" type='primary' icon="plus" @click="sumar('nulos')")
+							a-button.restar(size="large" type="danger" icon="minus" @click="restar('nulos')")
+							a-button.sumar(size="large" type='primary' icon="plus" @click="sumar('nulos')")
 
 				a-form-model-item.linea.mt1rem(prop="actaURL")
 					//- a-input.input(type='text' v-model="formulario.actaURL")
 					.actaCierre.mt1rem
 						CargaImagenS3.zonaCarga.mt-xs(:altura="900" :anchura="600"
 							ref="cargadorImagen"
-							:archivo="`actasDeCierre/region-${region}/local-${local.nombre}/local-${formulario.id}.	jpg`"
 							value="PMprensa"
 							:firmarCarga="firmarCargaActa"
-							:modificandoAvatar="modificandoAvatar"
 							@subido="guardarUrl($event)")
 							.interior(slot-scope="{ value, cargar }")
-								a-button.cambioImagen.ha.py05em.px1em(size="large" @click="cargar" :disabled="bloquearBoton")
-									.flex.ffcn.jcc.aic.tac(v-if="!bloquearBoton") 
+								a-button.cambioImagen.ha.py05em.px1em(:ghost="!!formulario.actaURL" :class="{verde: formulario.actaURL}" size="large" @click="cargar")
+									.flex.ffcn.jcc.aic.tac(v-if="!formulario.actaURL") 
 										.icono.fz2em 📷
 										.texto Cargar acta de cierre
 									.flex.ffcn.jcc.aic.tac(v-else)
@@ -68,7 +66,7 @@
 										.texto Acta cargada correctamente
 
 		.footer.p1em(slot="footer")
-			a-button.w100(size="large" @click="enviarFormulario") Enviar cierre de mesa
+			a-button.w100(type="primary" size="large" @click="enviarFormulario") Enviar cierre de mesa
 
 </template>
 <script>
@@ -114,23 +112,14 @@ export default {
 			verActa: null,
 			abrirModal: false,
 			modificandoAvatar: null,
-			bloquearBoton: null
 		}
 	},
 	
 	computed: {
-		region () {
-			return this.$route.params.region
-		},
-		localId () {
-			return this.$route.params.localId
-		},
-		yaSeCerroLen () {
-			return this.yaSeCerro.length
-		},
-		mesaRecibidaLen () {
-			return this.mesaRecibida.length
-		},
+		regionID () { return this.local.regionID },
+		localID () { return this.local.localID },
+		yaSeCerroLen () { return this.yaSeCerro.length },
+		mesaRecibidaLen () { return this.mesaRecibida.length },
 		yaSeCerro () {
 			const seleccionada = this.formulario.mesaid
 			const cerrada = this._.filter(this.local.mesasCerradas, {'id': seleccionada})
@@ -177,9 +166,12 @@ export default {
 		},
 
 		guardarUrl (url) {
+			console.log('guardarUrl', url)
+			url = url.replace('s3.amazonaws.com/', '')
+			console.log('guardarUrl', url)
 			this.formulario.actaURL = url
-			this.bloquearBoton = true
 			this.$refs.cargadorImagen.$emit('guardado')
+			this.$refs.formulario.validate()
 		},
 		enviarFormulario () {
 			console.log("enviarFormulario", this.formulario)
@@ -193,8 +185,8 @@ export default {
 
 				const { regionID, comunaID, localID } = this.local
 				const mesaID = this.mesa.mesaID
-				const conteo = this.formulario
-				const enviado = await this.$cuentaBack.guardarVotos({regionID, comunaID, localID, mesaID, conteo})
+				const votos = this.formulario
+				const enviado = await this.$cuentaBack.guardarVotos({regionID, comunaID, localID, mesaID, votos})
 
 				if (enviado.ok === 0) {
 					this.mensajeError = this._.get(enviado, "yaContado.mensaje")
@@ -259,8 +251,14 @@ export default {
 				text-align: right
 				margin-right: 1rem
 				font-size: 1.4em
-				
-				+fwb	
+				+fwb
+			.ant-btn
+				&.sumar
+					background-color: $azul1
+					border-color: darken($azul1, 5%)
+				&.restar
+					background-color: $azul2
+					border-color: darken($azul2, 5%)
 			.input
 				width: 70px
 				// border: 1px solid red

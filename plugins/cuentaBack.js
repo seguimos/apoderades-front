@@ -586,32 +586,35 @@ const cuentaBack = {
 	async firmarCargaActa ({regionID, comunaID, localID, mesaID}) {
 		const fx = 'firmarCargaActa'
 		try {
-			const url = await solicitar({
+			const r = await solicitar({
 				method: 'post',
 				url: `${cuentaBack.backURL}/actas/${regionID}/${comunaID}/${localID}/${mesaID}`,
 				data: {}
 			})
-				.then(r => r.urlFirmada)
-				.catch(e => console.error('fallo respuesta', e))
-			console.log('firmarCarga', url)
+			if (!r || !r.ok) throw r
+			// cuentaBack.vm.$message.success('Local cargado')
+			consolo.log(fx, 'r', r)
 
-			return url
+			return r.url
 		} catch (e) {
 			console.error(fx, e)
-			throw 'No se pudo guardar votos'
+			throw `No se ${fx}`
 		}
 	},
 
-	async guardarVotos (regionID, comunaID, localID, mesaID, conteo, reescritura = false) {
+	async guardarVotos ({regionID, comunaID, localID, mesaID, votos, reescritura = false}) {
 		const fx = 'guardarVotos'
 		try {
-			const res = await solicitar({
+			const r = await solicitar({
 				method: 'post',
 				url: `${cuentaBack.backURL}/conteos/${regionID}/${comunaID}/${localID}/${mesaID}`,
-				data: { conteo, reescritura}
+				data: { votos, reescritura }
 			})
-			console.log(res)
-			return res
+			if (!r || !r.ok) throw r
+			// cuentaBack.vm.$message.success('Local cargado')
+			consolo.log(fx, 'r', r)
+
+			return r
 		} catch (e) {
 			console.error(fx, e)
 			throw 'No se pudo guardar votos'

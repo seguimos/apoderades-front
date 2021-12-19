@@ -453,7 +453,7 @@ export default {
 					text-align: center
 					.valor
 						font-size: 3em
-					.texto
+					// .texto
 			.acciones
 				margin: 2em 0
 				display: flex
