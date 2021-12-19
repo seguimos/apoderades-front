@@ -225,6 +225,10 @@
 					div.p1em(v-else-if="_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length === mesas.length ")
 						a-button.db.w100.verde(size="large" type="primary" @click="intentarCerrarLocal") Cerrar local
 
+					//div
+						pre mesas {{_.filter(mesas, m => !_.isEmpty(m.conteoSeleccionado)).length}}
+						pre mesas {{mesas.length}}
+
 
 		.p1em
 		.p1em
@@ -272,7 +276,7 @@
 											.nombre nul
 											.valor() {{conteo.votos.nulos}}
 
-						.botones(v-if="!local.cerrado")
+						.botones
 							a-button(:disabled="$ahora.isBefore($fechaCierre)"
 								@click="switchDelColapsoDeMesa(mesa.mesaID)"
 								shape="circle" 
@@ -305,14 +309,17 @@
 													.icono 🧾
 												.miniTexto Acta
 										
-										.accion(v-if="esApoderadeGeneralDelLocal")
+										.accion(v-if="local.cerrado")
+											.icono(v-if="mesa.conteoSeleccionado === usuarioID") ✅
+										.accion(v-else-if="esApoderadeGeneralDelLocal")
 											.icono(v-if="mesa.conteoSeleccionado === usuarioID") ✅
 											a-button.p05em.df.aic.jcc.tac.verde(v-else type="primary"
 												@click="elegirConteoParaMesa(mesa.mesaID, usuarioID)") Elegir
 
 
 
-							CargadorConteoMesa(v-if="esApoderadeDelLocal && esApoderadeDelLocalYHabilitade" :mesa="mesa" :local="local" @yaTieneConteo="cargarLocal" @conteoGuardado="cargarLocal")
+							div(v-if="local.cerrado")
+							CargadorConteoMesa(v-else-if="esApoderadeDelLocal && esApoderadeDelLocalYHabilitade" :mesa="mesa" :local="local" @yaTieneConteo="cargarLocal" @conteoGuardado="cargarLocal")
 								div(slot-scope="{ abrir }")
 									a-button.w100.my1em(v-if="_.isEmpty(mesa.conteos)" type="primary" @click="abrir") Cargar conteo y cierre de mesa
 									a-button.w100.my1em(v-else-if="_.isEmpty(mesa.conteoSeleccionado)" @click="abrir") Cargar otro conteo (Solo si hubo error)
