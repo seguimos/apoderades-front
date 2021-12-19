@@ -50,7 +50,9 @@
 
 							div.exito.m1em(v-else-if="local.apoderadesHabilitades && local.apoderadesHabilitades.includes(apoderade.usuarioID)") Habilitada/o
 							.mr05rem(v-else-if="_.some(apoderade.asignaciones, a => a.capa === 'mesa' && a.localID === localID)")
-								a-button(v-if="esApoderadeGeneralDelLocal" @click="habilitarApoderade(usuarioID)" type="primary") Habilitar
+
+								a-button(v-if="$ahora.isBefore($fechaApertura)" @click="habilitarApoderade(usuarioID)" disabled) Habilitable {{$moment($fechaApertura).fromNow()}}
+								a-button(v-else-if="esApoderadeGeneralDelLocal" @click="habilitarApoderade(usuarioID)" type="primary") Habilitar
 								div(v-else) #[b No] habilitada/o
 
 							a-button(@click="switchDelColapso(usuarioID)"
