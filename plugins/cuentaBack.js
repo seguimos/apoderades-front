@@ -639,6 +639,25 @@ const cuentaBack = {
 		}
 	},
 
+	async habilitarApoderade ({regionID, comunaID, localID, usuarioID}) {
+		const fx = 'habilitarApoderade'
+		try {
+			const r = await solicitar({
+				method: 'post',
+				url: `${cuentaBack.backURL}/habilitarApoderade/${regionID}/${comunaID}/${localID}`,
+				data: { usuarioID }
+			})
+			if (!r || !r.ok) throw r
+			// cuentaBack.vm.$message.success('Local cargado')
+			consolo.log(fx, 'r', r)
+
+			return r
+		} catch (e) {
+			console.error(fx, e)
+			return e
+		}
+	},
+
 	async cerrarLocal ({regionID, comunaID, localID}) {
 		const fx = 'cerrarLocal'
 		try {

@@ -17,7 +17,9 @@
 
 	.local.anchoComun
 		a-alert.mb2em.tac(v-if="esApoderadeGeneralDelLocal" type="success" message="Eres apoderada/o general en este local") 
+		a-alert.mb2em.tac(v-if="esApoderadeDelLocal && !esApoderadeDelLocalYHabilitade" type="warning" message="Para utilizar ingresar información, tu apoderado general debe habilitarte en esta misma página") 
 		a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
+		//- a-alert.mb2em.tac(v-else-if="esApoderadeDelLocal" type="success" message="Eres apoderada/o en este local") 
 
 		h2 Apoderadas/os
 		.zonaApoderades
@@ -40,10 +42,21 @@
 						.zonaInfo.f11
 							.esApoderadoGeneral(v-if="_.some(apoderade.asignaciones, a => a.capa === 'general' && a.localID === localID)") Apoderado general
 							span.nombre {{apoderade.nombre}} {{apoderade.apellido}}
-						.zonaAcciones.f00
+							//- span.nombre {{apoderade.usuarioID}}
+
+						.zonaAcciones.f00.flex.aic
+
+							div(v-if="_.some(apoderade.asignaciones, a => (a.capa === 'general' && a.localID === localID))")
+
+							div.exito.m1em(v-else-if="local.apoderadesHabilitades && local.apoderadesHabilitades.includes(apoderade.usuarioID)") Habilitada/o
+							.mr05rem(v-else-if="_.some(apoderade.asignaciones, a => a.capa === 'mesa' && a.localID === localID)")
+								a-button(v-if="esApoderadeGeneralDelLocal" @click="habilitarApoderade(usuarioID)" type="primary") Habilitar
+								div(v-else) #[b No] habilitada/o
+
 							a-button(@click="switchDelColapso(usuarioID)"
 								shape="circle" 
 								:icon="apoderadeExtendide === usuarioID ? 'up' : 'more'")
+
 
 
 					transition.elColapso
@@ -104,12 +117,13 @@
 			
 			
 		.zonaResumenMesas
+			.p1em
 			//.WIP(v-if="!$dev")
 				.icono 🌱
 				.texto Pronto disponible
 			.resumenMesasLocal
-				
-				.info.flex.ffcn.aic.jcc.tac.my1em(v-if="$ahora.isBefore($fechaApertura)")
+				.cerrado(v-if="local.cerrado")
+				.info.flex.ffcn.aic.jcc.tac.my1em(v-else-if="$ahora.isBefore($fechaApertura)")
 					a-alert.my1em.tac(type="warning")
 						div(slot="message") 
 							.icono.fz2em.mb05rem 🕖
@@ -160,7 +174,7 @@
 				.localCerrado.mt1em(v-if="local.cerrado")
 					.p1em
 					.tac.flex.jcc.aic
-						h3 Local cerrado
+						h1 Local cerrado
 
 					.resultadosLocal.p1em(v-if="resultados")
 						h2.my1rem.tac Resultados
@@ -201,7 +215,10 @@
 
 		.p1em
 		.p1em
-		.zonaMesas
+		.zonaMesas(v-if="!esApoderadeDelLocalYHabilitade")
+			a-alert.mb2em.tac(type="warning" message="Solicita a tu apoderada o apoderado general que te habilite para cargar conteos de votos, actar y más") 
+
+		.zonaMesas(v-if="esApoderadeDelLocalYHabilitade")
 			h2 Mesas
 
 
@@ -381,6 +398,10 @@ export default {
 			return this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID) ||
 				this._.some(this.$apoderade.asignaciones, a => a.capa === 'mesa' && a.localID === this.localID)
 		},
+		esApoderadeDelLocalYHabilitade () {
+			return this.esApoderadeGeneralDelLocal || (this.local.apoderadesHabilitades && this.local.apoderadesHabilitades.includes(this.$apoderade.usuarioID) &&
+				this._.some(this.$apoderade.asignaciones, a => a.capa === 'mesa' && a.localID === this.localID))
+		},
 		esApoderadeGeneralDelLocal () {
 			return this._.some(this.$apoderade.asignaciones, a => a.capa === 'general' && a.localID === this.localID)
 		},
@@ -516,6 +537,18 @@ export default {
 			} catch (e) {
 				console.error(fx, e)
 			}
+		},
+		async habilitarApoderade (usuarioID) {
+			const fx = 'habilitarApoderade'
+			try {
+				const { regionID, comunaID, localID } = this.local
+				const r = await this.$cuentaBack.habilitarApoderade({regionID, comunaID, localID, usuarioID})
+				this.$consolo.log(fx, r)
+				this.cargarLocal()
+			} catch (e) {
+				console.error(fx, e)
+			}
+
 		}
 	}
 }
